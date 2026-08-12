@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Convertidor Thunder Client a Postman v2.1.0</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background: #fff; padding: 2.5rem; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 500px; width: 90%; text-align: center; }
+        h1 { font-size: 1.5rem; margin-bottom: 0.5rem; color: #ff6c37; }
+        p { font-size: 0.95rem; color: #666; margin-bottom: 2rem; }
+        input[type="file"] { display: none; }
+        .file-label { display: block; padding: 2rem 1rem; border: 2px dashed #d1d5db; border-radius: 8px; cursor: pointer; transition: all 0.3s; background-color: #fafafa; margin-bottom: 1rem; color: #6b7280; font-weight: 500; }
+        .file-label:hover { border-color: #ff6c37; background-color: #fff4f0; color: #ff6c37; }
+        .btn { background: #ff6c37; color: #fff; border: none; padding: 12px 20px; border-radius: 6px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: background 0.3s; width: 100%; display: none; box-shadow: 0 4px 6px rgba(255, 108, 55, 0.2); margin-top: 10px; }
+        .btn:hover { background: #e05c2d; }
+        #status { margin-top: 1.5rem; font-size: 0.95rem; font-weight: 600; min-height: 20px; }
+        .error { color: #dc2626; }
+        .success { color: #16a34a; }
+        #fileName { margin-top: -0.5rem; margin-bottom: 1.5rem; font-size: 0.85rem; font-weight: bold; color: #374151; word-break: break-all; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Convertidor a Postman (V2)</h1>
+        <p>Sube tu archivo JSON original. Este script genera los campos "host" y "path" necesarios para Postman.</p>
+        
+        <label class="file-label">
+            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16" style="margin-bottom: 10px;">
+              <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+              <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/>
+            </svg><br>
+            <span id="labelText">Haz clic para seleccionar tu JSON</span>
+            <input type="file" id="fileInput" accept=".json">
+        </label>
+        
+        <div id="fileName"></div>
+        <button class="btn" id="downloadBtn">Descargar Colección v2.1.0</button>
+        <div id="status"></div>
+    </div>
+
+    <script>
+        let convertedData = null;
+        let originalName = "coleccion";
+
+        document.getElementById('fileInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            originalName = file.name.replace('.json', '');
+            document.getElementById('labelText').textContent = "Archivo cargado correctamente";
+            document.getElementById('fileName').textContent = file.name;
+            document.getElementById('status').textContent = "Procesando...";
+            document.getElementById('status').className = "";
+            document.getElementById('downloadBtn').style.display = "none";
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const tcData = JSON.parse(e.target.result);
+                    convertedData = convertToPostman(tcData);
+                    
+                    document.getElementById('status').textContent = "¡Conversión exitosa! Archivo listo.";
+                    document.getElementById('status').className = "success";
+                    document.getElementById('downloadBtn').style.display = "block";
+                } catch (error) {
+                    document.getElementById('status').textContent = "Error al leer: El archivo no es un JSON válido.";
+                    document.getElementById('status').className = "error";
+                    console.error(error);
+                }
+            };
+            reader.readAsText(file);
+        });
+
+        document.getElementById('downloadBtn').addEventListener('click', function() {
+            if (!convertedData) return;
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(convertedData, null, 2));
+            const downloadAnchorNode = document.createElement('a');
+            downloadAnchorNode.setAttribute("href", dataStr);
+            // Se usa un sufijo diferente para asegurar que no se confunda con el archivo roto anterior
+            downloadAnchorNode.setAttribute("download", originalName + "_Postman_Definitivo.json"); 
+            document.body.appendChild(downloadAnchorNode);
+            downloadAnchorNode.click();
+            downloadAnchorNode.remove();
+        });
+
+        function convertToPostman(tcData) {
+            const postmanCollection = {
+                info: {
+                    _postman_id: tcData.id || "id-" + Date.now(),
+                    name: tcData.name || "Colección Importada",
+                    schema: "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+                },
+                item: []
+            };
+
+            if (tcData.requests && Array.isArray(tcData.requests)) {
+                postmanCollection.item = tcData.requests.map(req => {
+                    
+                    // 1. Transformar endpoint base (cambiar <<var>> por {{var}})
+                    let rawUrl = (req.endpoint || "").replace(/<<([^>]+)>>/g, '{{$1}}');
+                    let baseUrl = rawUrl.split('?')[0]; // Ignorar query string si viene en el endpoint string
+                    
+                    // 2. Extraer host y path
+                    let urlSegments = baseUrl.split('/').filter(s => s !== "");
+                    let host = [];
+                    let path = [];
+                    
+                    if(urlSegments.length > 0) {
+                        host = [urlSegments[0]]; // el dominio o la variable ej. {{ms-recibos-deposito}}
+                        path = urlSegments.slice(1); // ej. ["api", "v1", "clientes"]
+                    }
+
+                    // 3. Procesar Query Params
+                    let queryParams = [];
+                    if (req.params && Array.isArray(req.params)) {
+                        queryParams = req.params.map(p => ({
+                            key: p.key,
+                            value: p.value || "",
+                            disabled: p.active === false
+                        }));
+                    }
+
+                    // 4. Reconstruir el raw URL oficial si hay parámetros activos
+                    if (queryParams.length > 0) {
+                        const activeParams = queryParams.filter(p => !p.disabled);
+                        if (activeParams.length > 0) {
+                            const qs = activeParams.map(p => encodeURIComponent(p.key) + '=' + encodeURIComponent(p.value)).join('&');
+                            rawUrl = baseUrl + '?' + qs;
+                        } else {
+                            rawUrl = baseUrl;
+                        }
+                    } else {
+                        rawUrl = baseUrl;
+                    }
+
+                    // 5. Procesar Headers
+                    let headers = [];
+                    if (req.headers && Array.isArray(req.headers)) {
+                        headers = req.headers.map(h => ({
+                            key: h.name || h.key,
+                            value: h.value || "",
+                            disabled: h.active === false
+                        }));
+                    }
+                    
+                    // 6. Procesar Body
+                    let body = undefined;
+                    if (req.body && req.body.body) {
+                        body = {
+                            mode: "raw",
+                            raw: req.body.body
+                        };
+                        if (req.body.contentType === "application/json" || req.body.contentType === "json") {
+                            body.options = { raw: { language: "json" } };
+                            if (!headers.some(h => h.key.toLowerCase() === 'content-type')) {
+                                headers.push({ key: "Content-Type", value: "application/json" });
+                            }
+                        }
+                    }
+
+                    // 7. Construir y devolver el objeto request al estilo Postman
+                    let requestObj = {
+                        method: req.method || "GET",
+                        header: headers,
+                        url: {
+                            raw: rawUrl,
+                            host: host,
+                            path: path
+                        }
+                    };
+
+                    if (queryParams.length > 0) {
+                        requestObj.url.query = queryParams;
+                    }
+                    
+                    if (body) {
+                        requestObj.body = body;
+                    }
+
+                    return {
+                        name: req.name || "Request",
+                        request: requestObj
+                    };
+                });
+            }
+            return postmanCollection;
+        }
+    </script>
+</body>
+</html>
