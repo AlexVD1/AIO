@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Convertidor Thunder Client a Postman v2.1.0</title>
+    <title>Convertidor Thunder Client a Postman v2.1.0 (Con Carpetas)</title>
     <style>
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; color: #333; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
         .container { background: #fff; padding: 2.5rem; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 500px; width: 90%; text-align: center; }
@@ -22,8 +22,8 @@
 </head>
 <body>
     <div class="container">
-        <h1>Convertidor a Postman (V2)</h1>
-        <p>Sube tu archivo JSON original. Este script genera los campos "host" y "path" necesarios para Postman.</p>
+        <h1>Convertidor Postman (V1 -> V2)</h1>
+        <p>Sube tu archivo JSON de Thunder Client. Ahora soporta peticiones dentro de múltiples carpetas anidadas.</p>
         
         <label class="file-label">
             <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" viewBox="0 0 16 16" style="margin-bottom: 10px;">
@@ -77,12 +77,124 @@
             const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(convertedData, null, 2));
             const downloadAnchorNode = document.createElement('a');
             downloadAnchorNode.setAttribute("href", dataStr);
-            // Se usa un sufijo diferente para asegurar que no se confunda con el archivo roto anterior
-            downloadAnchorNode.setAttribute("download", originalName + "_Postman_Definitivo.json"); 
+            downloadAnchorNode.setAttribute("download", originalName + "_Postman.json"); 
             document.body.appendChild(downloadAnchorNode);
             downloadAnchorNode.click();
             downloadAnchorNode.remove();
         });
+
+        // Convierte una request individual
+        function convertRequest(req) {
+            let rawUrl = (req.endpoint || "").replace(/<<([^>]+)>>/g, '{{$1}}');
+            let baseUrl = rawUrl.split('?')[0]; 
+            
+            let urlSegments = baseUrl.split('/').filter(s => s !== "");
+            let host = [];
+            let path = [];
+            
+            if(urlSegments.length > 0) {
+                host = [urlSegments[0]]; 
+                path = urlSegments.slice(1);
+            }
+
+            let queryParams = [];
+            if (req.params && Array.isArray(req.params)) {
+                queryParams = req.params.map(p => ({
+                    key: p.key,
+                    value: p.value || "",
+                    disabled: p.active === false
+                }));
+            }
+
+            if (queryParams.length > 0) {
+                const activeParams = queryParams.filter(p => !p.disabled);
+                if (activeParams.length > 0) {
+                    const qs = activeParams.map(p => encodeURIComponent(p.key) + '=' + encodeURIComponent(p.value)).join('&');
+                    rawUrl = baseUrl + '?' + qs;
+                } else {
+                    rawUrl = baseUrl;
+                }
+            } else {
+                rawUrl = baseUrl;
+            }
+
+            let headers = [];
+            if (req.headers && Array.isArray(req.headers)) {
+                headers = req.headers.map(h => ({
+                    key: h.name || h.key,
+                    value: h.value || "",
+                    disabled: h.active === false
+                }));
+            }
+            
+            let body = undefined;
+            if (req.body) {
+                if(req.body.contentType === "application/json" || req.body.contentType === "json") {
+                    body = { mode: "raw", raw: req.body.body || "", options: { raw: { language: "json" } } };
+                    if (!headers.some(h => h.key.toLowerCase() === 'content-type')) {
+                        headers.push({ key: "Content-Type", value: "application/json" });
+                    }
+                } 
+                else if (req.body.contentType === "multipart/form-data" && Array.isArray(req.body.body)) {
+                    body = { mode: "formdata", formdata: req.body.body.map(f => ({
+                        key: f.key,
+                        type: f.isFile ? "file" : "text",
+                        value: f.value || "",
+                        disabled: f.active === false
+                    }))};
+                }
+                else if (req.body.body) {
+                   body = { mode: "raw", raw: req.body.body };
+                }
+            }
+
+            let requestObj = {
+                method: req.method || "GET",
+                header: headers,
+                url: {
+                    raw: rawUrl,
+                    host: host,
+                    path: path
+                }
+            };
+
+            if (queryParams.length > 0) requestObj.url.query = queryParams;
+            if (body) requestObj.body = body;
+
+            return {
+                name: req.name || "Request",
+                request: requestObj
+            };
+        }
+
+        // Función recursiva para procesar carpetas
+        function processItems(itemsArray) {
+            let processedItems = [];
+            if (!itemsArray) return processedItems;
+
+            for (let item of itemsArray) {
+                // Si es una carpeta, se llama recursivamente
+                if (item.folders || item.requests) {
+                    let folderObj = {
+                        name: item.name || "Folder",
+                        item: []
+                    };
+                    
+                    // Procesar subcarpetas
+                    if (item.folders && item.folders.length > 0) {
+                        folderObj.item = folderObj.item.concat(processItems(item.folders));
+                    }
+                    
+                    // Procesar requests de la carpeta
+                    if (item.requests && item.requests.length > 0) {
+                        let reqs = item.requests.map(convertRequest);
+                        folderObj.item = folderObj.item.concat(reqs);
+                    }
+                    processedItems.push(folderObj);
+                } 
+            }
+            return processedItems;
+        }
 
         function convertToPostman(tcData) {
             const postmanCollection = {
@@ -94,96 +206,16 @@
                 item: []
             };
 
-            if (tcData.requests && Array.isArray(tcData.requests)) {
-                postmanCollection.item = tcData.requests.map(req => {
-                    
-                    // 1. Transformar endpoint base (cambiar <<var>> por {{var}})
-                    let rawUrl = (req.endpoint || "").replace(/<<([^>]+)>>/g, '{{$1}}');
-                    let baseUrl = rawUrl.split('?')[0]; // Ignorar query string si viene en el endpoint string
-                    
-                    // 2. Extraer host y path
-                    let urlSegments = baseUrl.split('/').filter(s => s !== "");
-                    let host = [];
-                    let path = [];
-                    
-                    if(urlSegments.length > 0) {
-                        host = [urlSegments[0]]; // el dominio o la variable ej. {{ms-recibos-deposito}}
-                        path = urlSegments.slice(1); // ej. ["api", "v1", "clientes"]
-                    }
-
-                    // 3. Procesar Query Params
-                    let queryParams = [];
-                    if (req.params && Array.isArray(req.params)) {
-                        queryParams = req.params.map(p => ({
-                            key: p.key,
-                            value: p.value || "",
-                            disabled: p.active === false
-                        }));
-                    }
-
-                    // 4. Reconstruir el raw URL oficial si hay parámetros activos
-                    if (queryParams.length > 0) {
-                        const activeParams = queryParams.filter(p => !p.disabled);
-                        if (activeParams.length > 0) {
-                            const qs = activeParams.map(p => encodeURIComponent(p.key) + '=' + encodeURIComponent(p.value)).join('&');
-                            rawUrl = baseUrl + '?' + qs;
-                        } else {
-                            rawUrl = baseUrl;
-                        }
-                    } else {
-                        rawUrl = baseUrl;
-                    }
-
-                    // 5. Procesar Headers
-                    let headers = [];
-                    if (req.headers && Array.isArray(req.headers)) {
-                        headers = req.headers.map(h => ({
-                            key: h.name || h.key,
-                            value: h.value || "",
-                            disabled: h.active === false
-                        }));
-                    }
-                    
-                    // 6. Procesar Body
-                    let body = undefined;
-                    if (req.body && req.body.body) {
-                        body = {
-                            mode: "raw",
-                            raw: req.body.body
-                        };
-                        if (req.body.contentType === "application/json" || req.body.contentType === "json") {
-                            body.options = { raw: { language: "json" } };
-                            if (!headers.some(h => h.key.toLowerCase() === 'content-type')) {
-                                headers.push({ key: "Content-Type", value: "application/json" });
-                            }
-                        }
-                    }
-
-                    // 7. Construir y devolver el objeto request al estilo Postman
-                    let requestObj = {
-                        method: req.method || "GET",
-                        header: headers,
-                        url: {
-                            raw: rawUrl,
-                            host: host,
-                            path: path
-                        }
-                    };
-
-                    if (queryParams.length > 0) {
-                        requestObj.url.query = queryParams;
-                    }
-                    
-                    if (body) {
-                        requestObj.body = body;
-                    }
-
-                    return {
-                        name: req.name || "Request",
-                        request: requestObj
-                    };
-                });
+            // 1. Procesar carpetas en la raíz
+            if (tcData.folders && Array.isArray(tcData.folders)) {
+                postmanCollection.item = postmanCollection.item.concat(processItems(tcData.folders));
             }
+
+            // 2. Procesar requests que estén sueltos en la raíz (como en tu archivo anterior)
+            if (tcData.requests && Array.isArray(tcData.requests)) {
+                 postmanCollection.item = postmanCollection.item.concat(tcData.requests.map(convertRequest));
+            }
+
             return postmanCollection;
         }
     </script>
