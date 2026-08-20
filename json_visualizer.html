@@ -10,11 +10,20 @@
         :root {
             --bg: #0f172a;
             --surface: #1e293b;
+            --surface-hover: #334155;
             --border: #334155;
             --text: #f8fafc;
             --text-muted: #94a3b8;
             --primary: #38bdf8;
             --error: #ef4444;
+            
+            /* Syntax highlighting */
+            --json-key: #7dd3fc;
+            --json-string: #86efac;
+            --json-number: #fca5a5;
+            --json-boolean: #c084fc;
+            --json-null: #94a3b8;
+            --json-punctuation: #cbd5e1;
         }
 
         body {
@@ -57,9 +66,7 @@
             transition: color 0.2s;
         }
 
-        .back-link:hover {
-            color: var(--text);
-        }
+        .back-link:hover { color: var(--text); }
 
         .container {
             display: flex;
@@ -79,10 +86,11 @@
 
         .panel-right {
             flex: 1;
+            display: flex;
+            flex-direction: column;
             position: relative;
             background-color: #0b1120;
-            background-image: radial-gradient(#1e293b 1px, transparent 1px);
-            background-size: 20px 20px;
+            overflow: hidden;
         }
 
         .panel-header {
@@ -109,8 +117,35 @@
         }
 
         .actions button:hover {
-            background-color: #334155;
+            background-color: var(--surface-hover);
             border-color: #475569;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .tab-btn {
+            background-color: transparent;
+            border: 1px solid transparent;
+            color: var(--text-muted);
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+
+        .tab-btn:hover {
+            color: var(--text);
+        }
+
+        .tab-btn.active {
+            background-color: var(--surface);
+            border-color: var(--border);
+            color: var(--primary);
         }
 
         #json-input {
@@ -125,39 +160,106 @@
             outline: none;
         }
 
-        #network {
-            width: 100%;
-            height: 100%;
-            outline: none;
+        .view-container {
+            flex: 1;
+            display: none; /* Hidden by default */
+            position: relative;
+            overflow: auto;
         }
 
-        .error-message {
-            position: absolute;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: rgba(239, 68, 68, 0.9);
-            color: white;
-            padding: 0.75rem 1.5rem;
-            border-radius: 6px;
-            font-size: 0.9rem;
-            display: none;
-            z-index: 100;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        .view-container.active {
+            display: block;
         }
 
+        /* Graph Styles */
+        #view-graph.active {
+            display: flex; /* Vis network needs flex/block but full height */
+            flex-direction: column;
+            background-image: radial-gradient(#1e293b 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        #network { width: 100%; flex: 1; outline: none; }
         .canvas-controls {
             position: absolute;
             bottom: 20px;
             right: 20px;
-            display: flex;
-            gap: 10px;
             z-index: 100;
+        }
+
+        /* Tree Styles */
+        #view-tree {
+            padding: 1rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.9rem;
+        }
+        ul.json-tree, ul.nested { list-style-type: none; margin: 0; padding: 0; }
+        ul.nested { padding: 0 0 0 1.5rem; border-left: 1px dashed #334155; margin-left: 0.5rem; }
+        .json-tree li { margin: 0.2rem 0; position: relative; }
+        .caret {
+            cursor: pointer; user-select: none; display: inline-flex;
+            align-items: center; justify-content: center; width: 16px; height: 16px;
+            margin-right: 4px; margin-left: -20px; border-radius: 4px;
+        }
+        .caret:hover { background-color: var(--surface); }
+        .caret::before { content: "\25B6"; color: var(--text-muted); font-size: 0.7rem; transition: transform 0.2s; }
+        .caret-down::before { transform: rotate(90deg); }
+        .hidden { display: none !important; }
+
+        /* Syntax Highlighting */
+        .json-key { color: var(--json-key); }
+        .json-string { color: var(--json-string); }
+        .json-number { color: var(--json-number); }
+        .json-boolean { color: var(--json-boolean); }
+        .json-null { color: var(--json-null); font-style: italic; }
+        .json-punctuation { color: var(--json-punctuation); }
+
+        /* Table Styles */
+        #view-table { padding: 1.5rem; }
+        .json-table {
+            border-collapse: collapse;
+            width: auto;
+            margin-bottom: 0.5rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+            box-shadow: 0 0 0 1px var(--border);
+            border-radius: 6px;
+            overflow: hidden;
+            background-color: var(--bg);
+        }
+        .json-table td {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--border);
+            vertical-align: top;
+        }
+        .table-key {
+            background-color: rgba(30, 41, 59, 0.7);
+            color: var(--json-key);
+            font-weight: 500;
+            white-space: nowrap;
+        }
+        .table-index {
+            background-color: rgba(30, 41, 59, 0.4);
+            color: var(--text-muted);
+            text-align: right;
+            width: 1%;
+        }
+        .table-value {
+            color: var(--text);
+            background-color: rgba(15, 23, 42, 0.5);
+        }
+        /* Make nested tables alternate slightly in border color */
+        .json-table .json-table { margin: 0; box-shadow: 0 0 0 1px #475569; }
+
+        .error-message {
+            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
+            background-color: rgba(239, 68, 68, 0.9); color: white;
+            padding: 0.75rem 1.5rem; border-radius: 6px; font-size: 0.9rem;
+            display: none; z-index: 100; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
         @media (max-width: 768px) {
             .container { flex-direction: column; }
-            .panel-left { width: 100%; height: 250px; flex: none; border-right: none; border-bottom: 1px solid var(--border); }
+            .panel-left { width: 100%; height: 30vh; flex: none; border-right: none; border-bottom: 1px solid var(--border); }
         }
     </style>
 </head>
@@ -165,7 +267,7 @@
 
     <header>
         <h1>
-            <span style="font-size: 1.5rem;">🔗</span> JSON Node Visualizer
+            <span style="font-size: 1.5rem;">✨</span> JSON Multi-Visualizer
         </h1>
         <a href="index.html" class="back-link">
             <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
@@ -185,15 +287,39 @@
             <textarea id="json-input" placeholder='{"ejemplo": "Pega tu JSON aquí..."}'></textarea>
         </div>
 
-        <!-- Output Panel (Canvas) -->
+        <!-- Output Panel -->
         <div class="panel-right">
-            <div id="error-msg" class="error-message"></div>
-            <div id="network"></div>
+            <div class="panel-header">
+                Vistas Disponibles
+                <div class="tabs">
+                    <button class="tab-btn active" data-target="view-graph">Grafo</button>
+                    <button class="tab-btn" data-target="view-table">Tabla</button>
+                    <button class="tab-btn" data-target="view-tree">Árbol</button>
+                </div>
+            </div>
             
-            <div class="canvas-controls">
-                <div class="actions">
+            <div id="error-msg" class="error-message"></div>
+
+            <!-- View: Graph -->
+            <div id="view-graph" class="view-container active">
+                <div id="network"></div>
+                <div class="canvas-controls actions">
                     <button id="btn-fit">Centrar Grafo</button>
                 </div>
+            </div>
+
+            <!-- View: Table -->
+            <div id="view-table" class="view-container">
+                <div id="table-content"></div>
+            </div>
+
+            <!-- View: Tree -->
+            <div id="view-tree" class="view-container">
+                <div class="actions" style="margin-bottom: 1rem;">
+                    <button id="btn-expand-tree">Expandir Todo</button>
+                    <button id="btn-collapse-tree">Colapsar Todo</button>
+                </div>
+                <div id="tree-content"></div>
             </div>
         </div>
     </div>
@@ -201,182 +327,230 @@
     <script>
         const jsonInput = document.getElementById('json-input');
         const errorMsg = document.getElementById('error-msg');
-        const container = document.getElementById('network');
         
-        let network = null;
         let currentJsonData = null;
+        let currentView = 'view-graph';
 
-        // Variables for graph generation
-        let nodesArray = [];
-        let edgesArray = [];
-        let nodeIdCounter = 1;
+        // TABS LOGIC
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.view-container').forEach(v => v.classList.remove('active'));
+                
+                e.target.classList.add('active');
+                currentView = e.target.getAttribute('data-target');
+                document.getElementById(currentView).classList.add('active');
+                
+                renderActiveView();
+            });
+        });
 
-        function initNetwork() {
-            const data = {
-                nodes: new vis.DataSet(nodesArray),
-                edges: new vis.DataSet(edgesArray)
-            };
-            
+        function escapeHtml(unsafe) {
+            if (unsafe === null || unsafe === undefined) return '';
+            return String(unsafe)
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // ==========================================
+        // 1. GRAPH VIEW LOGIC (vis-network)
+        // ==========================================
+        let network = null;
+        
+        function initNetwork(nodesArray, edgesArray) {
+            const container = document.getElementById('network');
+            const data = { nodes: new vis.DataSet(nodesArray), edges: new vis.DataSet(edgesArray) };
             const options = {
-                layout: {
-                    hierarchical: {
-                        direction: 'LR', // Left to Right
-                        sortMethod: 'directed',
-                        levelSeparation: 300,
-                        nodeSpacing: 150,
-                        treeSpacing: 200
-                    }
-                },
+                layout: { hierarchical: { direction: 'LR', sortMethod: 'directed', levelSeparation: 300, nodeSpacing: 150 } },
                 nodes: {
-                    shape: 'box',
-                    margin: 15,
-                    borderWidth: 2,
-                    color: {
-                        background: '#1e293b',
-                        border: '#38bdf8',
-                        highlight: {
-                            background: '#334155',
-                            border: '#7dd3fc'
-                        }
-                    },
-                    font: {
-                        color: '#f8fafc',
-                        face: 'Fira Code, monospace',
-                        size: 14,
-                        align: 'left',
-                        multi: true // Permite usar tags <b> <i> en el label
-                    },
-                    shadow: {
-                        enabled: true,
-                        color: 'rgba(0,0,0,0.5)',
-                        size: 10,
-                        x: 5,
-                        y: 5
-                    }
+                    shape: 'box', margin: 15, borderWidth: 2,
+                    color: { background: '#1e293b', border: '#38bdf8', highlight: { background: '#334155', border: '#7dd3fc' } },
+                    font: { color: '#f8fafc', face: 'Fira Code, monospace', size: 14, align: 'left', multi: true },
+                    shadow: { enabled: true, color: 'rgba(0,0,0,0.5)', size: 10, x: 5, y: 5 }
                 },
                 edges: {
-                    color: {
-                        color: '#475569',
-                        highlight: '#94a3b8'
-                    },
-                    font: {
-                        color: '#94a3b8',
-                        size: 12,
-                        background: '#0b1120',
-                        strokeWidth: 0
-                    },
-                    arrows: {
-                        to: { enabled: true, scaleFactor: 0.8 }
-                    },
-                    smooth: {
-                        type: 'cubicBezier',
-                        forceDirection: 'horizontal',
-                        roundness: 0.4
-                    }
+                    color: { color: '#475569', highlight: '#94a3b8' },
+                    font: { color: '#94a3b8', size: 12, background: '#0b1120', strokeWidth: 0 },
+                    arrows: { to: { enabled: true, scaleFactor: 0.8 } },
+                    smooth: { type: 'cubicBezier', forceDirection: 'horizontal', roundness: 0.4 }
                 },
-                physics: false, // Desactivado por layout jerárquico
-                interaction: {
-                    dragNodes: true,
-                    dragView: true,
-                    zoomView: true,
-                    hover: true
-                }
+                physics: false
             };
 
-            if (network !== null) {
-                network.destroy();
-            }
+            if (network !== null) network.destroy();
             network = new vis.Network(container, data, options);
         }
 
-        function truncate(str, n){
-            return (str.length > n) ? str.slice(0, n-1) + '...' : str;
-        }
+        function truncate(str, n){ return (str.length > n) ? str.slice(0, n-1) + '...' : str; }
 
-        function parseJSONToGraph(keyName, obj, parentId = null) {
-            const currentId = nodeIdCounter++;
-            
-            let isArray = Array.isArray(obj);
-            let typeTitle = isArray ? "Array" : (obj === null ? "Null" : typeof obj);
-            let title = keyName ? `<b>${keyName}</b> <i>(${typeTitle})</i>` : `<b>Root</b> <i>(${typeTitle})</i>`;
-            
-            let labelLines = [title];
-            let childObjects = [];
-            
-            if (typeof obj === 'object' && obj !== null) {
-                // Agregar un separador visual
-                if (Object.keys(obj).length > 0) {
+        function renderGraph(parsed) {
+            let nodesArray = [];
+            let edgesArray = [];
+            let nodeIdCounter = 1;
+
+            function parseGraph(keyName, obj, parentId = null) {
+                const currentId = nodeIdCounter++;
+                let isArray = Array.isArray(obj);
+                let typeTitle = isArray ? "Array" : (obj === null ? "Null" : typeof obj);
+                let title = keyName ? `<b>${keyName}</b> <i>(${typeTitle})</i>` : `<b>Root</b> <i>(${typeTitle})</i>`;
+                
+                let labelLines = [title];
+                let childObjects = [];
+                
+                if (typeof obj === 'object' && obj !== null) {
+                    if (Object.keys(obj).length > 0) labelLines.push('----------------');
+                    let count = 0;
+                    for (const [k, v] of Object.entries(obj)) {
+                        if (typeof v === 'object' && v !== null) {
+                            childObjects.push({ key: k, val: v });
+                        } else {
+                            let valStr = String(v);
+                            if (typeof v === 'string') valStr = `"${truncate(valStr, 30)}"`;
+                            let keyFormat = isArray ? `[${k}]` : k;
+                            labelLines.push(`${keyFormat}: ${valStr}`);
+                            count++;
+                        }
+                    }
+                    if (count === 0 && childObjects.length === 0) labelLines.push("<i>(vacío)</i>");
+                } else {
                     labelLines.push('----------------');
+                    let valStr = String(obj);
+                    if (typeof obj === 'string') valStr = `"${valStr}"`;
+                    labelLines.push(`Valor: ${valStr}`);
                 }
                 
-                let count = 0;
-                for (const [k, v] of Object.entries(obj)) {
-                    if (typeof v === 'object' && v !== null) {
-                        // Es un objeto/array complejo, agendar como nodo hijo
-                        childObjects.push({ key: k, val: v });
-                    } else {
-                        // Es primitivo, añadir al bloque del nodo actual
-                        let valStr = String(v);
-                        if (typeof v === 'string') {
-                            valStr = `"${truncate(valStr, 30)}"`;
-                        }
-                        
-                        let keyFormat = isArray ? `[${k}]` : k;
-                        labelLines.push(`${keyFormat}: ${valStr}`);
-                        count++;
-                    }
+                nodesArray.push({ id: currentId, label: labelLines.join('\n') });
+                if (parentId !== null) edgesArray.push({ from: parentId, to: currentId, label: keyName || 'item' });
+                
+                for (const child of childObjects) parseGraph(child.key, child.val, currentId);
+            }
+
+            parseGraph(null, parsed, null);
+            initNetwork(nodesArray, edgesArray);
+        }
+
+        // ==========================================
+        // 2. TABLE VIEW LOGIC
+        // ==========================================
+        function buildHtmlTable(obj) {
+            if (obj === null) return '<span class="json-null">null</span>';
+            if (typeof obj !== 'object') {
+                if (typeof obj === 'string') return `<span class="json-string">"${escapeHtml(obj)}"</span>`;
+                if (typeof obj === 'number') return `<span class="json-number">${obj}</span>`;
+                if (typeof obj === 'boolean') return `<span class="json-boolean">${obj}</span>`;
+                return escapeHtml(String(obj));
+            }
+            
+            const isArray = Array.isArray(obj);
+            const keys = Object.keys(obj);
+            if (keys.length === 0) return isArray ? '[]' : '{}';
+
+            let html = '<table class="json-table"><tbody>';
+            for (const key of keys) {
+                html += `<tr>`;
+                if (!isArray) {
+                    html += `<td class="table-key">${escapeHtml(key)}</td>`;
+                } else {
+                    html += `<td class="table-index">${key}</td>`;
                 }
-                if (count === 0 && childObjects.length === 0) {
-                    labelLines.push("<i>(vacío)</i>");
+                html += `<td class="table-value">${buildHtmlTable(obj[key])}</td>`;
+                html += `</tr>`;
+            }
+            html += '</tbody></table>';
+            return html;
+        }
+
+        function renderTable(parsed) {
+            document.getElementById('table-content').innerHTML = buildHtmlTable(parsed);
+        }
+
+        // ==========================================
+        // 3. TREE VIEW LOGIC
+        // ==========================================
+        function buildHtmlTree(key, value, isLast = true) {
+            let html = '';
+            const type = typeof value;
+            const isArray = Array.isArray(value);
+            const isObject = type === 'object' && value !== null && !isArray;
+            const comma = isLast ? '' : '<span class="json-punctuation">,</span>';
+            
+            const keyString = key !== null ? `<span class="json-key">"${escapeHtml(key)}"</span><span class="json-punctuation">: </span>` : '';
+
+            if (isObject || isArray) {
+                const keys = Object.keys(value);
+                const isEmpty = keys.length === 0;
+                const openBrace = isArray ? '[' : '{';
+                const closeBrace = isArray ? ']' : '}';
+
+                if (isEmpty) {
+                    html += `<li>${keyString}<span class="json-punctuation">${openBrace}${closeBrace}</span>${comma}</li>`;
+                } else {
+                    html += `<li>
+                        <span class="caret caret-down"></span>
+                        ${keyString}<span class="json-punctuation">${openBrace}</span>
+                        <ul class="nested">`;
+                    keys.forEach((k, index) => {
+                        html += buildHtmlTree(isArray ? null : k, value[k], index === keys.length - 1);
+                    });
+                    html += `</ul><span class="json-punctuation">${closeBrace}</span>${comma}</li>`;
                 }
             } else {
-                labelLines.push('----------------');
-                let valStr = String(obj);
-                if (typeof obj === 'string') valStr = `"${valStr}"`;
-                labelLines.push(`Valor: ${valStr}`);
+                let valString = '';
+                if (type === 'string') valString = `<span class="json-string">"${escapeHtml(value)}"</span>`;
+                else if (type === 'number') valString = `<span class="json-number">${value}</span>`;
+                else if (type === 'boolean') valString = `<span class="json-boolean">${value}</span>`;
+                else if (value === null) valString = `<span class="json-null">null</span>`;
+                
+                html += `<li>${keyString}${valString}${comma}</li>`;
             }
+            return html;
+        }
+
+        function renderTree(parsed) {
+            const treeContainer = document.getElementById('tree-content');
+            treeContainer.innerHTML = `<ul class="json-tree">${buildHtmlTree(null, parsed, true)}</ul>`;
             
-            nodesArray.push({
-                id: currentId,
-                label: labelLines.join('\n')
-            });
-            
-            if (parentId !== null) {
-                edgesArray.push({
-                    from: parentId,
-                    to: currentId,
-                    label: keyName || 'item'
+            treeContainer.querySelectorAll('.caret').forEach(caret => {
+                caret.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    this.classList.toggle('caret-down');
+                    const nestedUl = this.parentElement.querySelector('.nested');
+                    if (nestedUl) nestedUl.classList.toggle('hidden');
                 });
-            }
-            
-            for (const child of childObjects) {
-                parseJSONToGraph(child.key, child.val, currentId);
+            });
+        }
+
+        // ==========================================
+        // CONTROLLER LOGIC
+        // ==========================================
+        function renderActiveView() {
+            if (!currentJsonData) return;
+            if (currentView === 'view-graph') {
+                renderGraph(currentJsonData);
+            } else if (currentView === 'view-table') {
+                renderTable(currentJsonData);
+            } else if (currentView === 'view-tree') {
+                renderTree(currentJsonData);
             }
         }
 
-        function renderJson() {
+        function processJsonInput() {
             const rawValue = jsonInput.value.trim();
-            
             if (!rawValue) {
                 errorMsg.style.display = 'none';
-                if(network) network.destroy();
-                network = null;
+                if(network) network.destroy(); network = null;
+                document.getElementById('table-content').innerHTML = '';
+                document.getElementById('tree-content').innerHTML = '';
                 return;
             }
 
             try {
-                const parsed = JSON.parse(rawValue);
-                currentJsonData = parsed;
+                currentJsonData = JSON.parse(rawValue);
                 errorMsg.style.display = 'none';
-                
-                // Reset graph data
-                nodesArray = [];
-                edgesArray = [];
-                nodeIdCounter = 1;
-                
-                parseJSONToGraph(null, parsed, null);
-                initNetwork();
-                
+                renderActiveView();
             } catch (e) {
                 errorMsg.textContent = `Error: JSON Inválido`;
                 errorMsg.style.display = 'block';
@@ -387,19 +561,25 @@
         let debounceTimer;
         jsonInput.addEventListener('input', () => {
             clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(renderJson, 500); // Pequeño delay para no renderizar a cada tecla
+            debounceTimer = setTimeout(processJsonInput, 500);
         });
 
         document.getElementById('btn-format').addEventListener('click', () => {
-            if (currentJsonData) {
-                jsonInput.value = JSON.stringify(currentJsonData, null, 4);
-            }
+            if (currentJsonData) jsonInput.value = JSON.stringify(currentJsonData, null, 4);
         });
 
         document.getElementById('btn-fit').addEventListener('click', () => {
-            if (network) {
-                network.fit({ animation: { duration: 500, easingFunction: 'easeInOutQuad' } });
-            }
+            if (network && currentView === 'view-graph') network.fit({ animation: { duration: 500, easingFunction: 'easeInOutQuad' } });
+        });
+
+        document.getElementById('btn-expand-tree').addEventListener('click', () => {
+            document.querySelectorAll('#view-tree .caret').forEach(c => c.classList.add('caret-down'));
+            document.querySelectorAll('#view-tree .nested').forEach(ul => ul.classList.remove('hidden'));
+        });
+
+        document.getElementById('btn-collapse-tree').addEventListener('click', () => {
+            document.querySelectorAll('#view-tree .caret').forEach(c => c.classList.remove('caret-down'));
+            document.querySelectorAll('#view-tree .nested').forEach(ul => ul.classList.add('hidden'));
         });
 
         // Demo inicial
@@ -407,16 +587,10 @@
             "proyecto": "AIO Tools",
             "version": 1.2,
             "activo": true,
-            "autor": {
-                "nombre": "Desarrollador",
-                "rol": "Admin"
-            },
-            "modulos": [
-                { "id": 1, "nombre": "Convertidor" },
-                { "id": 2, "nombre": "Visualizador" }
-            ]
+            "autor": { "nombre": "Desarrollador", "rol": "Admin" },
+            "modulos": [ { "id": 1, "nombre": "Convertidor" }, { "id": 2, "nombre": "Visualizador" } ]
         }, null, 4);
-        renderJson();
+        processJsonInput();
 
     </script>
 </body>
