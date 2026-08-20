@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JSON Visualizer - AIO</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
-    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/standalone/umd/vis-network.min.js"></script>
     <style>
         :root {
             --bg: #0f172a;
@@ -173,12 +173,14 @@
 
         /* Graph Styles */
         #view-graph.active {
-            display: flex; /* Vis network needs flex/block but full height */
+            display: flex;
             flex-direction: column;
+            height: 100%; /* Asegurar altura completa */
+            width: 100%;
             background-image: radial-gradient(#1e293b 1px, transparent 1px);
             background-size: 20px 20px;
         }
-        #network { width: 100%; flex: 1; outline: none; }
+        #network { width: 100%; height: 100%; flex: 1; outline: none; }
         .canvas-controls {
             position: absolute;
             bottom: 20px;
@@ -368,7 +370,7 @@
                 nodes: {
                     shape: 'box', margin: 15, borderWidth: 2,
                     color: { background: '#1e293b', border: '#38bdf8', highlight: { background: '#334155', border: '#7dd3fc' } },
-                    font: { color: '#f8fafc', face: 'Fira Code, monospace', size: 14, align: 'left', multi: true },
+                    font: { color: '#f8fafc', face: 'Fira Code, monospace', size: 14, align: 'left', multi: 'html' },
                     shadow: { enabled: true, color: 'rgba(0,0,0,0.5)', size: 10, x: 5, y: 5 }
                 },
                 edges: {
@@ -395,7 +397,9 @@
                 const currentId = nodeIdCounter++;
                 let isArray = Array.isArray(obj);
                 let typeTitle = isArray ? "Array" : (obj === null ? "Null" : typeof obj);
-                let title = keyName ? `<b>${keyName}</b> <i>(${typeTitle})</i>` : `<b>Root</b> <i>(${typeTitle})</i>`;
+                
+                let safeKeyName = escapeHtml(keyName || "");
+                let title = keyName ? `<b>${safeKeyName}</b> <i>(${typeTitle})</i>` : `<b>Root</b> <i>(${typeTitle})</i>`;
                 
                 let labelLines = [title];
                 let childObjects = [];
@@ -404,13 +408,15 @@
                     if (Object.keys(obj).length > 0) labelLines.push('----------------');
                     let count = 0;
                     for (const [k, v] of Object.entries(obj)) {
+                        let safeK = escapeHtml(k);
                         if (typeof v === 'object' && v !== null) {
                             childObjects.push({ key: k, val: v });
                         } else {
                             let valStr = String(v);
                             if (typeof v === 'string') valStr = `"${truncate(valStr, 30)}"`;
-                            let keyFormat = isArray ? `[${k}]` : k;
-                            labelLines.push(`${keyFormat}: ${valStr}`);
+                            let safeV = escapeHtml(valStr);
+                            let keyFormat = isArray ? `[${safeK}]` : safeK;
+                            labelLines.push(`${keyFormat}: ${safeV}`);
                             count++;
                         }
                     }
@@ -419,11 +425,11 @@
                     labelLines.push('----------------');
                     let valStr = String(obj);
                     if (typeof obj === 'string') valStr = `"${valStr}"`;
-                    labelLines.push(`Valor: ${valStr}`);
+                    labelLines.push(`Valor: ${escapeHtml(valStr)}`);
                 }
                 
                 nodesArray.push({ id: currentId, label: labelLines.join('\n') });
-                if (parentId !== null) edgesArray.push({ from: parentId, to: currentId, label: keyName || 'item' });
+                if (parentId !== null) edgesArray.push({ from: parentId, to: currentId, label: escapeHtml(keyName || 'item') });
                 
                 for (const child of childObjects) parseGraph(child.key, child.val, currentId);
             }
