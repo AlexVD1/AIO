@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JSON Visualizer - AIO</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
     <style>
         :root {
             --bg: #0f172a;
@@ -14,15 +15,6 @@
             --text-muted: #94a3b8;
             --primary: #38bdf8;
             --error: #ef4444;
-            --success: #22c55e;
-            
-            /* Syntax highlighting */
-            --json-key: #7dd3fc;
-            --json-string: #86efac;
-            --json-number: #fca5a5;
-            --json-boolean: #c084fc;
-            --json-null: #94a3b8;
-            --json-punctuation: #cbd5e1;
         }
 
         body {
@@ -75,12 +67,22 @@
             overflow: hidden;
         }
 
-        .panel {
-            flex: 1;
+        .panel-left {
+            width: 350px;
             display: flex;
             flex-direction: column;
             border-right: 1px solid var(--border);
-            min-width: 0;
+            min-width: 250px;
+            background: var(--bg);
+            z-index: 10;
+        }
+
+        .panel-right {
+            flex: 1;
+            position: relative;
+            background-color: #0b1120;
+            background-image: radial-gradient(#1e293b 1px, transparent 1px);
+            background-size: 20px 20px;
         }
 
         .panel-header {
@@ -123,96 +125,39 @@
             outline: none;
         }
 
-        #json-output {
-            flex: 1;
-            padding: 1rem;
-            overflow-y: auto;
-            font-family: 'Fira Code', monospace;
-            font-size: 0.9rem;
-            background-color: var(--bg);
+        #network {
+            width: 100%;
+            height: 100%;
+            outline: none;
         }
 
         .error-message {
-            color: var(--error);
-            font-family: 'Inter', sans-serif;
-            padding: 1rem;
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(239, 68, 68, 0.9);
+            color: white;
+            padding: 0.75rem 1.5rem;
             border-radius: 6px;
-            background-color: rgba(239, 68, 68, 0.1);
-            border: 1px solid rgba(239, 68, 68, 0.2);
-            margin: 1rem;
+            font-size: 0.9rem;
             display: none;
+            z-index: 100;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
         }
 
-        /* Tree Styles */
-        ul.json-tree {
-            list-style-type: none;
-            margin: 0;
-            padding: 0;
+        .canvas-controls {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 100;
         }
-
-        ul.nested {
-            list-style-type: none;
-            margin: 0;
-            padding: 0 0 0 1.5rem;
-            border-left: 1px dashed #334155;
-            margin-left: 0.5rem;
-        }
-
-        li {
-            margin: 0.2rem 0;
-            position: relative;
-        }
-
-        .caret {
-            cursor: pointer;
-            user-select: none;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 16px;
-            height: 16px;
-            margin-right: 4px;
-            margin-left: -20px;
-            border-radius: 4px;
-            transition: background-color 0.2s;
-        }
-
-        .caret:hover {
-            background-color: var(--surface);
-        }
-
-        .caret::before {
-            content: "\25B6";
-            color: var(--text-muted);
-            font-size: 0.7rem;
-            display: inline-block;
-            transition: transform 0.2s ease-in-out;
-        }
-
-        .caret-down::before {
-            transform: rotate(90deg);
-        }
-
-        .hidden {
-            display: none !important;
-        }
-
-        /* Syntax Highlighting */
-        .json-key { color: var(--json-key); }
-        .json-string { color: var(--json-string); }
-        .json-number { color: var(--json-number); }
-        .json-boolean { color: var(--json-boolean); }
-        .json-null { color: var(--json-null); font-style: italic; }
-        .json-punctuation { color: var(--json-punctuation); }
 
         @media (max-width: 768px) {
-            .container {
-                flex-direction: column;
-            }
-            .panel {
-                border-right: none;
-                border-bottom: 1px solid var(--border);
-            }
+            .container { flex-direction: column; }
+            .panel-left { width: 100%; height: 250px; flex: none; border-right: none; border-bottom: 1px solid var(--border); }
         }
     </style>
 </head>
@@ -220,106 +165,193 @@
 
     <header>
         <h1>
-            <span style="font-size: 1.5rem;">🌳</span> JSON Visualizer
+            <span style="font-size: 1.5rem;">🔗</span> JSON Node Visualizer
         </h1>
         <a href="index.html" class="back-link">
             <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path></svg>
-            Volver a Herramientas
+            Volver
         </a>
     </header>
 
     <div class="container">
         <!-- Input Panel -->
-        <div class="panel">
+        <div class="panel-left">
             <div class="panel-header">
-                Entrada JSON (Raw)
+                Entrada JSON
                 <div class="actions">
                     <button id="btn-format">Formatear</button>
-                    <button id="btn-clear">Limpiar</button>
                 </div>
             </div>
-            <textarea id="json-input" placeholder="Pega tu JSON aquí..."></textarea>
+            <textarea id="json-input" placeholder='{"ejemplo": "Pega tu JSON aquí..."}'></textarea>
         </div>
 
-        <!-- Output Panel -->
-        <div class="panel">
-            <div class="panel-header">
-                Visualización Estructurada
-                <div class="actions">
-                    <button id="btn-expand">Expandir Todo</button>
-                    <button id="btn-collapse">Colapsar Todo</button>
-                </div>
-            </div>
+        <!-- Output Panel (Canvas) -->
+        <div class="panel-right">
             <div id="error-msg" class="error-message"></div>
-            <div id="json-output">
-                <div style="color: var(--text-muted); padding: 1rem;">Esperando JSON...</div>
+            <div id="network"></div>
+            
+            <div class="canvas-controls">
+                <div class="actions">
+                    <button id="btn-fit">Centrar Grafo</button>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
         const jsonInput = document.getElementById('json-input');
-        const jsonOutput = document.getElementById('json-output');
         const errorMsg = document.getElementById('error-msg');
+        const container = document.getElementById('network');
         
+        let network = null;
         let currentJsonData = null;
 
-        function escapeHtml(unsafe) {
-            if (unsafe === null || unsafe === undefined) return '';
-            return String(unsafe)
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
+        // Variables for graph generation
+        let nodesArray = [];
+        let edgesArray = [];
+        let nodeIdCounter = 1;
+
+        function initNetwork() {
+            const data = {
+                nodes: new vis.DataSet(nodesArray),
+                edges: new vis.DataSet(edgesArray)
+            };
+            
+            const options = {
+                layout: {
+                    hierarchical: {
+                        direction: 'LR', // Left to Right
+                        sortMethod: 'directed',
+                        levelSeparation: 300,
+                        nodeSpacing: 150,
+                        treeSpacing: 200
+                    }
+                },
+                nodes: {
+                    shape: 'box',
+                    margin: 15,
+                    borderWidth: 2,
+                    color: {
+                        background: '#1e293b',
+                        border: '#38bdf8',
+                        highlight: {
+                            background: '#334155',
+                            border: '#7dd3fc'
+                        }
+                    },
+                    font: {
+                        color: '#f8fafc',
+                        face: 'Fira Code, monospace',
+                        size: 14,
+                        align: 'left',
+                        multi: true // Permite usar tags <b> <i> en el label
+                    },
+                    shadow: {
+                        enabled: true,
+                        color: 'rgba(0,0,0,0.5)',
+                        size: 10,
+                        x: 5,
+                        y: 5
+                    }
+                },
+                edges: {
+                    color: {
+                        color: '#475569',
+                        highlight: '#94a3b8'
+                    },
+                    font: {
+                        color: '#94a3b8',
+                        size: 12,
+                        background: '#0b1120',
+                        strokeWidth: 0
+                    },
+                    arrows: {
+                        to: { enabled: true, scaleFactor: 0.8 }
+                    },
+                    smooth: {
+                        type: 'cubicBezier',
+                        forceDirection: 'horizontal',
+                        roundness: 0.4
+                    }
+                },
+                physics: false, // Desactivado por layout jerárquico
+                interaction: {
+                    dragNodes: true,
+                    dragView: true,
+                    zoomView: true,
+                    hover: true
+                }
+            };
+
+            if (network !== null) {
+                network.destroy();
+            }
+            network = new vis.Network(container, data, options);
         }
 
-        function buildHtmlTree(key, value, isLast = true) {
-            let html = '';
-            const type = typeof value;
-            const isArray = Array.isArray(value);
-            const isObject = type === 'object' && value !== null && !isArray;
-            const comma = isLast ? '' : '<span class="json-punctuation">,</span>';
+        function truncate(str, n){
+            return (str.length > n) ? str.slice(0, n-1) + '...' : str;
+        }
+
+        function parseJSONToGraph(keyName, obj, parentId = null) {
+            const currentId = nodeIdCounter++;
             
-            const keyString = key !== null ? `<span class="json-key">"${escapeHtml(key)}"</span><span class="json-punctuation">: </span>` : '';
-
-            if (isObject || isArray) {
-                const keys = Object.keys(value);
-                const isEmpty = keys.length === 0;
-                const openBrace = isArray ? '[' : '{';
-                const closeBrace = isArray ? ']' : '}';
-
-                if (isEmpty) {
-                    html += `<li>${keyString}<span class="json-punctuation">${openBrace}${closeBrace}</span>${comma}</li>`;
-                } else {
-                    html += `<li>
-                        <span class="caret caret-down"></span>
-                        ${keyString}<span class="json-punctuation">${openBrace}</span>
-                        <ul class="nested">`;
-                    
-                    keys.forEach((k, index) => {
-                        const isLastItem = index === keys.length - 1;
-                        html += buildHtmlTree(isArray ? null : k, value[k], isLastItem);
-                    });
-                    
-                    html += `</ul><span class="json-punctuation">${closeBrace}</span>${comma}</li>`;
-                }
-            } else {
-                let valString = '';
-                if (type === 'string') {
-                    valString = `<span class="json-string">"${escapeHtml(value)}"</span>`;
-                } else if (type === 'number') {
-                    valString = `<span class="json-number">${value}</span>`;
-                } else if (type === 'boolean') {
-                    valString = `<span class="json-boolean">${value}</span>`;
-                } else if (value === null) {
-                    valString = `<span class="json-null">null</span>`;
+            let isArray = Array.isArray(obj);
+            let typeTitle = isArray ? "Array" : (obj === null ? "Null" : typeof obj);
+            let title = keyName ? `<b>${keyName}</b> <i>(${typeTitle})</i>` : `<b>Root</b> <i>(${typeTitle})</i>`;
+            
+            let labelLines = [title];
+            let childObjects = [];
+            
+            if (typeof obj === 'object' && obj !== null) {
+                // Agregar un separador visual
+                if (Object.keys(obj).length > 0) {
+                    labelLines.push('----------------');
                 }
                 
-                html += `<li>${keyString}${valString}${comma}</li>`;
+                let count = 0;
+                for (const [k, v] of Object.entries(obj)) {
+                    if (typeof v === 'object' && v !== null) {
+                        // Es un objeto/array complejo, agendar como nodo hijo
+                        childObjects.push({ key: k, val: v });
+                    } else {
+                        // Es primitivo, añadir al bloque del nodo actual
+                        let valStr = String(v);
+                        if (typeof v === 'string') {
+                            valStr = `"${truncate(valStr, 30)}"`;
+                        }
+                        
+                        let keyFormat = isArray ? `[${k}]` : k;
+                        labelLines.push(`${keyFormat}: ${valStr}`);
+                        count++;
+                    }
+                }
+                if (count === 0 && childObjects.length === 0) {
+                    labelLines.push("<i>(vacío)</i>");
+                }
+            } else {
+                labelLines.push('----------------');
+                let valStr = String(obj);
+                if (typeof obj === 'string') valStr = `"${valStr}"`;
+                labelLines.push(`Valor: ${valStr}`);
             }
             
-            return html;
+            nodesArray.push({
+                id: currentId,
+                label: labelLines.join('\n')
+            });
+            
+            if (parentId !== null) {
+                edgesArray.push({
+                    from: parentId,
+                    to: currentId,
+                    label: keyName || 'item'
+                });
+            }
+            
+            for (const child of childObjects) {
+                parseJSONToGraph(child.key, child.val, currentId);
+            }
         }
 
         function renderJson() {
@@ -327,7 +359,8 @@
             
             if (!rawValue) {
                 errorMsg.style.display = 'none';
-                jsonOutput.innerHTML = '<div style="color: var(--text-muted); padding: 1rem;">Esperando JSON...</div>';
+                if(network) network.destroy();
+                network = null;
                 return;
             }
 
@@ -336,30 +369,26 @@
                 currentJsonData = parsed;
                 errorMsg.style.display = 'none';
                 
-                const treeHtml = `<ul class="json-tree">${buildHtmlTree(null, parsed, true)}</ul>`;
-                jsonOutput.innerHTML = treeHtml;
+                // Reset graph data
+                nodesArray = [];
+                edgesArray = [];
+                nodeIdCounter = 1;
                 
-                // Add click listeners to carets
-                const carets = jsonOutput.querySelectorAll('.caret');
-                carets.forEach(caret => {
-                    caret.addEventListener('click', function(e) {
-                        e.stopPropagation();
-                        this.classList.toggle('caret-down');
-                        const nestedUl = this.parentElement.querySelector('.nested');
-                        if (nestedUl) {
-                            nestedUl.classList.toggle('hidden');
-                        }
-                    });
-                });
+                parseJSONToGraph(null, parsed, null);
+                initNetwork();
                 
             } catch (e) {
-                errorMsg.textContent = `Error JSON inválido: ${e.message}`;
+                errorMsg.textContent = `Error: JSON Inválido`;
                 errorMsg.style.display = 'block';
             }
         }
 
         // Event listeners
-        jsonInput.addEventListener('input', renderJson);
+        let debounceTimer;
+        jsonInput.addEventListener('input', () => {
+            clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(renderJson, 500); // Pequeño delay para no renderizar a cada tecla
+        });
 
         document.getElementById('btn-format').addEventListener('click', () => {
             if (currentJsonData) {
@@ -367,29 +396,28 @@
             }
         });
 
-        document.getElementById('btn-clear').addEventListener('click', () => {
-            jsonInput.value = '';
-            renderJson();
+        document.getElementById('btn-fit').addEventListener('click', () => {
+            if (network) {
+                network.fit({ animation: { duration: 500, easingFunction: 'easeInOutQuad' } });
+            }
         });
 
-        document.getElementById('btn-expand').addEventListener('click', () => {
-            const carets = jsonOutput.querySelectorAll('.caret');
-            const nestedUls = jsonOutput.querySelectorAll('.nested');
-            
-            carets.forEach(c => c.classList.add('caret-down'));
-            nestedUls.forEach(ul => ul.classList.remove('hidden'));
-        });
-
-        document.getElementById('btn-collapse').addEventListener('click', () => {
-            const carets = jsonOutput.querySelectorAll('.caret');
-            const nestedUls = jsonOutput.querySelectorAll('.nested');
-            
-            carets.forEach(c => c.classList.remove('caret-down'));
-            nestedUls.forEach(ul => ul.classList.add('hidden'));
-        });
-        
-        // Render on load if there's text (e.g. from refresh)
+        // Demo inicial
+        jsonInput.value = JSON.stringify({
+            "proyecto": "AIO Tools",
+            "version": 1.2,
+            "activo": true,
+            "autor": {
+                "nombre": "Desarrollador",
+                "rol": "Admin"
+            },
+            "modulos": [
+                { "id": 1, "nombre": "Convertidor" },
+                { "id": 2, "nombre": "Visualizador" }
+            ]
+        }, null, 4);
         renderJson();
+
     </script>
 </body>
 </html>
