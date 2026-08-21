@@ -1,0 +1,48 @@
+version: "3"
+services:
+  postgres:
+    image: postgres:16
+    environment:
+      - POSTGRES_USER=chatuser
+      - POSTGRES_PASSWORD=chatpassword
+      - POSTGRES_DB=chatdb
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - chatnet
+    restart: always
+
+  chat:
+    image: mattermost/mattermost-team-edition:latest
+    ports:
+      - "8065:8065"
+    environment:
+      - MM_SQLSETTINGS_DRIVERNAME=postgres
+      - MM_SQLSETTINGS_DATASOURCE=postgres://chatuser:chatpassword@postgres:5432/chatdb?sslmode=disable&connect_timeout=10
+    volumes:
+      - mattermost_data:/mattermost/data
+    depends_on:
+      - postgres
+    networks:
+      chatnet:
+        ipv4_address: 172.25.0.10
+    restart: always
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    command: tunnel --url http://chat:8065
+    depends_on:
+      - chat
+    networks:
+      - chatnet
+    restart: always
+
+networks:
+  chatnet:
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16
+
+volumes:
+  postgres_data:
+  mattermost_data:

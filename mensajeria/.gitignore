@@ -1,0 +1,11 @@
+# Ignorar carpetas de volúmenes locales o de respaldo
+datos_db/
+archivos_chat/
+
+# Ignorar archivos de entorno por seguridad
+.env
+.env.*
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
