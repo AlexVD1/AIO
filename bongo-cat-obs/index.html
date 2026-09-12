@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bongo Cat Overlay - OBS</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body class="obs-transparent">
+  <!-- Contenedor principal del overlay -->
+  <div id="overlay-container">
+    
+    <!-- Canvas principal optimizado a 60fps -->
+    <canvas id="bongoCanvas" width="800" height="520"></canvas>
+
+    <!-- HUD de Estadísticas de Streamer (Opcional, conmutable) -->
+    <div id="streamer-hud" class="hud-visible">
+      <div class="hud-badge kps-badge">
+        <span class="hud-label">KPS</span>
+        <span id="kps-counter" class="hud-value">0</span>
+      </div>
+      <div class="hud-badge total-badge">
+        <span class="hud-label">TOTAL</span>
+        <span id="total-counter" class="hud-value">0</span>
+      </div>
+      <div id="combo-flame" class="combo-flame hidden">🔥 <span id="combo-counter">0</span></div>
+    </div>
+
+    <!-- Indicador discreto de estado de conexión WebSocket -->
+    <div id="connection-status" class="status-badge connecting" title="Click para abrir ajustes o presiona F2">
+      <span class="status-dot"></span>
+      <span id="status-text">Conectando...</span>
+      <button id="btn-open-settings" class="btn-gear" title="Ajustes (F2)">⚙️</button>
+    </div>
+
+    <!-- Panel de Ajustes / Personalización (Ocultable) -->
+    <div id="settings-modal" class="modal-backdrop hidden">
+      <div class="modal-card">
+        <div class="modal-header">
+          <h2>🐱 Ajustes de Avatar & Stream</h2>
+          <button id="btn-close-settings" class="btn-close">&times;</button>
+        </div>
+        
+        <div class="modal-body">
+          <!-- 1. Selección de Personaje -->
+          <div class="setting-group">
+            <label class="setting-label">Elegir Personaje:</label>
+            <div class="options-grid">
+              <button class="char-btn opt-btn active" data-character="cat">🐱 Bongo Cat</button>
+              <button class="char-btn opt-btn" data-character="dog">🐕 Shiba Inu (Perro)</button>
+              <button class="char-btn opt-btn" data-character="frog">🐸 Ranita Kawaii</button>
+              <button class="char-btn opt-btn" data-character="capybara">🐹 Capibara Chill</button>
+            </div>
+          </div>
+
+          <!-- 2. Skin / Color de Pelaje -->
+          <div class="setting-group">
+            <label class="setting-label">Color / Skin:</label>
+            <div class="options-grid">
+              <button class="skin-btn opt-btn active" data-val="classic">Blanco Clásico</button>
+              <button class="skin-btn opt-btn" data-val="orange">Naranja Atigrado</button>
+              <button class="skin-btn opt-btn" data-val="tuxedo">Esmoquin Negro</button>
+              <button class="skin-btn opt-btn" data-val="siamese">Siamés</button>
+              <button class="skin-btn opt-btn" data-val="pink">Rosa Pastel</button>
+            </div>
+          </div>
+
+          <!-- 3. Micrófono & Lipsync (Movimiento de boca con la voz) -->
+          <div class="setting-group mic-card">
+            <div class="mic-header">
+              <label class="switch-label">
+                <input type="checkbox" id="chk-mic">
+                <span>🎤 <strong>Activar Micrófono (Lipsync / Mover boca al hablar)</strong></span>
+              </label>
+            </div>
+            <div class="mic-controls">
+              <div class="mic-meter-wrapper">
+                <span class="meter-label">Nivel de voz:</span>
+                <div class="meter-track">
+                  <div id="mic-level-bar" class="meter-fill"></div>
+                </div>
+              </div>
+              <div class="slider-wrapper">
+                <label class="slider-sublabel">Sensibilidad del micro:</label>
+                <input type="range" id="rng-mic-sens" min="1" max="10" value="6" class="slider">
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. Accesorios (Multi-Selección simultánea) -->
+          <div class="setting-group">
+            <div class="label-with-tip">
+              <label class="setting-label">Accesorios (¡Puedes elegir varios a la vez!):</label>
+              <span class="badge-tip">Multi-selección</span>
+            </div>
+            <div class="options-grid multi-grid">
+              <button class="acc-chip opt-btn active" data-acc="none">❌ Ninguno / Limpiar</button>
+              <button class="acc-chip opt-btn" data-acc="headphones">🎧 Auriculares Gamer</button>
+              <button class="acc-chip opt-btn" data-acc="sunglasses">🕶️ Gafas de Sol píxel</button>
+              <button class="acc-chip opt-btn" data-acc="glasses">👓 Gafas Redondas</button>
+              <button class="acc-chip opt-btn" data-acc="partyhat">🎉 Sombrero Fiesta</button>
+              <button class="acc-chip opt-btn" data-acc="crown">👑 Corona Real</button>
+              <button class="acc-chip opt-btn" data-acc="cap">🧢 Gorra Béisbol</button>
+              <button class="acc-chip opt-btn" data-acc="bow">🎀 Moño Coquette</button>
+              <button class="acc-chip opt-btn" data-acc="flower">🌸 Flor en Oreja</button>
+              <button class="acc-chip opt-btn" data-acc="scarf">🧣 Bufanda</button>
+              <button class="acc-chip opt-btn" data-acc="orange_head">🍊 Naranja en Cabeza</button>
+              <button class="acc-chip opt-btn" data-acc="coffee">☕ Taza de Café</button>
+              <button class="acc-chip opt-btn" data-acc="boba">🧋 Boba Tea</button>
+            </div>
+          </div>
+
+          <!-- 5. Color del Teclado y RGB -->
+          <div class="setting-group">
+            <label class="setting-label">Estilo del Teclado:</label>
+            <div class="options-grid">
+              <button class="kb-btn opt-btn active" data-val="rgb">RGB Rainbow</button>
+              <button class="kb-btn opt-btn" data-val="cyberpunk">Cyberpunk Neon</button>
+              <button class="kb-btn opt-btn" data-val="minimal">Gris Minimalista</button>
+              <button class="kb-btn opt-btn" data-val="dark">Negro Stealth</button>
+            </div>
+          </div>
+
+          <!-- 6. Rendimiento, Posición y HUD -->
+          <div class="setting-group toggle-group">
+            <label class="switch-label">
+              <input type="checkbox" id="chk-swap">
+              <span>🔄 Modo Zurdo (Ratón a la izquierda / Teclado a la derecha)</span>
+            </label>
+          </div>
+
+          <div class="setting-group toggle-group">
+            <label class="switch-label">
+              <input type="checkbox" id="chk-hud" checked>
+              <span>Mostrar HUD (KPS y pulsaciones totales)</span>
+            </label>
+          </div>
+
+          <div class="setting-group toggle-group">
+            <label class="switch-label">
+              <input type="checkbox" id="chk-combo" checked>
+              <span>Efecto de fuego / racha al escribir rápido</span>
+            </label>
+          </div>
+
+          <div class="setting-group toggle-group">
+            <label class="switch-label">
+              <input type="checkbox" id="chk-eco">
+              <span>Modo Eco (30 FPS en vez de 60 FPS para mínimo consumo)</span>
+            </label>
+          </div>
+
+          <div class="setting-group">
+            <label class="setting-label">Suavizado del ratón (Interpolación):</label>
+            <input type="range" id="rng-smoothing" min="1" max="10" value="7" class="slider">
+          </div>
+
+          <div class="info-box">
+            <p>💡 <strong>Tip para OBS:</strong> En OBS añade una fuente de <em>Navegador (Browser)</em> con la URL <code>http://127.0.0.1:8080</code> o marcando "Archivo local" a este <code>index.html</code> (800 x 520 px).</p>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button id="btn-save-settings" class="btn-primary">Listo y Guardar</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Scripts modulares y ligeros -->
+  <script src="js/audio-reactive.js"></script>
+  <script src="js/settings.js"></script>
+  <script src="js/cat-renderer.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
