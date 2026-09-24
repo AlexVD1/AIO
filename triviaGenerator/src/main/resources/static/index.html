@@ -1,0 +1,1923 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trivia AI Studio — Panel de Pruebas Local</title>
+  <style>
+    :root {
+      --bg-main: #0b0f19;
+      --bg-card: #151c2e;
+      --bg-card-hover: #1e2942;
+      --bg-input: #0f1626;
+      --border-color: #243049;
+      --border-focus: #6366f1;
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --primary-glow: rgba(99, 102, 241, 0.25);
+      --secondary: #ec4899;
+      --success: #10b981;
+      --success-bg: rgba(16, 185, 129, 0.15);
+      --warning: #f59e0b;
+      --warning-bg: rgba(245, 158, 11, 0.15);
+      --danger: #ef4444;
+      --danger-bg: rgba(239, 68, 68, 0.15);
+      --radius: 12px;
+      --radius-sm: 8px;
+      --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: var(--bg-main);
+      color: var(--text-main);
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 8px; height: 8px; }
+    ::-webkit-scrollbar-track { background: var(--bg-main); }
+    ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-dim); }
+
+    /* Header */
+    header {
+      background: rgba(21, 28, 46, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      padding: 0.85rem 1.5rem;
+    }
+
+    .header-container {
+      max-width: 1300px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .brand-icon {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #6366f1, #ec4899);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.35rem;
+      box-shadow: 0 0 20px var(--primary-glow);
+    }
+
+    .brand-text h1 {
+      font-size: 1.2rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      background: linear-gradient(to right, #ffffff, #cbd5e1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .brand-text .badge-model {
+      display: inline-block;
+      font-size: 0.7rem;
+      padding: 0.15rem 0.5rem;
+      background: rgba(99, 102, 241, 0.2);
+      border: 1px solid rgba(99, 102, 241, 0.4);
+      color: #a5b4fc;
+      border-radius: 999px;
+      font-weight: 600;
+      margin-top: 0.15rem;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.85rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      transition: all 0.2s ease;
+    }
+
+    .status-badge.online {
+      color: var(--success);
+      border-color: rgba(16, 185, 129, 0.4);
+      background: var(--success-bg);
+    }
+
+    .status-badge.offline {
+      color: var(--danger);
+      border-color: rgba(239, 68, 68, 0.4);
+      background: var(--danger-bg);
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 8px currentColor;
+    }
+
+    /* Config Toggle Box */
+    .config-box {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 0.25rem 0.5rem;
+      font-size: 0.8rem;
+    }
+
+    .config-box input {
+      background: transparent;
+      border: none;
+      color: var(--text-main);
+      font-size: 0.8rem;
+      outline: none;
+      width: 220px;
+    }
+
+    .config-box input::placeholder { color: var(--text-dim); }
+
+    /* Navigation Tabs */
+    .tabs-nav {
+      max-width: 1300px;
+      margin: 1.25rem auto 0;
+      padding: 0 1.5rem;
+      display: flex;
+      gap: 0.5rem;
+      border-bottom: 1px solid var(--border-color);
+      overflow-x: auto;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 0.75rem 1.25rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      border-bottom: 2px solid transparent;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .tab-btn.active {
+      color: var(--primary);
+      border-bottom-color: var(--primary);
+    }
+
+    /* Main Container */
+    main {
+      max-width: 1300px;
+      width: 100%;
+      margin: 1.5rem auto;
+      padding: 0 1.5rem;
+      flex: 1;
+    }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; animation: fadeIn 0.25s ease; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Grid layout for Generator */
+    .generator-grid {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+
+    @media (max-width: 960px) {
+      .generator-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      box-shadow: var(--shadow);
+    }
+
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      margin-bottom: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-bottom: 0.4rem;
+    }
+
+    .form-control {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      color: var(--text-main);
+      padding: 0.65rem 0.85rem;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-control:focus {
+      border-color: var(--border-focus);
+      box-shadow: 0 0 0 3px var(--primary-glow);
+    }
+
+    .pill-selector {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .pill-btn {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      padding: 0.45rem 0.85rem;
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      flex: 1;
+      text-align: center;
+    }
+
+    .pill-btn:hover {
+      border-color: var(--text-dim);
+      color: var(--text-main);
+    }
+
+    .pill-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: white;
+    }
+
+    .pill-btn.facil.active { background: #059669; border-color: #059669; }
+    .pill-btn.media.active { background: #d97706; border-color: #d97706; }
+    .pill-btn.dificil.active { background: #dc2626; border-color: #dc2626; }
+
+    /* Topic Suggestions */
+    .suggestions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-top: 0.5rem;
+    }
+
+    .suggestion-chip {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--text-dim);
+      font-size: 0.72rem;
+      padding: 0.2rem 0.5rem;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .suggestion-chip:hover {
+      background: rgba(99, 102, 241, 0.2);
+      border-color: var(--primary);
+      color: #cbd5e1;
+    }
+
+    /* Buttons */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 0.75rem 1.25rem;
+      border-radius: var(--radius-sm);
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      width: 100%;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
+      box-shadow: 0 4px 15px var(--primary-glow);
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: linear-gradient(135deg, #4f46e5, #7c3aed);
+      transform: translateY(-1px);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-secondary {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+    }
+
+    .btn-secondary:hover {
+      background: var(--bg-card-hover);
+      border-color: var(--text-dim);
+    }
+
+    /* Progress & Loading */
+    .progress-box {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      display: none;
+    }
+
+    .progress-bar-bg {
+      height: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 0.5rem;
+    }
+
+    .progress-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #6366f1, #ec4899);
+      width: 0%;
+      border-radius: 3px;
+      transition: width 0.3s ease;
+      animation: pulseBar 1.5s infinite linear;
+    }
+
+    @keyframes pulseBar {
+      0% { opacity: 0.7; }
+      50% { opacity: 1; }
+      100% { opacity: 0.7; }
+    }
+
+    /* Summary Bar */
+    .summary-metrics {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.25rem;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+    }
+
+    .metric-badge {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-width: 110px;
+    }
+
+    .metric-badge .label {
+      font-size: 0.72rem;
+      color: var(--text-dim);
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .metric-badge .value {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    /* Trivia Result Card */
+    .trivia-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: var(--shadow);
+      transition: border-color 0.2s;
+    }
+
+    .trivia-card:hover {
+      border-color: rgba(99, 102, 241, 0.4);
+    }
+
+    .trivia-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .badges-row {
+      display: flex;
+      gap: 0.4rem;
+      align-items: center;
+    }
+
+    .badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+      text-transform: uppercase;
+    }
+
+    .badge-cat { background: rgba(99, 102, 241, 0.15); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.3); }
+    .badge-facil { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-media { background: rgba(245, 158, 11, 0.15); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .badge-dificil { background: rgba(239, 68, 68, 0.15); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+    .trivia-question {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+      color: #ffffff;
+      line-height: 1.4;
+    }
+
+    .options-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .option-item {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+      padding: 0.75rem 1rem;
+      border-radius: var(--radius-sm);
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      font-size: 0.92rem;
+      transition: all 0.2s;
+    }
+
+    .option-item.correct {
+      border-color: var(--success);
+      background: var(--success-bg);
+      color: #6ee7b7;
+    }
+
+    .option-letter {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.08);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 0.8rem;
+    }
+
+    .option-item.correct .option-letter {
+      background: var(--success);
+      color: #0b0f19;
+    }
+
+    .explanation-box {
+      background: rgba(99, 102, 241, 0.08);
+      border-left: 3px solid var(--primary);
+      padding: 0.85rem 1rem;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      font-size: 0.88rem;
+      color: #cbd5e1;
+      margin-bottom: 1.25rem;
+    }
+
+    .explanation-box strong { color: #a5b4fc; }
+
+    /* PNG Assets Gallery */
+    .assets-gallery {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .asset-card {
+      background: var(--bg-input);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .asset-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--primary);
+    }
+
+    .asset-preview {
+      width: 100%;
+      aspect-ratio: 1 / 1;
+      object-fit: cover;
+      background: #000;
+      cursor: pointer;
+    }
+
+    .asset-info {
+      padding: 0.65rem 0.85rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.78rem;
+    }
+
+    .asset-type-badge {
+      font-weight: 700;
+      color: var(--text-muted);
+    }
+
+    .btn-view-asset {
+      background: transparent;
+      border: 1px solid var(--border-color);
+      color: var(--primary);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    .btn-view-asset:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    /* Modal for Full-size PNG */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 1.5rem;
+    }
+
+    .modal-overlay.active { display: flex; animation: fadeIn 0.2s ease; }
+
+    .modal-content {
+      max-width: 700px;
+      width: 100%;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-header {
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.5rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .modal-close:hover { color: white; }
+
+    .modal-body {
+      padding: 1.5rem;
+      display: flex;
+      justify-content: center;
+      background: #070a12;
+    }
+
+    .modal-body img {
+      max-width: 100%;
+      max-height: 70vh;
+      border-radius: var(--radius-sm);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-footer {
+      padding: 0.85rem 1.5rem;
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.75rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    /* Quiz Mode Tab */
+    .quiz-container {
+      max-width: 760px;
+      margin: 0 auto;
+    }
+
+    .quiz-scoreboard {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 1rem 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .quiz-option-btn {
+      width: 100%;
+      text-align: left;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 1rem 1.25rem;
+      color: var(--text-main);
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: all 0.2s ease;
+      margin-bottom: 0.75rem;
+    }
+
+    .quiz-option-btn:hover:not(:disabled) {
+      background: var(--bg-card-hover);
+      border-color: var(--primary);
+      transform: translateX(4px);
+    }
+
+    .quiz-option-btn.selected-correct {
+      background: #064e3b !important;
+      border-color: #10b981 !important;
+      color: #a7f3d0 !important;
+    }
+
+    .quiz-option-btn.selected-wrong {
+      background: #7f1d1d !important;
+      border-color: #ef4444 !important;
+      color: #fecaca !important;
+    }
+
+    .quiz-feedback-box {
+      margin-top: 1.5rem;
+      padding: 1.25rem;
+      border-radius: var(--radius);
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      display: none;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      background: rgba(99, 102, 241, 0.15);
+      color: var(--primary);
+    }
+
+    .stat-details h3 { font-size: 0.85rem; color: var(--text-dim); text-transform: uppercase; }
+    .stat-details .num { font-size: 1.75rem; font-weight: 800; color: #ffffff; }
+
+    /* Catalog Table */
+    .catalog-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+
+    .catalog-table th, .catalog-table td {
+      padding: 0.85rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .catalog-table th {
+      color: var(--text-dim);
+      font-weight: 700;
+      text-transform: uppercase;
+      font-size: 0.75rem;
+    }
+
+    /* Toasts */
+    .toast-container {
+      position: fixed;
+      bottom: 1.5rem;
+      right: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      z-index: 2000;
+    }
+
+    .toast {
+      padding: 0.85rem 1.25rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      color: var(--text-main);
+      font-size: 0.9rem;
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      animation: slideIn 0.3s ease;
+      min-width: 260px;
+    }
+
+    .toast.success { border-color: var(--success); color: #6ee7b7; }
+    .toast.error { border-color: var(--danger); color: #fca5a5; }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-container">
+      <a href="#" class="brand">
+        <div class="brand-icon">🧠</div>
+        <div class="brand-text">
+          <h1>Trivia AI Studio</h1>
+          <span class="badge-model">Google Gemini 3.5 Flash-Lite</span>
+        </div>
+      </a>
+
+      <div class="header-actions">
+        <!-- API URL Config -->
+        <div class="config-box" title="URL Base del Servidor Backend">
+          <span>🌐</span>
+          <input type="text" id="apiBaseUrl" value="" placeholder="http://localhost:8080">
+        </div>
+
+        <!-- API Key Header Config -->
+        <div class="config-box" title="Cabecera X-API-KEY (Opcional en local)">
+          <span>🔑</span>
+          <input type="password" id="apiKeyInput" placeholder="X-API-KEY (Opcional)">
+        </div>
+
+        <!-- Connection Status -->
+        <div id="connectionStatus" class="status-badge offline" onclick="checkApiHealth()" style="cursor:pointer;" title="Click para reintentar conexión">
+          <div class="status-dot"></div>
+          <span id="statusText">Verificando...</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- NAVIGATION TABS -->
+  <nav class="tabs-nav">
+    <button class="tab-btn active" onclick="switchTab('tab-generate')">
+      <span>⚡</span> Generador con IA
+    </button>
+    <button class="tab-btn" onclick="switchTab('tab-quiz')">
+      <span>🎮</span> Modo Quiz (Jugar)
+    </button>
+    <button class="tab-btn" onclick="switchTab('tab-explorer')">
+      <span>🔍</span> Explorador de Trivias
+    </button>
+    <button class="tab-btn" onclick="switchTab('tab-stats')">
+      <span>📊</span> Métricas & Catálogo
+    </button>
+  </nav>
+
+  <!-- MAIN VIEW -->
+  <main>
+
+    <!-- ========================================== -->
+    <!-- TAB 1: GENERADOR IA -->
+    <!-- ========================================== -->
+    <section id="tab-generate" class="tab-panel active">
+      <div class="generator-grid">
+        
+        <!-- Left: Generation Form -->
+        <div class="card">
+          <h2 class="card-title">
+            <span>⚙️</span> Parámetros de Generación
+          </h2>
+
+          <form id="generationForm" onsubmit="handleGenerate(event)">
+            <!-- Categoría -->
+            <div class="form-group">
+              <label for="tipoTrivia">Categoría de Trivia</label>
+              <select id="tipoTrivia" class="form-control" onchange="toggleCustomCategory(this.value)" required>
+                <option value="CIENCIA_NATURAL">Ciencias Naturales</option>
+                <option value="HISTORIA">Historia Universal</option>
+                <option value="ASTRONOMIA">Astronomía</option>
+                <option value="GEOGRAFIA">Geografía</option>
+                <option value="TECNOLOGIA">Tecnología</option>
+                <option value="MATEMATICAS">Matemáticas</option>
+                <option value="ANIMALES">Animales y Biodiversidad</option>
+                <option value="GEOLOGIA">Geología</option>
+                <option value="CULTURA_GENERAL" selected>Cultura General</option>
+                <option value="__NUEVA__">➕ Escribir otra categoría nueva...</option>
+              </select>
+              <input type="text" id="customTipoTrivia" class="form-control" placeholder="Escribe el nombre de la categoría (ej: Cine, Filosofía...)" style="display: none; margin-top: 0.5rem;">
+            </div>
+
+            <!-- Subtema Opcional -->
+            <div class="form-group">
+              <label for="subtema">Tema o Enfoque Específico (Opcional)</label>
+              <input type="text" id="subtema" class="form-control" placeholder="Ej: Exploración Espacial, Cine de los 80...">
+              <div class="suggestions">
+                <span class="suggestion-chip" onclick="setTopic('Agujeros Negros y Cosmología')">Agujeros Negros</span>
+                <span class="suggestion-chip" onclick="setTopic('Revolución Francesa')">Revolución Francesa</span>
+                <span class="suggestion-chip" onclick="setTopic('Fórmula 1 y Campeones')">Fórmula 1</span>
+                <span class="suggestion-chip" onclick="setTopic('Pintores del Renacimiento')">Renacimiento</span>
+                <span class="suggestion-chip" onclick="setTopic('Mitología Griega y Dioses')">Dioses Griegos</span>
+              </div>
+            </div>
+
+            <!-- Dificultad -->
+            <div class="form-group">
+              <label>Dificultad</label>
+              <div class="pill-selector">
+                <button type="button" class="pill-btn facil active" onclick="setDifficulty('FACIL')">Fácil</button>
+                <button type="button" class="pill-btn media" onclick="setDifficulty('MEDIA')">Media</button>
+                <button type="button" class="pill-btn dificil" onclick="setDifficulty('DIFICIL')">Difícil</button>
+              </div>
+              <input type="hidden" id="dificultad" value="FACIL">
+            </div>
+
+            <!-- Cantidad & Opciones en fila -->
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem;">
+              <div class="form-group">
+                <label for="cantidad">Cantidad (1 a 10)</label>
+                <input type="number" id="cantidad" class="form-control" value="2" min="1" max="10" required>
+              </div>
+              <div class="form-group">
+                <label for="numeroOpciones">Opciones (2 a 5)</label>
+                <select id="numeroOpciones" class="form-control">
+                  <option value="3">3 opciones</option>
+                  <option value="4" selected>4 opciones (Estándar)</option>
+                  <option value="5">5 opciones</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Idioma -->
+            <div class="form-group">
+              <label for="idioma">Idioma</label>
+              <select id="idioma" class="form-control">
+                <option value="es-MX" selected>Español (México / LatAm - es-MX)</option>
+                <option value="es">Español Internacional (es)</option>
+                <option value="en">Inglés (en)</option>
+              </select>
+            </div>
+
+            <!-- Modo de Ejecución -->
+            <div class="form-group">
+              <label>Modo de Pipeline</label>
+              <div class="pill-selector">
+                <button type="button" id="modeSync" class="pill-btn active" onclick="setPipelineMode('sync')">⚡ Síncrono</button>
+                <button type="button" id="modeAsync" class="pill-btn" onclick="setPipelineMode('async')">⏳ Asíncrono (Polling)</button>
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" id="btnSubmitGenerate" class="btn btn-primary">
+              <span id="btnIcon">✨</span>
+              <span id="btnText">Generar Trivias con IA</span>
+            </button>
+
+            <!-- Progress Box -->
+            <div id="progressBox" class="progress-box">
+              <div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 600;">
+                <span id="progressStatusText">Procesando solicitud...</span>
+                <span id="progressTime">0s</span>
+              </div>
+              <div class="progress-bar-bg">
+                <div id="progressBarFill" class="progress-bar-fill"></div>
+              </div>
+            </div>
+          </form>
+        </div>
+
+        <!-- Right: Results & Generated Cards -->
+        <div>
+          <!-- Summary Metrics -->
+          <div id="generationSummary" class="summary-metrics" style="display: none;">
+            <div class="metric-badge">
+              <span class="label">Total Creadas</span>
+              <span id="metricFinal" class="value">0</span>
+            </div>
+            <div class="metric-badge">
+              <span class="label">Descartadas (Duplicados)</span>
+              <span id="metricDescartadas" class="value" style="color: var(--warning);">0</span>
+            </div>
+            <div class="metric-badge">
+              <span class="label">Intentos IA</span>
+              <span id="metricIntentos" class="value">1</span>
+            </div>
+            <div class="metric-badge">
+              <span class="label">Modelo</span>
+              <span class="value" style="font-size: 0.95rem; color: #a5b4fc;">gemini-3.5-flash-lite</span>
+            </div>
+          </div>
+
+          <!-- Empty State -->
+          <div id="emptyResultsState" class="card" style="text-align: center; padding: 4rem 2rem;">
+            <div style="font-size: 3.5rem; margin-bottom: 1rem; opacity: 0.7;">✨</div>
+            <h3 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem;">Genera tus primeras trivias con IA</h3>
+            <p style="color: var(--text-muted); max-width: 480px; margin: 0 auto 1.5rem;">
+              Selecciona una categoría, ajusta la dificultad y haz clic en <strong>Generar Trivias con IA</strong>. El sistema creará las preguntas, validará duplicados con SHA-256 y embeddings, y renderizará automáticamente las tarjetas PNG 1080x1080.
+            </p>
+            <button class="btn btn-secondary" style="width: auto; margin: 0 auto;" onclick="loadRecentTrivias()">
+              📥 Ver trivias existentes en la base de datos
+            </button>
+          </div>
+
+          <!-- Trivia Cards List -->
+          <div id="resultsContainer"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 2: MODO QUIZ (JUGAR) -->
+    <!-- ========================================== -->
+    <section id="tab-quiz" class="tab-panel">
+      <div class="quiz-container">
+        
+        <!-- Scoreboard -->
+        <div class="quiz-scoreboard">
+          <div>
+            <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; font-weight: 700;">Aciertos</div>
+            <div id="quizScore" style="font-size: 1.5rem; font-weight: 800; color: var(--success);">0</div>
+          </div>
+          <div>
+            <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; font-weight: 700;">Fallos</div>
+            <div id="quizWrongs" style="font-size: 1.5rem; font-weight: 800; color: var(--danger);">0</div>
+          </div>
+          <div>
+            <div style="font-size: 0.75rem; color: var(--text-dim); text-transform: uppercase; font-weight: 700;">Racha Actual</div>
+            <div id="quizStreak" style="font-size: 1.5rem; font-weight: 800; color: #fbbf24;">🔥 0</div>
+          </div>
+          <button class="btn btn-secondary" style="width: auto;" onclick="fetchNextQuizQuestion()">
+            🎲 Otra Pregunta
+          </button>
+        </div>
+
+        <!-- Quiz Question Card -->
+        <div id="quizCard" class="card">
+          <div style="text-align: center; padding: 2rem;">
+            <p style="color: var(--text-muted);">Cargando pregunta de trivia...</p>
+          </div>
+        </div>
+
+        <!-- Feedback & Image Revealed -->
+        <div id="quizFeedbackBox" class="quiz-feedback-box">
+          <h3 id="quizFeedbackTitle" style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem;"></h3>
+          <p id="quizFeedbackExplanation" style="color: #cbd5e1; margin-bottom: 1.25rem;"></p>
+          
+          <div id="quizAnswerImageContainer" style="text-align: center; display: none;">
+            <p style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 0.5rem;">Tarjeta Gráfica Oficial Generada (answer.png):</p>
+            <img id="quizAnswerImage" src="" alt="Respuesta" style="max-width: 400px; width: 100%; border-radius: var(--radius-sm); border: 1px solid var(--border-color); cursor: pointer;" onclick="openModal(this.src, 'Tarjeta de Respuesta')">
+          </div>
+
+          <div style="margin-top: 1.25rem; text-align: right;">
+            <button class="btn btn-primary" style="width: auto;" onclick="fetchNextQuizQuestion()">
+              Siguiente Pregunta ➡️
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 3: EXPLORADOR & BÚSQUEDA -->
+    <!-- ========================================== -->
+    <section id="tab-explorer" class="tab-panel">
+      <div class="card" style="margin-bottom: 1.5rem;">
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
+          <input type="text" id="searchInput" class="form-control" placeholder="Buscar por palabra clave en preguntas o explicaciones..." style="flex: 2; min-width: 250px;" onkeyup="if(event.key==='Enter') searchTrivias()">
+          <button class="btn btn-primary" style="width: auto;" onclick="searchTrivias()">🔍 Buscar</button>
+          <button class="btn btn-secondary" style="width: auto;" onclick="loadRecentTrivias(true)">🔄 Todas las recientes</button>
+        </div>
+      </div>
+
+      <div id="explorerResults">
+        <p style="text-align: center; color: var(--text-muted); padding: 2rem;">Cargando catálogo de trivias almacenadas...</p>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 4: MÉTRICAS & CATÁLOGO -->
+    <!-- ========================================== -->
+    <section id="tab-stats" class="tab-panel">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">📚</div>
+          <div class="stat-details">
+            <h3>Trivias Activas</h3>
+            <div id="statTotalTrivias" class="num">-</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🔄</div>
+          <div class="stat-details">
+            <h3>Generaciones Realizadas</h3>
+            <div id="statTotalGenerations" class="num">-</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🎯</div>
+          <div class="stat-details">
+            <h3>Promedio Intentos</h3>
+            <div id="statAvgIntentos" class="num">-</div>
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon">🛡️</div>
+          <div class="stat-details">
+            <h3>Descartadas / Gen</h3>
+            <div id="statAvgDescartadas" class="num">-</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tipos de Trivia Catálogo -->
+      <div class="card">
+        <h2 class="card-title"><span>📋</span> Catálogo Oficial de Categorías</h2>
+        <div style="overflow-x: auto;">
+          <table class="catalog-table">
+            <thead>
+              <tr>
+                <th>Código</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th>Estado</th>
+              </tr>
+            </thead>
+            <tbody id="catalogTableBody">
+              <tr><td colspan="4" style="text-align: center;">Cargando catálogo...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL PARA VER IMAGEN PNG 1080x1080 EN GRANDE -->
+  <div id="imageModal" class="modal-overlay" onclick="closeModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <h3 id="modalImageTitle" style="font-size: 1rem; font-weight: 700;">Tarjeta Gráfica 1080x1080</h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <img id="modalImage" src="" alt="Tarjeta de Trivia">
+      </div>
+      <div class="modal-footer">
+        <button id="modalDownloadBtn" class="btn btn-secondary" style="width: auto; cursor: pointer;" onclick="downloadModalImage(event)">⬇️ Descargar PNG</button>
+        <a id="modalNewTabBtn" href="" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="width: auto;">🔗 Abrir en Pestaña</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATIONS CONTAINER -->
+  <div id="toastContainer" class="toast-container"></div>
+
+  <!-- JAVASCRIPT APPLICATION LOGIC -->
+  <script>
+    // Configuración Inicial
+    const state = {
+      pipelineMode: 'sync',
+      currentQuizTrivia: null,
+      quizScore: 0,
+      quizWrongs: 0,
+      quizStreak: 0,
+      pollTimer: null,
+      elapsedSeconds: 0,
+      elapsedTimer: null
+    };
+
+    // Inicializar URL base y API Key
+    const apiBaseInput = document.getElementById('apiBaseUrl');
+    const apiKeyInput = document.getElementById('apiKeyInput');
+
+    // Determinar URL base por defecto (priorizar localStorage, luego window.location, luego IP VM)
+    const savedBaseUrl = localStorage.getItem('trivia_api_base_url');
+    if (savedBaseUrl) {
+      apiBaseInput.value = savedBaseUrl;
+    } else if (window.location.protocol.startsWith('http')) {
+      apiBaseInput.value = window.location.origin;
+    } else {
+      apiBaseInput.value = 'http://172.23.240.83:8080';
+    }
+
+    // Cargar API Key guardada en localStorage si existe
+    if (localStorage.getItem('trivia_api_key')) {
+      apiKeyInput.value = localStorage.getItem('trivia_api_key');
+    }
+
+    apiKeyInput.addEventListener('input', () => {
+      localStorage.setItem('trivia_api_key', apiKeyInput.value.trim());
+    });
+    apiKeyInput.addEventListener('change', () => {
+      localStorage.setItem('trivia_api_key', apiKeyInput.value.trim());
+    });
+
+    apiBaseInput.addEventListener('input', () => {
+      localStorage.setItem('trivia_api_base_url', apiBaseInput.value.trim());
+    });
+    apiBaseInput.addEventListener('change', () => {
+      localStorage.setItem('trivia_api_base_url', apiBaseInput.value.trim());
+      checkApiHealth();
+    });
+
+    function getBaseUrl() {
+      let url = apiBaseInput.value.trim();
+      if (url.endsWith('/')) url = url.slice(0, -1);
+      return url || (window.location.protocol.startsWith('http') ? window.location.origin : 'http://172.23.240.83:8080');
+    }
+
+    // Resuelve de forma robusta cualquier URL de asset (relativa o con localhost/IP externa)
+    // adaptándola dinámicamente a la IP/host configurada actualmente en el panel.
+    function resolveAssetUrl(rawUrl) {
+      if (!rawUrl) return '';
+      const baseUrl = getBaseUrl();
+      const idx = rawUrl.indexOf('/assets/');
+      if (idx !== -1) {
+        return `${baseUrl}${rawUrl.substring(idx)}`;
+      }
+      if (rawUrl.startsWith('/')) {
+        return `${baseUrl}${rawUrl}`;
+      }
+      return rawUrl;
+    }
+
+    function getHeaders() {
+      const headers = {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      };
+      const key = apiKeyInput.value.trim();
+      if (key) {
+        headers['X-API-KEY'] = key;
+      }
+      return headers;
+    }
+
+    // Health Check
+    async function checkApiHealth() {
+      const statusEl = document.getElementById('connectionStatus');
+      const textEl = document.getElementById('statusText');
+      textEl.innerText = 'Probando...';
+
+      try {
+        const start = performance.now();
+        const res = await fetch(`${getBaseUrl()}/api/v1/health`, { method: 'GET' });
+        const latency = Math.round(performance.now() - start);
+
+        if (res.ok) {
+          statusEl.className = 'status-badge online';
+          textEl.innerText = `En línea (${latency}ms)`;
+          loadCatalog();
+          return true;
+        } else {
+          throw new Error(`HTTP ${res.status}`);
+        }
+      } catch (err) {
+        statusEl.className = 'status-badge offline';
+        textEl.innerText = 'Desconectado';
+        return false;
+      }
+    }
+
+    // Cargar Catálogo de Categorías
+    async function loadCatalog() {
+      try {
+        const res = await fetch(`${getBaseUrl()}/api/v1/catalogos/tipos-trivia`);
+        if (!res.ok) return;
+        const tipos = await res.json();
+        
+        // Actualizar Select del formulario
+        const select = document.getElementById('tipoTrivia');
+        const prevVal = select.value;
+        select.innerHTML = '';
+        tipos.forEach(t => {
+          const opt = document.createElement('option');
+          opt.value = t.codigo;
+          opt.textContent = `${t.nombre} (${t.codigo})`;
+          select.appendChild(opt);
+        });
+
+        // Opción para crear nueva categoría
+        const optOtra = document.createElement('option');
+        optOtra.value = '__NUEVA__';
+        optOtra.textContent = '➕ Escribir otra categoría nueva...';
+        select.appendChild(optOtra);
+
+        if (prevVal && prevVal !== '__NUEVA__') {
+          select.value = prevVal;
+        }
+
+        // Actualizar Tabla de Métricas
+        const tbody = document.getElementById('catalogTableBody');
+        tbody.innerHTML = '';
+        tipos.forEach(t => {
+          const tr = document.createElement('tr');
+          tr.innerHTML = `
+            <td><code>${t.codigo}</code></td>
+            <td><strong>${t.nombre}</strong></td>
+            <td style="color: var(--text-muted);">${t.descripcion || '-'}</td>
+            <td><span class="badge" style="background: rgba(16,185,129,0.15); color: #6ee7b7;">Activo</span></td>
+          `;
+          tbody.appendChild(tr);
+        });
+      } catch (e) {
+        console.warn('No se pudo cargar el catálogo:', e);
+      }
+    }
+
+    function toggleCustomCategory(val) {
+      const customInput = document.getElementById('customTipoTrivia');
+      if (val === '__NUEVA__') {
+        customInput.style.display = 'block';
+        customInput.focus();
+      } else {
+        customInput.style.display = 'none';
+      }
+    }
+
+    // Tabs Switcher
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+
+      event.currentTarget.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+
+      if (tabId === 'tab-quiz' && !state.currentQuizTrivia) {
+        fetchNextQuizQuestion();
+      } else if (tabId === 'tab-explorer') {
+        loadRecentTrivias(true);
+      } else if (tabId === 'tab-stats') {
+        loadStats();
+      }
+    }
+
+    // Form Controls Helpers
+    function setDifficulty(diff) {
+      document.getElementById('dificultad').value = diff;
+      document.querySelectorAll('.pill-btn.facil, .pill-btn.media, .pill-btn.dificil').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+
+    function setTopic(text) {
+      document.getElementById('subtema').value = text;
+    }
+
+    function setPipelineMode(mode) {
+      state.pipelineMode = mode;
+      document.getElementById('modeSync').classList.toggle('active', mode === 'sync');
+      document.getElementById('modeAsync').classList.toggle('active', mode === 'async');
+    }
+
+    // ==========================================
+    // GENERACIÓN DE TRIVIAS
+    // ==========================================
+    async function handleGenerate(e) {
+      e.preventDefault();
+
+      const btn = document.getElementById('btnSubmitGenerate');
+      const btnText = document.getElementById('btnText');
+      const progressBox = document.getElementById('progressBox');
+      const progressBar = document.getElementById('progressBarFill');
+      const progressStatus = document.getElementById('progressStatusText');
+      const progressTime = document.getElementById('progressTime');
+
+      const selectVal = document.getElementById('tipoTrivia').value;
+      const customVal = document.getElementById('customTipoTrivia').value.trim();
+      const tipoTriviaFinal = (selectVal === '__NUEVA__') ? customVal : selectVal;
+
+      if (!tipoTriviaFinal) {
+        showToast('Debes ingresar un nombre para la nueva categoría', 'error');
+        return;
+      }
+
+      const payload = {
+        tipoTrivia: tipoTriviaFinal,
+        subtema: document.getElementById('subtema').value.trim() || null,
+        dificultad: document.getElementById('dificultad').value,
+        cantidad: parseInt(document.getElementById('cantidad').value, 10),
+        numeroOpciones: parseInt(document.getElementById('numeroOpciones').value, 10),
+        idioma: document.getElementById('idioma').value
+      };
+
+      btn.disabled = true;
+      btnText.innerText = 'Generando con Gemini 3.5...';
+      progressBox.style.display = 'block';
+      progressBar.style.width = '20%';
+      progressStatus.innerText = 'Consultando LLM y validando deduplicación...';
+
+      state.elapsedSeconds = 0;
+      progressTime.innerText = '0s';
+      clearInterval(state.elapsedTimer);
+      state.elapsedTimer = setInterval(() => {
+        state.elapsedSeconds++;
+        progressTime.innerText = `${state.elapsedSeconds}s`;
+      }, 1000);
+
+      try {
+        if (state.pipelineMode === 'sync') {
+          // --- MODO SÍNCRONO (POST /api/v1/trivias) ---
+          const res = await fetch(`${getBaseUrl()}/api/v1/trivias`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify(payload)
+          });
+
+          if (!res.ok) {
+            const errJson = await res.json().catch(() => null);
+            throw new Error((errJson && (errJson.detail || errJson.title)) || `Error HTTP ${res.status}`);
+          }
+
+          progressBar.style.width = '100%';
+          progressStatus.innerText = '¡Generación completada!';
+          const genResponse = await res.json();
+          
+          showToast(`¡Generación completada exitosamente!`, 'success');
+          displayGenerationSummary(genResponse);
+          await loadTriviasForGeneration(genResponse);
+
+        } else {
+          // --- MODO ASÍNCRONO (POST /api/v1/trivias/async + Polling) ---
+          const res = await fetch(`${getBaseUrl()}/api/v1/trivias/async`, {
+            method: 'POST',
+            headers: getHeaders(),
+            body: JSON.stringify(payload)
+          });
+
+          if (!res.ok) {
+            const errJson = await res.json().catch(() => null);
+            throw new Error((errJson && (errJson.detail || errJson.title)) || `Error HTTP ${res.status}`);
+          }
+
+          const asyncInit = await res.json();
+          progressStatus.innerText = `Solicitud ${asyncInit.id.slice(0, 8)} registrada en cola. Sondeando...`;
+          pollGenerationStatus(asyncInit.id);
+          return; // El polling se encarga de rehabilitar el botón
+        }
+      } catch (err) {
+        showToast(err.message, 'error');
+        progressStatus.innerText = `Fallo: ${err.message}`;
+      } finally {
+        if (state.pipelineMode === 'sync') {
+          clearInterval(state.elapsedTimer);
+          btn.disabled = false;
+          btnText.innerText = 'Generar Trivias con IA';
+          setTimeout(() => { progressBox.style.display = 'none'; }, 2000);
+        }
+      }
+    }
+
+    // Polling Asíncrono
+    function pollGenerationStatus(generationId) {
+      const progressBar = document.getElementById('progressBarFill');
+      const progressStatus = document.getElementById('progressStatusText');
+      const btn = document.getElementById('btnSubmitGenerate');
+      const btnText = document.getElementById('btnText');
+      const progressBox = document.getElementById('progressBox');
+
+      let pollPercent = 25;
+
+      state.pollTimer = setInterval(async () => {
+        try {
+          pollPercent = Math.min(pollPercent + 15, 90);
+          progressBar.style.width = `${pollPercent}%`;
+
+          const res = await fetch(`${getBaseUrl()}/api/v1/trivias/generations/${generationId}/status`);
+          if (!res.ok) return;
+
+          const data = await res.json();
+          progressStatus.innerText = `Estado: ${data.estado} (Intentos: ${data.intentos || 1})`;
+
+          if (data.estado === 'COMPLETADA') {
+            clearInterval(state.pollTimer);
+            clearInterval(state.elapsedTimer);
+            progressBar.style.width = '100%';
+            progressStatus.innerText = '¡Generación completada!';
+            btn.disabled = false;
+            btnText.innerText = 'Generar Trivias con IA';
+            showToast(`Generación asíncrona terminada con éxito`, 'success');
+            displayGenerationSummary(data);
+            await loadTriviasForGeneration(data);
+            setTimeout(() => { progressBox.style.display = 'none'; }, 2500);
+          } else if (data.estado === 'ERROR') {
+            clearInterval(state.pollTimer);
+            clearInterval(state.elapsedTimer);
+            btn.disabled = false;
+            btnText.innerText = 'Generar Trivias con IA';
+            progressStatus.innerText = `Error: ${data.error || 'Fallo desconocido'}`;
+            showToast(`Error en la generación: ${data.error}`, 'error');
+          }
+        } catch (e) {
+          console.warn('Error durante polling:', e);
+        }
+      }, 1500);
+    }
+
+    function displayGenerationSummary(data) {
+      document.getElementById('generationSummary').style.display = 'flex';
+      document.getElementById('metricFinal').innerText = data.cantidadFinal ?? data.cantidadGenerada ?? 0;
+      document.getElementById('metricDescartadas').innerText = data.cantidadDescartada ?? 0;
+      document.getElementById('metricIntentos').innerText = data.intentos ?? 1;
+    }
+
+    // Cargar las trivias más recientes para mostrarlas en el resultado
+    async function loadTriviasForGeneration(genData) {
+      document.getElementById('emptyResultsState').style.display = 'none';
+      const container = document.getElementById('resultsContainer');
+      container.innerHTML = '<p style="text-align:center; padding:1.5rem; color:var(--text-muted);">Cargando tarjetas y assets generados...</p>';
+
+      try {
+        const count = genData.cantidadFinal || genData.cantidadGenerada || 2;
+        const res = await fetch(`${getBaseUrl()}/api/v1/trivias?page=0&size=${Math.max(count, 5)}&sort=createdAt,desc`);
+        if (!res.ok) throw new Error('Error al consultar trivias');
+        const page = await res.json();
+        renderTriviaCards(page.content, container);
+        loadCatalog(); // Refrescar catálogo por si se auto-creó una nueva categoría
+      } catch (err) {
+        container.innerHTML = `<p style="color:var(--danger); text-align:center;">Error al cargar las trivias generadas: ${err.message}</p>`;
+      }
+    }
+
+    // Renderizado de tarjetas de trivia
+    function renderTriviaCards(trivias, container) {
+      if (!trivias || trivias.length === 0) {
+        container.innerHTML = '<p style="text-align:center; padding:2rem; color:var(--text-muted);">No se encontraron trivias.</p>';
+        return;
+      }
+
+      container.innerHTML = '';
+      trivias.forEach((t, idx) => {
+        const card = document.createElement('div');
+        card.className = 'trivia-card';
+
+        const diffBadgeClass = t.dificultad === 'FACIL' ? 'badge-facil' : (t.dificultad === 'MEDIA' ? 'badge-media' : 'badge-dificil');
+
+        // Construir opciones
+        const optionsHtml = (t.opciones || []).map(opt => `
+          <div class="option-item ${opt.correcta ? 'correct' : ''}">
+            <div class="option-letter">${opt.letra}</div>
+            <div style="flex:1;">${opt.texto}</div>
+            ${opt.correcta ? '<span style="font-size:0.8rem; font-weight:700;">✓ Correcta</span>' : ''}
+          </div>
+        `).join('');
+
+        // Construir Assets de Imágenes PNG
+        const assetsHtml = (t.assets || []).map(a => {
+          // Resolver URL de imagen usando helper dinámico
+          const imgUrl = resolveAssetUrl(a.url);
+          const isQuestion = a.tipo === 'PREGUNTA' || a.tipo === 'QUESTION_IMAGE';
+          const label = isQuestion ? 'Tarjeta de Pregunta' : 'Tarjeta de Respuesta';
+
+          return `
+            <div class="asset-card">
+              <img src="${imgUrl}" alt="${label}" class="asset-preview" loading="lazy" onclick="openModal('${imgUrl}', '${label}')">
+              <div class="asset-info">
+                <span class="asset-type-badge">${isQuestion ? '❓ question.png' : '💡 answer.png'}</span>
+                <div style="display: flex; gap: 0.35rem;">
+                  <button class="btn-view-asset" onclick="openModal('${imgUrl}', '${label}')">Ver 1080p</button>
+                  <button class="btn-view-asset" title="Descargar PNG directamente" onclick="downloadImageFile('${imgUrl}', '${label}')">⬇️</button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        card.innerHTML = `
+          <div class="trivia-header">
+            <div class="badges-row">
+              <span class="badge badge-cat">${t.tipoTrivia}</span>
+              <span class="badge ${diffBadgeClass}">${t.dificultad}</span>
+              ${t.subtema ? `<span class="badge" style="background:rgba(255,255,255,0.06); color:#cbd5e1;">${t.subtema}</span>` : ''}
+            </div>
+            <div style="font-size:0.75rem; color:var(--text-dim);">ID: ${t.id ? t.id.slice(0, 8) : ''}</div>
+          </div>
+
+          <div class="trivia-question">${t.pregunta}</div>
+
+          <div class="options-list">
+            ${optionsHtml}
+          </div>
+
+          ${t.explicacion ? `
+            <div class="explanation-box">
+              <strong>💡 Explicación Didáctica:</strong> ${t.explicacion}
+            </div>
+          ` : ''}
+
+          ${t.assets && t.assets.length > 0 ? `
+            <div class="assets-gallery">
+              ${assetsHtml}
+            </div>
+          ` : ''}
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+    // ==========================================
+    // QUIZ INTERACTIVO (MODO JUEGO)
+    // ==========================================
+    async function fetchNextQuizQuestion() {
+      const card = document.getElementById('quizCard');
+      const feedbackBox = document.getElementById('quizFeedbackBox');
+      feedbackBox.style.display = 'none';
+
+      card.innerHTML = '<div style="text-align: center; padding: 2.5rem;"><p style="color:var(--text-muted);">Obteniendo pregunta aleatoria...</p></div>';
+
+      try {
+        const res = await fetch(`${getBaseUrl()}/api/v1/trivias/random`);
+        if (!res.ok) {
+          throw new Error('No hay trivias activas en la BD aún. ¡Genera algunas en la pestaña Generador!');
+        }
+
+        const trivia = await res.json();
+        state.currentQuizTrivia = trivia;
+        renderQuizQuestion(trivia);
+      } catch (err) {
+        card.innerHTML = `
+          <div style="text-align: center; padding: 2.5rem;">
+            <p style="color: var(--warning); margin-bottom: 1rem;">${err.message}</p>
+            <button class="btn btn-primary" style="width: auto; margin: 0 auto;" onclick="switchTab('tab-generate')">
+              ⚡ Ir al Generador para crear trivias
+            </button>
+          </div>
+        `;
+      }
+    }
+
+    function renderQuizQuestion(t) {
+      const card = document.getElementById('quizCard');
+      const diffBadgeClass = t.dificultad === 'FACIL' ? 'badge-facil' : (t.dificultad === 'MEDIA' ? 'badge-media' : 'badge-dificil');
+
+      const buttonsHtml = (t.opciones || []).map(opt => `
+        <button class="quiz-option-btn" onclick="handleQuizAnswer('${opt.letra}', ${opt.correcta})">
+          <div class="option-letter">${opt.letra}</div>
+          <div>${opt.texto}</div>
+        </button>
+      `).join('');
+
+      card.innerHTML = `
+        <div class="trivia-header">
+          <div class="badges-row">
+            <span class="badge badge-cat">${t.tipoTrivia}</span>
+            <span class="badge ${diffBadgeClass}">${t.dificultad}</span>
+            ${t.subtema ? `<span class="badge" style="background:rgba(255,255,255,0.06); color:#cbd5e1;">${t.subtema}</span>` : ''}
+          </div>
+        </div>
+
+        <h2 style="font-size: 1.35rem; font-weight: 700; margin-bottom: 1.5rem; line-height: 1.4;">
+          ${t.pregunta}
+        </h2>
+
+        <div id="quizOptionsContainer">
+          ${buttonsHtml}
+        </div>
+      `;
+    }
+
+    function handleQuizAnswer(selectedLetter, isCorrect) {
+      const container = document.getElementById('quizOptionsContainer');
+      const buttons = container.querySelectorAll('.quiz-option-btn');
+
+      // Deshabilitar todos los botones para evitar doble clic
+      buttons.forEach(btn => {
+        btn.disabled = true;
+      });
+
+      // Feedback Box
+      const feedbackBox = document.getElementById('quizFeedbackBox');
+      const feedbackTitle = document.getElementById('quizFeedbackTitle');
+      const feedbackExpl = document.getElementById('quizFeedbackExplanation');
+      const imgContainer = document.getElementById('quizAnswerImageContainer');
+      const img = document.getElementById('quizAnswerImage');
+
+      if (isCorrect) {
+        state.quizScore++;
+        state.quizStreak++;
+        feedbackTitle.innerHTML = '🎉 ¡Correcto! Excelente respuesta.';
+        feedbackTitle.style.color = 'var(--success)';
+      } else {
+        state.quizWrongs++;
+        state.quizStreak = 0;
+        feedbackTitle.innerHTML = '❌ Incorrecto.';
+        feedbackTitle.style.color = 'var(--danger)';
+      }
+
+      // Marcar botones visualmente
+      const trivia = state.currentQuizTrivia;
+      buttons.forEach((btn, index) => {
+        const opt = trivia.opciones[index];
+        if (opt.correcta) {
+          btn.classList.add('selected-correct');
+        } else if (opt.letra === selectedLetter && !isCorrect) {
+          btn.classList.add('selected-wrong');
+        }
+      });
+
+      // Actualizar marcadores
+      document.getElementById('quizScore').innerText = state.quizScore;
+      document.getElementById('quizWrongs').innerText = state.quizWrongs;
+      document.getElementById('quizStreak').innerText = `🔥 ${state.quizStreak}`;
+
+      // Mostrar explicación
+      feedbackExpl.innerText = trivia.explicacion || 'No hay explicación disponible.';
+
+      // Mostrar imagen de respuesta si existe
+      const answerAsset = (trivia.assets || []).find(a => a.tipo === 'RESPUESTA' || a.tipo === 'ANSWER_IMAGE');
+      if (answerAsset) {
+        img.src = resolveAssetUrl(answerAsset.url);
+        imgContainer.style.display = 'block';
+      } else {
+        imgContainer.style.display = 'none';
+      }
+
+      feedbackBox.style.display = 'block';
+      feedbackBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    // ==========================================
+    // EXPLORADOR Y BÚSQUEDA
+    // ==========================================
+    async function loadRecentTrivias(isExplorerTab = false) {
+      const targetContainer = isExplorerTab ? document.getElementById('explorerResults') : document.getElementById('resultsContainer');
+      if (!isExplorerTab) document.getElementById('emptyResultsState').style.display = 'none';
+
+      targetContainer.innerHTML = '<p style="text-align:center; padding:2rem; color:var(--text-muted);">Consultando trivias recientes...</p>';
+
+      try {
+        const res = await fetch(`${getBaseUrl()}/api/v1/trivias?page=0&size=10&sort=createdAt,desc`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        renderTriviaCards(data.content, targetContainer);
+      } catch (err) {
+        targetContainer.innerHTML = `<p style="text-align:center; color:var(--danger); padding:2rem;">Error al cargar trivias: ${err.message}</p>`;
+      }
+    }
+
+    async function searchTrivias() {
+      const query = document.getElementById('searchInput').value.trim();
+      const container = document.getElementById('explorerResults');
+      container.innerHTML = '<p style="text-align:center; padding:2rem; color:var(--text-muted);">Buscando coincidencias...</p>';
+
+      try {
+        const url = query ? `${getBaseUrl()}/api/v1/trivias/search?q=${encodeURIComponent(query)}&page=0&size=20` : `${getBaseUrl()}/api/v1/trivias?page=0&size=20`;
+        const res = await fetch(url);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        renderTriviaCards(data.content, container);
+      } catch (err) {
+        container.innerHTML = `<p style="text-align:center; color:var(--danger); padding:2rem;">Error en la búsqueda: ${err.message}</p>`;
+      }
+    }
+
+    // ==========================================
+    // MÉTRICAS
+    // ==========================================
+    async function loadStats() {
+      try {
+        const res = await fetch(`${getBaseUrl()}/api/v1/trivias/stats`);
+        if (!res.ok) return;
+        const data = await res.json();
+
+        document.getElementById('statTotalTrivias').innerText = data.totalTriviasActivas ?? 0;
+        document.getElementById('statTotalGenerations').innerText = data.totalGeneraciones ?? 0;
+        document.getElementById('statAvgIntentos').innerText = data.promedioIntentosPorGeneracion != null ? data.promedioIntentosPorGeneracion.toFixed(2) : '1.00';
+        document.getElementById('statAvgDescartadas').innerText = data.promedioDescartadasPorGeneracion != null ? data.promedioDescartadasPorGeneracion.toFixed(2) : '0.00';
+      } catch (err) {
+        console.warn('Error al cargar métricas:', err);
+      }
+    }
+
+    // ==========================================
+    // MODAL DE IMÁGENES
+    // ==========================================
+    // MODAL DE IMÁGENES Y DESCARGA
+    // ==========================================
+    let currentModalImgSrc = '';
+    let currentModalTitle = '';
+
+    function openModal(imgSrc, title) {
+      const modal = document.getElementById('imageModal');
+      const img = document.getElementById('modalImage');
+      const titleEl = document.getElementById('modalImageTitle');
+      const newTabBtn = document.getElementById('modalNewTabBtn');
+
+      currentModalImgSrc = imgSrc;
+      currentModalTitle = title || 'Tarjeta Gráfica 1080x1080';
+
+      img.src = imgSrc;
+      titleEl.innerText = currentModalTitle;
+      if (newTabBtn) newTabBtn.href = imgSrc;
+      modal.classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('imageModal').classList.remove('active');
+    }
+
+    async function downloadModalImage(event) {
+      if (event) event.preventDefault();
+      if (!currentModalImgSrc) return;
+      await downloadImageFile(currentModalImgSrc, currentModalTitle);
+    }
+
+    // Descarga la imagen convirtiéndola a Blob en memoria para garantizar que el navegador
+    // ejecute la descarga del archivo sin redirigir ni reemplazar la pestaña actual.
+    async function downloadImageFile(imgUrl, title) {
+      const btn = document.getElementById('modalDownloadBtn');
+      const originalText = btn ? btn.innerHTML : '';
+      if (btn) {
+        btn.innerHTML = '⏳ Descargando...';
+        btn.disabled = true;
+      }
+
+      try {
+        const response = await fetch(imgUrl);
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        const blob = await response.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+
+        const safeTitle = (title || 'tarjeta_trivia')
+          .toLowerCase()
+          .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+          .replace(/[^a-z0-9_-]/g, '_')
+          .replace(/_+/g, '_');
+        const filename = `${safeTitle}.png`;
+
+        const tempLink = document.createElement('a');
+        tempLink.style.display = 'none';
+        tempLink.href = blobUrl;
+        tempLink.download = filename;
+        document.body.appendChild(tempLink);
+        tempLink.click();
+
+        setTimeout(() => {
+          document.body.removeChild(tempLink);
+          window.URL.revokeObjectURL(blobUrl);
+        }, 500);
+
+        showToast('Descarga iniciada exitosamente', 'success');
+      } catch (err) {
+        console.warn('Descarga directa vía Blob falló, abriendo en nueva pestaña como respaldo:', err);
+        // Respaldo en caso de error de red: abrir en nueva ventana/pestaña sin reemplazar la actual
+        window.open(imgUrl, '_blank');
+      } finally {
+        if (btn) {
+          btn.innerHTML = originalText;
+          btn.disabled = false;
+        }
+      }
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    // ==========================================
+    // TOASTS
+    // ==========================================
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `
+        <span>${type === 'success' ? '✅' : (type === 'error' ? '❌' : 'ℹ️')}</span>
+        <span>${message}</span>
+      `;
+      container.appendChild(toast);
+
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(10px)';
+        toast.style.transition = 'all 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    // Arrancar verificación de conexión al cargar la página
+    window.addEventListener('DOMContentLoaded', () => {
+      checkApiHealth();
+    });
+  </script>
+</body>
+</html>

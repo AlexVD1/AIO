@@ -1,0 +1,45 @@
+# ============================================================
+# trivia-api — .gitignore
+# ============================================================
+
+# --- Maven ---
+target/
+*.jar
+*.war
+*.ear
+.mvn/wrapper/maven-wrapper.jar
+
+# --- IDE ---
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+*.classpath
+*.project
+*.settings/
+
+# --- Spring Boot ---
+application-local.yml
+application-secrets.yml
+
+# --- Variables de entorno reales (NUNCA al repositorio) ---
+.env
+*.env.local
+*.env.production
+
+# --- Archivos del sistema ---
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# --- Logs ---
+*.log
+/logs/
+
+# --- Storage local (generado en runtime) ---
+/storage/
+
+# --- Playwright (si se usa en el futuro) ---
+playwright/.local-browsers/

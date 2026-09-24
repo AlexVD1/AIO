@@ -1,0 +1,143 @@
+# ============================================================
+# trivia-api — Configuración Principal
+# Fase 3: Base de datos habilitada
+# ============================================================
+
+server:
+  port: ${PORT:8080}
+  compression:
+    enabled: true
+    mime-types: application/json,text/plain
+    min-response-size: 1024
+
+spring:
+  application:
+    name: trivia-api
+
+  # ============================================================
+  # BASE DE DATOS — HikariCP Connection Pool
+  #
+  # HikariCP es el pool de conexiones por defecto en Spring Boot.
+  # Por qué un pool? Crear una conexión TCP a PostgreSQL es costoso (~20ms).
+  # HikariCP mantiene conexiones abiertas y las reutiliza.
+  #
+  # maximum-pool-size: 10 → máximo 10 conexiones simultáneas a PostgreSQL.
+  #   Regla práctica para un monolito pequeño: (núcleos_CPU * 2) + spindle_disk_count
+  #   Para desarrollo: 10 es suficiente.
+  # ============================================================
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/triviadb}
+    username: ${DATABASE_USERNAME:trivia_user}
+    password: ${DATABASE_PASSWORD:trivia_pass}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000    # 30s esperando conexión libre del pool
+      idle-timeout: 600000         # 10min: cerrar conexiones ociosas
+      max-lifetime: 1800000        # 30min: reemplazar conexiones viejas
+
+  # ============================================================
+  # JPA / HIBERNATE
+  #
+  # ddl-auto: validate → Hibernate NO crea ni modifica tablas.
+  # Solo verifica que el schema de la BD coincida con las entidades.
+  # Flyway es el único responsable de crear y modificar el schema.
+  #
+  # open-in-view: false → Desactiva el patrón "Open Session in View".
+  # Con true (default), Hibernate mantiene una sesión abierta durante
+  # todo el ciclo request-response, lo que puede causar queries lazy
+  # inesperadas. Con false, la sesión se cierra al salir del @Service.
+  # Esto es la mejor práctica para aplicaciones modernas.
+  # ============================================================
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  # ============================================================
+  # FLYWAY — Migraciones de base de datos
+  #
+  # Flyway funciona así:
+  #   1. Al arrancar la app, busca migraciones en classpath:db/migration
+  #   2. Compara con la tabla 'flyway_schema_history' en la BD
+  #   3. Ejecuta solo las migraciones nuevas (V1, V2, ..., Vn)
+  #   4. Si una migración ya corrió y fue modificada → ERROR (checksum)
+  #
+  # validate-on-migrate: true → Verifica checksums antes de migrar.
+  # Detecta si alguien modificó un archivo SQL ya aplicado.
+  # ============================================================
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    baseline-version: 6
+    validate-on-migrate: false
+
+  # Serialización JSON
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+
+# ============================================================
+# ACTUATOR
+# ============================================================
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+
+# ============================================================
+# OPENAPI / SWAGGER
+# ============================================================
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: alpha
+    tags-sorter: alpha
+
+# ============================================================
+# CONFIGURACIÓN DE DOMINIO
+# ============================================================
+trivia:
+  generation:
+    buffer-percentage: ${TRIVIA_GENERATION_BUFFER_PERCENTAGE:50}
+    max-attempts: ${MAX_GENERATION_ATTEMPTS:5}
+  duplicate:
+    similarity-threshold: ${TRIVIA_DUPLICATE_SIMILARITY_THRESHOLD:0.90}
+  storage:
+    path: ${STORAGE_PATH:./storage}
+    base-url: ${STORAGE_BASE_URL:http://localhost:8080/assets}
+  ai:
+    api-key: ${AI_API_KEY:}
+    model: ${AI_MODEL:gemini-3.5-flash-lite}
+    timeout-seconds: ${AI_TIMEOUT_SECONDS:30}
+  security:
+    api-key: ${API_KEY:}
+
+# ============================================================
+# LOGGING
+# ============================================================
+logging:
+  level:
+    com.trivia.api: ${LOG_LEVEL:INFO}
+    org.springframework.web: WARN
+    org.hibernate: WARN
+    org.hibernate.SQL: WARN
+    org.flywaydb: INFO
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
