@@ -46,6 +46,19 @@ public class GlobalExceptionHandler {
         return problem;
     }
 
+    @ExceptionHandler(org.springframework.http.converter.HttpMessageNotReadableException.class)
+    public ProblemDetail handleHttpMessageNotReadable(org.springframework.http.converter.HttpMessageNotReadableException ex) {
+        log.warn("Cuerpo de solicitud malformado o JSON inválido: {}", ex.getMessage());
+        ProblemDetail problem = ProblemDetail.forStatusAndDetail(
+                HttpStatus.BAD_REQUEST,
+                "El cuerpo de la solicitud no es un JSON válido o tiene un formato incorrecto."
+        );
+        problem.setTitle("JSON malformado");
+        problem.setType(URI.create("https://api.trivia.com/errors/malformed-json"));
+        problem.setProperty("timestamp", Instant.now());
+        return problem;
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ProblemDetail handleValidationErrors(MethodArgumentNotValidException ex) {
         Map<String, String> errores = new HashMap<>();

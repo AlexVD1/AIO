@@ -218,4 +218,33 @@ class TriviaControllerTest extends AbstractControllerTest {
         assertThat(response.getBody().id()).isEqualTo(genId);
         assertThat(response.getBody().estado()).isEqualTo(EstadoGeneracion.COMPLETADA);
     }
+
+    @Test
+    @DisplayName("POST /api/v1/trivias/export devuelve HTTP 200 con Content-Type application/zip")
+    void postExportRetornaZip200() {
+        UUID id = UUID.randomUUID();
+        com.trivia.api.dto.TriviaExportRequest request = new com.trivia.api.dto.TriviaExportRequest(List.of(id));
+
+        ResponseEntity<byte[]> response = restTemplate.postForEntity(
+                url("/api/v1/trivias/export"), request, byte[].class
+        );
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getHeaders().getContentType().toString()).contains("application/zip");
+        assertThat(response.getHeaders().getFirst("Content-Disposition")).contains("attachment; filename=");
+    }
+
+    @Test
+    @DisplayName("GET /api/v1/trivias/{id}/export devuelve HTTP 200 con Content-Type application/zip")
+    void getExportIndividualRetornaZip200() {
+        UUID id = UUID.randomUUID();
+
+        ResponseEntity<byte[]> response = restTemplate.getForEntity(
+                url("/api/v1/trivias/" + id + "/export"), byte[].class
+        );
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getHeaders().getContentType().toString()).contains("application/zip");
+        assertThat(response.getHeaders().getFirst("Content-Disposition")).contains(id + ".zip");
+    }
 }

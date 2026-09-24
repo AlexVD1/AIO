@@ -216,7 +216,23 @@ public class TriviaGenerationService {
             );
 
             // 1. Invocar IA
-            List<AiTriviaItem> loteGenerado = aiClient.generate(aiRequest);
+            List<AiTriviaItem> loteGenerado;
+            try {
+                loteGenerado = aiClient.generate(aiRequest);
+            } catch (com.trivia.api.ai.exception.AiClientException e) {
+                log.warn("Fallo transitorio al invocar IA en intento {}/{}: {}",
+                        generation.getIntentos(), maxAttempts, e.getMessage());
+                if (generation.getIntentos() < maxAttempts) {
+                    try {
+                        Thread.sleep(2000L);
+                    } catch (InterruptedException ie) {
+                        Thread.currentThread().interrupt();
+                        throw new RuntimeException("Interrupción durante reintento de IA", ie);
+                    }
+                    continue;
+                }
+                throw e;
+            }
             totalGeneradasLlm += (loteGenerado != null ? loteGenerado.size() : 0);
 
             // 2. Validar estructura y lógica

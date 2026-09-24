@@ -1,22 +1,29 @@
 package com.trivia.api.controller;
 
 import com.trivia.api.dto.StatsResponse;
+import com.trivia.api.dto.TriviaExportRequest;
 import com.trivia.api.dto.TriviaGenerationRequest;
 import com.trivia.api.dto.TriviaGenerationResponse;
 import com.trivia.api.dto.TriviaResponse;
+import com.trivia.api.service.AsyncTriviaPipelineExecutor;
+import com.trivia.api.service.TriviaExportService;
 import com.trivia.api.service.TriviaGenerationService;
 import com.trivia.api.service.TriviaQueryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.UUID;
 
 /**
@@ -26,9 +33,11 @@ import java.util.UUID;
  *   - Generación de contenido con IA (POST /api/v1/trivias)
  *   - Consulta por ID (GET /api/v1/trivias/{id})
  *   - Consulta de trivia aleatoria (GET /api/v1/trivias/random)
- *   - Búsqueda por texto (GET /api/v1/trivias/search)
+ *   - Búsqueda/filtrado combinado (GET /api/v1/trivias/search)
  *   - Listado general paginado (GET /api/v1/trivias)
  *   - Métricas y estadísticas (GET /api/v1/trivias/stats)
+ *   - Exportación de trivias e imágenes en archivo ZIP (POST /api/v1/trivias/export, GET /api/v1/trivias/{id}/export)
+ *   - Marcar trivias como descargadas (PATCH /api/v1/trivias/mark-downloaded)
  */
 @RestController
 @RequestMapping("/api/v1/trivias")
@@ -37,15 +46,18 @@ public class TriviaController {
 
     private final TriviaGenerationService generationService;
     private final TriviaQueryService queryService;
-    private final com.trivia.api.service.AsyncTriviaPipelineExecutor asyncPipelineExecutor;
+    private final AsyncTriviaPipelineExecutor asyncPipelineExecutor;
+    private final TriviaExportService exportService;
 
     public TriviaController(
             TriviaGenerationService generationService,
             TriviaQueryService queryService,
-            com.trivia.api.service.AsyncTriviaPipelineExecutor asyncPipelineExecutor) {
+            AsyncTriviaPipelineExecutor asyncPipelineExecutor,
+            TriviaExportService exportService) {
         this.generationService = generationService;
         this.queryService = queryService;
         this.asyncPipelineExecutor = asyncPipelineExecutor;
+        this.exportService = exportService;
     }
 
     @PostMapping
@@ -84,11 +96,15 @@ public class TriviaController {
     }
 
     @GetMapping("/search")
-    @Operation(summary = "Busca trivias por coincidencia de texto en la pregunta o explicación")
+    @Operation(summary = "Busca/filtra trivias por texto libre, estado, dificultad, subtema y tipo")
     public ResponseEntity<Page<TriviaResponse>> buscar(
-            @RequestParam(name = "q", required = false) String query,
-            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        return ResponseEntity.ok(queryService.buscarPorTexto(query, pageable));
+            @RequestParam(name = "q",           required = false) String query,
+            @RequestParam(name = "estado",      required = false) String estado,
+            @RequestParam(name = "dificultad",  required = false) String dificultad,
+            @RequestParam(name = "subtema",     required = false) String subtema,
+            @RequestParam(name = "tipoTrivia",  required = false) String tipoTrivia,
+            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.ok(queryService.buscarConFiltros(query, estado, dificultad, subtema, tipoTrivia, pageable));
     }
 
     @GetMapping
@@ -102,5 +118,38 @@ public class TriviaController {
     @Operation(summary = "Obtiene estadísticas globales de la plataforma")
     public ResponseEntity<StatsResponse> obtenerEstadisticas() {
         return ResponseEntity.ok(queryService.obtenerEstadisticas());
+    }
+
+    @PostMapping(value = "/export", produces = {"application/zip", "application/octet-stream", "*/*"})
+    @Operation(summary = "Exporta trivias seleccionadas en un archivo ZIP con metadatos JSON e imágenes 1080x1080")
+    public void exportarTrivias(
+            @Valid @RequestBody TriviaExportRequest request,
+            HttpServletResponse response) throws IOException {
+        response.setContentType("application/zip");
+        String filename = (request.triviaIds() != null && request.triviaIds().size() == 1)
+                ? String.format("%s.zip", request.triviaIds().get(0))
+                : "trivias_export.zip";
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + filename + "\"");
+        exportService.exportarZip(request.triviaIds(), response.getOutputStream());
+        queryService.marcarComoDescargadas(request.triviaIds());
+    }
+
+    @GetMapping(value = "/{id}/export", produces = {"application/zip", "application/octet-stream", "*/*"})
+    @Operation(summary = "Exporta una trivia individual en un archivo ZIP con su JSON e imágenes")
+    public void exportarTriviaIndividual(
+            @PathVariable UUID id,
+            HttpServletResponse response) throws IOException {
+        response.setContentType("application/zip");
+        response.setHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + id + ".zip\"");
+        exportService.exportarZip(List.of(id), response.getOutputStream());
+        queryService.marcarComoDescargadas(List.of(id));
+    }
+
+    @PatchMapping("/mark-downloaded")
+    @Operation(summary = "Marca las trivias especificadas con estado DESCARGADA. " +
+                         "Debe invocarse ÚNICAMENTE después de que el ZIP haya sido descargado exitosamente.")
+    public ResponseEntity<Void> marcarDescargadas(@RequestBody TriviaExportRequest request) {
+        queryService.marcarComoDescargadas(request.triviaIds());
+        return ResponseEntity.noContent().build();
     }
 }

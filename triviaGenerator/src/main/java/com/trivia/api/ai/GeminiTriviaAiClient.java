@@ -44,11 +44,11 @@ public class GeminiTriviaAiClient implements TriviaAiClient {
     public GeminiTriviaAiClient(
             @Value("${trivia.ai.api-key:}") String apiKey,
             @Value("${trivia.ai.model:gemini-3.5-flash-lite}") String model,
-            @Value("${trivia.ai.timeout-seconds:30}") int timeoutSeconds,
+            @Value("${trivia.ai.timeout-seconds:120}") int timeoutSeconds,
             ObjectMapper objectMapper) {
         this(apiKey, model, timeoutSeconds, objectMapper,
                 HttpClient.newBuilder()
-                        .connectTimeout(Duration.ofSeconds(10))
+                        .connectTimeout(Duration.ofSeconds(15))
                         .build());
     }
 
@@ -96,6 +96,9 @@ public class GeminiTriviaAiClient implements TriviaAiClient {
             }
 
             return parseGeminiResponse(response.body());
+        } catch (java.net.http.HttpTimeoutException e) {
+            log.error("Tiempo de espera agotado ({}s) al comunicarse con Gemini API [{}]", timeoutSeconds, model, e);
+            throw new AiClientException("Tiempo de espera agotado (" + timeoutSeconds + "s) al comunicar con Gemini: " + e.getMessage(), e);
         } catch (IOException e) {
             log.error("Fallo de E/S al comunicarse con Gemini API", e);
             throw new AiClientException("Error de red al comunicar con Gemini: " + e.getMessage(), e);
@@ -150,6 +153,11 @@ public class GeminiTriviaAiClient implements TriviaAiClient {
         // generationConfig with structured schema
         ObjectNode genConfig = root.putObject("generationConfig");
         genConfig.put("responseMimeType", "application/json");
+
+        if (model != null && model.contains("3")) {
+            ObjectNode thinkingConfig = genConfig.putObject("thinkingConfig");
+            thinkingConfig.put("thinkingLevel", "MINIMAL");
+        }
 
         ObjectNode schema = genConfig.putObject("responseSchema");
         schema.put("type", "ARRAY");

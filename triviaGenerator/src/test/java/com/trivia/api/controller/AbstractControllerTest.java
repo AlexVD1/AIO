@@ -59,4 +59,7 @@ public abstract class AbstractControllerTest {
 
     @MockBean
     protected com.trivia.api.service.AsyncTriviaPipelineExecutor asyncPipelineExecutor;
+
+    @MockBean
+    protected com.trivia.api.service.TriviaExportService triviaExportService;
 }

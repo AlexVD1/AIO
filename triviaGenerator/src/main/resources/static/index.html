@@ -806,6 +806,58 @@
       font-size: 0.75rem;
     }
 
+    /* Selection Toolbar & Multi-Select */
+    .selection-toolbar {
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 0.75rem 1.25rem;
+      margin-bottom: 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .selection-toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .selection-checkbox-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 600;
+      user-select: none;
+    }
+
+    .selection-counter {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--primary);
+      background: rgba(99, 102, 241, 0.15);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      padding: 0.2rem 0.65rem;
+      border-radius: 999px;
+    }
+
+    .trivia-checkbox {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: var(--primary);
+    }
+
+    .trivia-card.selected {
+      border-color: var(--primary);
+      background: rgba(99, 102, 241, 0.04);
+    }
+
     /* Toasts */
     .toast-container {
       position: fixed;
@@ -839,7 +891,212 @@
       from { transform: translateX(100%); opacity: 0; }
       to { transform: translateX(0); opacity: 1; }
     }
+
+    /* =============================================
+       EXPLORADOR COMPACTO (TABLA)
+       ============================================= */
+    .explorer-toolbar {
+      margin-bottom: 1rem;
+      padding: 1rem 1.25rem;
+    }
+    .explorer-search-row {
+      display: flex;
+      gap: 0.65rem;
+      margin-bottom: 0.85rem;
+    }
+    .explorer-search { flex: 1; }
+    .explorer-filters-row {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      align-items: flex-end;
+    }
+    .filter-group { display: flex; flex-direction: column; gap: 0.3rem; }
+    .filter-label { font-size: 0.72rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
+    .filter-pills { display: flex; gap: 0.35rem; flex-wrap: nowrap; }
+    .filter-pill {
+      padding: 0.22rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid var(--border-color);
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .filter-pill:hover { border-color: var(--primary); color: var(--text-main); }
+    .filter-pill.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+    .filter-pill.facil.active  { background: var(--success); border-color: var(--success); }
+    .filter-pill.media.active  { background: var(--warning); border-color: var(--warning); color: #1a1a1a; }
+    .filter-pill.dificil.active { background: var(--danger); border-color: var(--danger); }
+    .filter-pill.downloaded.active { background: #7c3aed; border-color: #7c3aed; }
+
+    /* Tabla de trivias compacta */
+    .trivias-table-wrap { overflow-x: auto; }
+    .trivias-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
+    .trivias-table thead tr {
+      background: rgba(255,255,255,0.03);
+      border-bottom: 2px solid var(--border-color);
+    }
+    .trivias-table th {
+      padding: 0.6rem 0.75rem;
+      text-align: left;
+      color: var(--text-dim);
+      font-weight: 700;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      white-space: nowrap;
+    }
+    .trivias-table th.col-check { width: 36px; text-align: center; }
+    .trivias-table th.col-id    { width: 90px; }
+    .trivias-table th.col-cat   { width: 110px; }
+    .trivias-table th.col-diff  { width: 80px; }
+    .trivias-table th.col-sub   { width: 130px; }
+    .trivias-table th.col-est   { width: 100px; }
+    .trivias-table th.col-act   { width: 96px; text-align: right; }
+    .trivias-table tbody tr {
+      border-bottom: 1px solid var(--border-color);
+      transition: background 0.12s ease;
+    }
+    .trivias-table tbody tr:hover { background: rgba(255,255,255,0.025); }
+    .trivias-table tbody tr.row-selected { background: rgba(99,102,241,0.07); border-left: 3px solid var(--primary); }
+    .trivias-table td {
+      padding: 0.55rem 0.75rem;
+      vertical-align: middle;
+    }
+    .trivias-table td.col-check { text-align: center; }
+    .trivias-table td.col-pregunta {
+      max-width: 320px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--text-main);
+      font-weight: 500;
+    }
+    .trivias-table td.col-pregunta:hover { overflow: visible; white-space: normal; word-break: break-word; }
+    .trivias-table td.col-act { text-align: right; }
+    .trivias-table td code { font-size: 0.75rem; color: var(--text-dim); }
+
+    /* Badge estado DESCARGADA */
+    .badge-descargada { background: rgba(124,58,237,0.2); color: #c4b5fd; border: 1px solid rgba(124,58,237,0.4); }
+    .badge-activa     { background: var(--success-bg); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.3); }
+    .badge-invalida   { background: var(--danger-bg); color: #fca5a5; }
+    .badge-archivada  { background: var(--warning-bg); color: #fcd34d; }
+
+    /* Toolbar de selección dentro de la tabla */
+    .table-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 0.6rem 0.75rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      flex-wrap: wrap;
+      font-size: 0.85rem;
+    }
+    .table-toolbar-left { display: flex; align-items: center; gap: 0.75rem; flex: 1; }
+    .table-toolbar-right { display: flex; align-items: center; gap: 0.5rem; }
+    .btn-sm { padding: 0.3rem 0.75rem; font-size: 0.8rem; }
+
+    /* =============================================
+       MODAL DETALLE IMAGEN-FIRST
+       ============================================= */
+    .detail-modal-wide {
+      max-width: min(1100px, 95vw);
+      width: 100%;
+    }
+    .detail-modal-body {
+      padding: 1.25rem 1.5rem;
+      max-height: 82vh;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+    .detail-meta-strip {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      padding: 0.75rem 1rem;
+      background: rgba(255,255,255,0.03);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border-color);
+    }
+    .detail-meta-item { display: flex; flex-direction: column; gap: 0.15rem; }
+    .detail-meta-label { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; font-weight: 700; letter-spacing: 0.04em; }
+    .detail-meta-value { font-size: 0.82rem; color: var(--text-main); }
+
+    .detail-images-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+    }
+    @media (max-width: 700px) {
+      .detail-images-grid { grid-template-columns: 1fr; }
+    }
+    .detail-img-card {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      background: rgba(0,0,0,0.2);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+    .detail-img-label {
+      padding: 0.4rem 0.75rem;
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      background: rgba(255,255,255,0.03);
+      border-bottom: 1px solid var(--border-color);
+    }
+    .detail-img-card img {
+      width: 100%;
+      display: block;
+      cursor: zoom-in;
+      transition: opacity 0.2s;
+    }
+    .detail-img-card img:hover { opacity: 0.9; }
+
+    .detail-actions-row {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      align-items: center;
+      padding: 0.5rem 0;
+    }
+    .detail-text-section {
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+    }
+    .detail-text-summary {
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      list-style: none;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .detail-text-summary::-webkit-details-marker { display: none; }
+    .detail-text-summary::after { content: ' ▾'; font-size: 0.7rem; color: var(--text-dim); }
+    details[open] .detail-text-summary::after { content: ' ▴'; }
+    .detail-text-body { padding: 1rem; border-top: 1px solid var(--border-color); }
   </style>
+
 </head>
 <body>
 
@@ -1100,18 +1357,49 @@
     <!-- TAB 3: EXPLORADOR & BÚSQUEDA -->
     <!-- ========================================== -->
     <section id="tab-explorer" class="tab-panel">
-      <div class="card" style="margin-bottom: 1.5rem;">
-        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap;">
-          <input type="text" id="searchInput" class="form-control" placeholder="Buscar por palabra clave en preguntas o explicaciones..." style="flex: 2; min-width: 250px;" onkeyup="if(event.key==='Enter') searchTrivias()">
-          <button class="btn btn-primary" style="width: auto;" onclick="searchTrivias()">🔍 Buscar</button>
-          <button class="btn btn-secondary" style="width: auto;" onclick="loadRecentTrivias(true)">🔄 Todas las recientes</button>
+      <!-- Barra de búsqueda y filtros -->
+      <div class="explorer-toolbar card">
+        <div class="explorer-search-row">
+          <input type="text" id="searchInput" class="form-control explorer-search" placeholder="Buscar en preguntas o explicaciones..." oninput="debounceApplyFilters()" onkeyup="if(event.key==='Enter') applyExplorerFilters()">
+          <button class="btn btn-primary" style="width:auto;" onclick="applyExplorerFilters()">🔍 Buscar</button>
+          <button class="btn btn-secondary" style="width:auto;" onclick="resetExplorerFilters()" title="Restablecer todos los filtros">🔄 Limpiar</button>
+        </div>
+        <div class="explorer-filters-row">
+          <div class="filter-group">
+            <label class="filter-label">Estado</label>
+            <div class="filter-pills" id="estadoFilter">
+              <button class="filter-pill active" data-value="" onclick="setEstadoFilter(this, '')">Todas</button>
+              <button class="filter-pill" data-value="ACTIVA" onclick="setEstadoFilter(this, 'ACTIVA')">Activas</button>
+              <button class="filter-pill downloaded" data-value="DESCARGADA" onclick="setEstadoFilter(this, 'DESCARGADA')">Descargadas</button>
+            </div>
+          </div>
+          <div class="filter-group">
+            <label class="filter-label">Dificultad</label>
+            <div class="filter-pills" id="dificultadFilter">
+              <button class="filter-pill active" data-value="" onclick="setDificultadFilter(this, '')">Todas</button>
+              <button class="filter-pill facil" data-value="FACIL" onclick="setDificultadFilter(this, 'FACIL')">Fácil</button>
+              <button class="filter-pill media" data-value="MEDIA" onclick="setDificultadFilter(this, 'MEDIA')">Media</button>
+              <button class="filter-pill dificil" data-value="DIFICIL" onclick="setDificultadFilter(this, 'DIFICIL')">Difícil</button>
+            </div>
+          </div>
+          <div class="filter-group" style="flex:1; min-width: 140px;">
+            <label class="filter-label">Categoría</label>
+            <input type="text" id="filterTipoTrivia" list="categorySuggestions" class="form-control" style="height:32px; font-size:0.82rem; padding: 0.25rem 0.6rem;" placeholder="Ej: Historia, ASTRONOMIA..." oninput="debounceApplyFilters()" onkeyup="if(event.key==='Enter') applyExplorerFilters()">
+            <datalist id="categorySuggestions"></datalist>
+          </div>
+          <div class="filter-group" style="flex:1; min-width: 130px;">
+            <label class="filter-label">Subtema</label>
+            <input type="text" id="filterSubtema" class="form-control" style="height:32px; font-size:0.82rem; padding: 0.25rem 0.6rem;" placeholder="Ej: Mitología..." oninput="debounceApplyFilters()" onkeyup="if(event.key==='Enter') applyExplorerFilters()">
+          </div>
         </div>
       </div>
 
+      <!-- Tabla de trivias -->
       <div id="explorerResults">
-        <p style="text-align: center; color: var(--text-muted); padding: 2rem;">Cargando catálogo de trivias almacenadas...</p>
+        <p style="text-align: center; color: var(--text-muted); padding: 2rem;">Cargando trivias...</p>
       </div>
     </section>
+
 
     <!-- ========================================== -->
     <!-- TAB 4: MÉTRICAS & CATÁLOGO -->
@@ -1188,6 +1476,80 @@
     </div>
   </div>
 
+  <!-- MODAL DE DETALLE COMPLETO DE TRIVIA (IMÁGENES PRIMERO) -->
+  <div id="triviaDetailModal" class="modal-overlay" onclick="closeTriviaDetailModal(event)">
+    <div class="modal-content detail-modal-wide" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <div style="display:flex; align-items:center; gap:0.6rem; flex-wrap:wrap; flex:1; min-width:0;">
+          <h3 style="font-size:1rem; font-weight:700; white-space:nowrap;">Detalle</h3>
+          <span id="detailBadgeCategory" class="badge badge-cat"></span>
+          <span id="detailBadgeDiff" class="badge"></span>
+          <span id="detailBadgeSubtopic" class="badge" style="background:rgba(255,255,255,0.06); color:#cbd5e1;"></span>
+          <span id="detailBadgeEstado" class="badge"></span>
+        </div>
+        <button class="modal-close" onclick="closeTriviaDetailModal()">&#x2715;</button>
+      </div>
+
+      <div class="modal-body detail-modal-body">
+
+        <!-- Metadatos compactos -->
+        <div class="detail-meta-strip">
+          <div class="detail-meta-item">
+            <span class="detail-meta-label">ID</span>
+            <code id="detailTriviaId" class="detail-meta-value" style="user-select:all;"></code>
+          </div>
+          <div class="detail-meta-item">
+            <span class="detail-meta-label">Creada</span>
+            <span id="detailTriviaDate" class="detail-meta-value"></span>
+          </div>
+          <div class="detail-meta-item" id="detailSubtemaRow">
+            <span class="detail-meta-label">Subtema</span>
+            <span id="detailSubtemaText" class="detail-meta-value"></span>
+          </div>
+        </div>
+
+        <!-- Imágenes principales (prioridad máxima) -->
+        <div id="detailAssetsSection" class="detail-images-grid">
+          <!-- Se cargan dinámicamente -->
+        </div>
+        <div id="detailNoImages" style="display:none; text-align:center; padding:1.5rem; color:var(--text-dim); font-size:0.9rem;">
+          ⚠️ Sin imágenes disponibles para esta trivia
+        </div>
+
+        <!-- Acciones de descarga -->
+        <div class="detail-actions-row">
+          <button id="detailDownloadZipBtn" class="btn btn-primary" style="width:auto;" onclick="downloadSingleTriviaZipFromDetail()">
+            📦 Descargar ZIP
+          </button>
+          <button id="detailDownloadQBtn" class="btn btn-secondary" style="width:auto; display:none;" onclick="downloadDetailImage('question')">
+            ⬇️ question.png
+          </button>
+          <button id="detailDownloadABtn" class="btn btn-secondary" style="width:auto; display:none;" onclick="downloadDetailImage('answer')">
+            ⬇️ answer.png
+          </button>
+          <button class="btn btn-secondary" style="width:auto; margin-left:auto;" onclick="closeTriviaDetailModal()">
+            Cerrar
+          </button>
+        </div>
+
+        <!-- Info textual colapsable -->
+        <details class="detail-text-section">
+          <summary class="detail-text-summary">📝 Pregunta, respuestas y explicación</summary>
+          <div class="detail-text-body">
+            <p id="detailQuestionText" style="font-size:1rem; font-weight:600; line-height:1.5; margin-bottom:1rem; color:#f1f5f9;"></p>
+            <div id="detailOptionsContainer" class="options-list" style="margin-bottom:1rem;"></div>
+            <div id="detailExplanationBox" class="explanation-box" style="display:none;">
+              <strong>💡 Explicación:</strong> <span id="detailExplanationText"></span>
+            </div>
+          </div>
+        </details>
+
+      </div>
+    </div>
+  </div>
+
+
+
   <!-- TOAST NOTIFICATIONS CONTAINER -->
   <div id="toastContainer" class="toast-container"></div>
 
@@ -1202,7 +1564,11 @@
       quizStreak: 0,
       pollTimer: null,
       elapsedSeconds: 0,
-      elapsedTimer: null
+      elapsedTimer: null,
+      selectedTriviaIds: new Set(),
+      cachedTrivias: new Map(),
+      currentDisplayedTrivias: [],
+      currentDetailTriviaId: null
     };
 
     // Inicializar URL base y API Key
@@ -1326,6 +1692,21 @@
           select.value = prevVal;
         }
 
+        // Sugerencias para el filtro de categorías en el explorador
+        const catDatalist = document.getElementById('categorySuggestions');
+        if (catDatalist) {
+          catDatalist.innerHTML = '';
+          tipos.forEach(t => {
+            const opt1 = document.createElement('option');
+            opt1.value = t.codigo;
+            opt1.label = t.nombre;
+            catDatalist.appendChild(opt1);
+            const opt2 = document.createElement('option');
+            opt2.value = t.nombre;
+            catDatalist.appendChild(opt2);
+          });
+        }
+
         // Actualizar Tabla de Métricas
         const tbody = document.getElementById('catalogTableBody');
         tbody.innerHTML = '';
@@ -1356,16 +1737,19 @@
 
     // Tabs Switcher
     function switchTab(tabId) {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        const onClickAttr = b.getAttribute('onclick') || '';
+        b.classList.toggle('active', onClickAttr.includes(`'${tabId}'`));
+      });
       document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
 
-      event.currentTarget.classList.add('active');
-      document.getElementById(tabId).classList.add('active');
+      const targetPanel = document.getElementById(tabId);
+      if (targetPanel) targetPanel.classList.add('active');
 
       if (tabId === 'tab-quiz' && !state.currentQuizTrivia) {
         fetchNextQuizQuestion();
       } else if (tabId === 'tab-explorer') {
-        loadRecentTrivias(true);
+        applyExplorerFilters();
       } else if (tabId === 'tab-stats') {
         loadStats();
       }
@@ -1557,83 +1941,523 @@
       }
     }
 
-    // Renderizado de tarjetas de trivia
+    // ==========================================
+    // RENDERIZADO DE TRIVIAS — TABLA COMPACTA
+    // ==========================================
+    // Alto Rendimiento: NO se cargan previews de imágenes en el listado.
+    // Las imágenes se solicitan ÚNICAMENTE bajo demanda al abrir "Ver detalle".
+
+    function estadoBadgeHtml(estado) {
+      const map = {
+        'ACTIVA':      ['badge-activa',      'Activa'],
+        'DESCARGADA':  ['badge-descargada',  'Descargada'],
+        'INVALIDA':    ['badge-invalida',     'Inválida'],
+        'ARCHIVADA':   ['badge-archivada',   'Archivada'],
+      };
+      const [cls, label] = map[estado] || ['', estado || '—'];
+      return `<span class="badge ${cls}">${label}</span>`;
+    }
+
+    function diffBadgeHtml(dificultad) {
+      const cls = dificultad === 'FACIL' ? 'badge-facil' : (dificultad === 'MEDIA' ? 'badge-media' : 'badge-dificil');
+      const label = dificultad === 'FACIL' ? 'Fácil' : (dificultad === 'MEDIA' ? 'Media' : 'Difícil');
+      return `<span class="badge ${cls}">${label}</span>`;
+    }
+
     function renderTriviaCards(trivias, container) {
       if (!trivias || trivias.length === 0) {
         container.innerHTML = '<p style="text-align:center; padding:2rem; color:var(--text-muted);">No se encontraron trivias.</p>';
         return;
       }
 
-      container.innerHTML = '';
-      trivias.forEach((t, idx) => {
-        const card = document.createElement('div');
-        card.className = 'trivia-card';
+      state.currentDisplayedTrivias = trivias;
+      trivias.forEach(t => state.cachedTrivias.set(t.id, t));
 
-        const diffBadgeClass = t.dificultad === 'FACIL' ? 'badge-facil' : (t.dificultad === 'MEDIA' ? 'badge-media' : 'badge-dificil');
+      const selCount = state.selectedTriviaIds.size;
+      const allSelected = trivias.length > 0 && trivias.every(t => state.selectedTriviaIds.has(t.id));
 
-        // Construir opciones
-        const optionsHtml = (t.opciones || []).map(opt => `
-          <div class="option-item ${opt.correcta ? 'correct' : ''}">
-            <div class="option-letter">${opt.letra}</div>
-            <div style="flex:1;">${opt.texto}</div>
-            ${opt.correcta ? '<span style="font-size:0.8rem; font-weight:700;">✓ Correcta</span>' : ''}
+      let html = `
+        <div class="table-toolbar">
+          <div class="table-toolbar-left">
+            <label class="selection-checkbox-label">
+              <input type="checkbox" class="trivia-checkbox select-all-checkbox" ${allSelected ? 'checked' : ''} onchange="toggleSelectAll(this.checked, this)">
+              <span>Seleccionar todas (${trivias.length})</span>
+            </label>
+            <span class="selection-counter">${selCount} seleccionada${selCount === 1 ? '' : 's'}</span>
+            ${selCount > 0 ? `<button class="btn btn-secondary btn-sm" style="padding: 2px 8px; font-size: 0.75rem;" onclick="clearSelection()">Limpiar selección</button>` : ''}
           </div>
-        `).join('');
-
-        // Construir Assets de Imágenes PNG
-        const assetsHtml = (t.assets || []).map(a => {
-          // Resolver URL de imagen usando helper dinámico
-          const imgUrl = resolveAssetUrl(a.url);
-          const isQuestion = a.tipo === 'PREGUNTA' || a.tipo === 'QUESTION_IMAGE';
-          const label = isQuestion ? 'Tarjeta de Pregunta' : 'Tarjeta de Respuesta';
-
-          return `
-            <div class="asset-card">
-              <img src="${imgUrl}" alt="${label}" class="asset-preview" loading="lazy" onclick="openModal('${imgUrl}', '${label}')">
-              <div class="asset-info">
-                <span class="asset-type-badge">${isQuestion ? '❓ question.png' : '💡 answer.png'}</span>
-                <div style="display: flex; gap: 0.35rem;">
-                  <button class="btn-view-asset" onclick="openModal('${imgUrl}', '${label}')">Ver 1080p</button>
-                  <button class="btn-view-asset" title="Descargar PNG directamente" onclick="downloadImageFile('${imgUrl}', '${label}')">⬇️</button>
-                </div>
-              </div>
-            </div>
-          `;
-        }).join('');
-
-        card.innerHTML = `
-          <div class="trivia-header">
-            <div class="badges-row">
-              <span class="badge badge-cat">${t.tipoTrivia}</span>
-              <span class="badge ${diffBadgeClass}">${t.dificultad}</span>
-              ${t.subtema ? `<span class="badge" style="background:rgba(255,255,255,0.06); color:#cbd5e1;">${t.subtema}</span>` : ''}
-            </div>
-            <div style="font-size:0.75rem; color:var(--text-dim);">ID: ${t.id ? t.id.slice(0, 8) : ''}</div>
+          <div class="table-toolbar-right">
+            <button class="btn btn-primary btn-sm btn-download-zip" ${selCount === 0 ? 'disabled' : ''} onclick="downloadSelectedTriviasZip()">
+              📦 Descargar ZIP (${selCount})
+            </button>
           </div>
+        </div>
+        <div class="trivias-table-wrap">
+          <table class="trivias-table">
+            <thead>
+              <tr>
+                <th class="col-check"></th>
+                <th class="col-pregunta">Pregunta</th>
+                <th class="col-cat">Categoría</th>
+                <th class="col-diff">Dificultad</th>
+                <th class="col-sub">Subtema</th>
+                <th class="col-est">Estado</th>
+                <th class="col-id">ID</th>
+                <th class="col-act">Acción</th>
+              </tr>
+            </thead>
+            <tbody>
+      `;
 
-          <div class="trivia-question">${t.pregunta}</div>
-
-          <div class="options-list">
-            ${optionsHtml}
-          </div>
-
-          ${t.explicacion ? `
-            <div class="explanation-box">
-              <strong>💡 Explicación Didáctica:</strong> ${t.explicacion}
-            </div>
-          ` : ''}
-
-          ${t.assets && t.assets.length > 0 ? `
-            <div class="assets-gallery">
-              ${assetsHtml}
-            </div>
-          ` : ''}
+      trivias.forEach(t => {
+        const isSelected = state.selectedTriviaIds.has(t.id);
+        const shortId = t.id ? t.id.slice(0, 8) + '…' : '—';
+        html += `
+          <tr data-trivia-id="${t.id}" class="${isSelected ? 'row-selected' : ''}">
+            <td class="col-check">
+              <input type="checkbox" class="trivia-checkbox" data-id="${t.id}" ${isSelected ? 'checked' : ''} onchange="toggleSelectTrivia('${t.id}', this)">
+            </td>
+            <td class="col-pregunta" title="${(t.pregunta || '').replace(/"/g, '&quot;')}">${t.pregunta || '—'}</td>
+            <td><span class="badge badge-cat" style="font-size:0.75rem;">${t.tipoTrivia || '—'}</span></td>
+            <td>${diffBadgeHtml(t.dificultad)}</td>
+            <td style="color:var(--text-muted); font-size:0.82rem;">${t.subtema || '—'}</td>
+            <td class="col-est" data-estado-cell="${t.id}">${estadoBadgeHtml(t.estado)}</td>
+            <td><code title="${t.id}">${shortId}</code></td>
+            <td class="col-act">
+              <button class="btn btn-secondary btn-sm" onclick="openTriviaDetailModal('${t.id}')">👁️ Detalle</button>
+            </td>
+          </tr>
         `;
+      });
 
-        container.appendChild(card);
+      html += '</tbody></table></div>';
+      container.innerHTML = html;
+    }
+
+    function clearSelection() {
+      state.selectedTriviaIds.clear();
+      document.querySelectorAll('input.trivia-checkbox').forEach(cb => cb.checked = false);
+      document.querySelectorAll('tr[data-trivia-id]').forEach(r => r.classList.remove('row-selected'));
+      updateSelectionUi();
+    }
+
+    // Alternar selección individual
+    function toggleSelectTrivia(id, checkboxEl) {
+      const isSelected = checkboxEl ? checkboxEl.checked : !state.selectedTriviaIds.has(id);
+      if (isSelected) {
+        state.selectedTriviaIds.add(id);
+      } else {
+        state.selectedTriviaIds.delete(id);
+      }
+      document.querySelectorAll(`input.trivia-checkbox[data-id="${id}"]`).forEach(cb => {
+        cb.checked = isSelected;
+      });
+      document.querySelectorAll(`tr[data-trivia-id="${id}"]`).forEach(row => {
+        row.classList.toggle('row-selected', isSelected);
+      });
+      updateSelectionUi();
+    }
+
+    // Alternar seleccionar todas las mostradas en la tabla del toolbar
+    function toggleSelectAll(checked, triggerEl) {
+      const container = triggerEl ? triggerEl.closest('.table-toolbar')?.parentElement : null;
+      const checkboxes = container
+        ? container.querySelectorAll('tbody input.trivia-checkbox')
+        : document.querySelectorAll('tbody input.trivia-checkbox');
+
+      checkboxes.forEach(cb => {
+        const id = cb.dataset.id;
+        if (!id) return;
+        if (checked) {
+          state.selectedTriviaIds.add(id);
+        } else {
+          state.selectedTriviaIds.delete(id);
+        }
+        document.querySelectorAll(`input.trivia-checkbox[data-id="${id}"]`).forEach(c => c.checked = checked);
+        document.querySelectorAll(`tr[data-trivia-id="${id}"]`).forEach(r => r.classList.toggle('row-selected', checked));
+      });
+      updateSelectionUi();
+    }
+
+    // Actualizar badges, checkboxes maestros y botones de descarga
+    function updateSelectionUi() {
+      const count = state.selectedTriviaIds.size;
+      document.querySelectorAll('.selection-counter').forEach(el => {
+        el.innerText = `${count} seleccionada${count === 1 ? '' : 's'}`;
+      });
+      document.querySelectorAll('.btn-download-zip').forEach(btn => {
+        btn.disabled = (count === 0);
+        btn.innerHTML = `📦 Descargar ZIP (${count})`;
+      });
+
+      document.querySelectorAll('.table-toolbar').forEach(toolbar => {
+        const container = toolbar.parentElement;
+        const localCheckboxes = container.querySelectorAll('tbody input.trivia-checkbox');
+        const selectAllCb = toolbar.querySelector('.select-all-checkbox');
+        if (selectAllCb && localCheckboxes.length > 0) {
+          selectAllCb.checked = Array.from(localCheckboxes).every(cb => state.selectedTriviaIds.has(cb.dataset.id));
+        }
       });
     }
 
+    // ==========================================
+    // DETALLE DE TRIVIA — IMAGEN FIRST
+    // ==========================================
+    // URLs de assets del modal activo (para descarga individual)
+    let _detailQuestionUrl = null;
+    let _detailAnswerUrl   = null;
+
+    function openTriviaDetailModal(id) {
+      const trivia = state.cachedTrivias.get(id);
+      if (!trivia) {
+        showToast('Consultando detalle...', 'info');
+        fetch(`${getBaseUrl()}/api/v1/trivias/${id}`)
+          .then(res => {
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            return res.json();
+          })
+          .then(t => {
+            state.cachedTrivias.set(t.id, t);
+            populateAndShowDetailModal(t);
+          })
+          .catch(err => showToast(`Error al cargar detalle: ${err.message}`, 'error'));
+        return;
+      }
+      populateAndShowDetailModal(trivia);
+    }
+
+    function populateAndShowDetailModal(t) {
+      state.currentDetailTriviaId = t.id;
+      _detailQuestionUrl = null;
+      _detailAnswerUrl   = null;
+
+      // Badges en header
+      document.getElementById('detailBadgeCategory').innerText = t.tipoTrivia || '';
+      const diffBadge = document.getElementById('detailBadgeDiff');
+      diffBadge.innerText = t.dificultad || '';
+      diffBadge.className = `badge ${t.dificultad === 'FACIL' ? 'badge-facil' : (t.dificultad === 'MEDIA' ? 'badge-media' : 'badge-dificil')}`;
+      const subBadge = document.getElementById('detailBadgeSubtopic');
+      subBadge.innerText = t.subtema || '';
+      subBadge.style.display = t.subtema ? 'inline-block' : 'none';
+      const estadoBadge = document.getElementById('detailBadgeEstado');
+      if (t.estado) {
+        estadoBadge.outerHTML = estadoBadgeHtml(t.estado).replace('class="badge ', 'id="detailBadgeEstado" class="badge ');
+      }
+
+      // Metadatos
+      document.getElementById('detailTriviaId').innerText = t.id || '';
+      document.getElementById('detailTriviaDate').innerText = t.createdAt ? new Date(t.createdAt).toLocaleString() : '';
+      const subtemaRow = document.getElementById('detailSubtemaRow');
+      if (subtemaRow) {
+        subtemaRow.style.display = t.subtema ? 'flex' : 'none';
+        const subtemaText = document.getElementById('detailSubtemaText');
+        if (subtemaText) subtemaText.innerText = t.subtema || '';
+      }
+
+      // Imágenes (prioridad máxima — lado a lado)
+      const imgGrid = document.getElementById('detailAssetsSection');
+      const noImg   = document.getElementById('detailNoImages');
+      const qBtn    = document.getElementById('detailDownloadQBtn');
+      const aBtn    = document.getElementById('detailDownloadABtn');
+      imgGrid.innerHTML = '';
+
+      if (t.assets && t.assets.length > 0) {
+        t.assets.forEach(a => {
+          const imgUrl = resolveAssetUrl(a.url);
+          const isQuestion = a.tipo === 'PREGUNTA' || a.tipo === 'QUESTION_IMAGE';
+          const label = isQuestion ? '❓ Tarjeta de Pregunta (question.png)' : '💡 Tarjeta de Respuesta (answer.png)';
+
+          if (isQuestion) { _detailQuestionUrl = imgUrl; if(qBtn) qBtn.style.display = 'inline-block'; }
+          else             { _detailAnswerUrl   = imgUrl; if(aBtn) aBtn.style.display = 'inline-block'; }
+
+          const card = document.createElement('div');
+          card.className = 'detail-img-card';
+          card.innerHTML = `
+            <div class="detail-img-label">${label}</div>
+            <img src="${imgUrl}" alt="${label}" loading="lazy" onclick="openModal('${imgUrl}', '${label}')">
+          `;
+          imgGrid.appendChild(card);
+        });
+        imgGrid.style.display = 'grid';
+        noImg.style.display = 'none';
+      } else {
+        imgGrid.style.display = 'none';
+        noImg.style.display = 'block';
+      }
+
+      // Info textual (en sección colapsable)
+      document.getElementById('detailQuestionText').innerText = t.pregunta || '';
+      const optsContainer = document.getElementById('detailOptionsContainer');
+      optsContainer.innerHTML = (t.opciones || []).map(opt => `
+        <div class="option-item ${opt.correcta ? 'correct' : ''}">
+          <div class="option-letter">${opt.letra}</div>
+          <div style="flex:1;">${opt.texto}</div>
+          ${opt.correcta ? '<span style="font-size:0.8rem; font-weight:700;">✓ Correcta</span>' : ''}
+        </div>
+      `).join('');
+
+      const explBox  = document.getElementById('detailExplanationBox');
+      const explText = document.getElementById('detailExplanationText');
+      if (t.explicacion) {
+        explText.innerText = t.explicacion;
+        explBox.style.display = 'block';
+      } else {
+        explBox.style.display = 'none';
+      }
+
+      document.getElementById('triviaDetailModal').classList.add('active');
+    }
+
+    function closeTriviaDetailModal(event) {
+      if (event && event.target && event.target.id !== 'triviaDetailModal' && !event.target.classList.contains('modal-close')) {
+        return;
+      }
+      document.getElementById('triviaDetailModal').classList.remove('active');
+      _detailQuestionUrl = null;
+      _detailAnswerUrl   = null;
+    }
+
+    // Descarga individual de question.png o answer.png desde el modal de detalle
+    async function downloadDetailImage(type) {
+      const url = type === 'question' ? _detailQuestionUrl : _detailAnswerUrl;
+      if (!url) { showToast('Imagen no disponible', 'warning'); return; }
+      const name = type === 'question'
+        ? `${state.currentDetailTriviaId}_question`
+        : `${state.currentDetailTriviaId}_answer`;
+      await downloadImageFile(url, name);
+    }
+
+    async function downloadSingleTriviaZipFromDetail() {
+      if (!state.currentDetailTriviaId) return;
+      const btn = document.getElementById('detailDownloadZipBtn');
+      await triggerZipDownload([state.currentDetailTriviaId], btn);
+    }
+
+    // ==========================================
+    // DESCARGA DE ZIP (SELECCIÓN INDIVIDUAL O MÚLTIPLE)
+    // ==========================================
+    function downloadSelectedTriviasZip() {
+      if (state.selectedTriviaIds.size === 0) {
+        showToast('Selecciona al menos una trivia para descargar', 'warning');
+        return;
+      }
+      const ids = Array.from(state.selectedTriviaIds);
+      const btn = document.querySelector('.btn-download-zip');
+      triggerZipDownload(ids, btn);
+    }
+
+    async function triggerZipDownload(ids, btnElement) {
+      if (!ids || ids.length === 0) return;
+
+      const originalText = btnElement ? btnElement.innerHTML : '';
+      if (btnElement) {
+        btnElement.innerHTML = '⏳ Generando ZIP...';
+        btnElement.disabled = true;
+      }
+
+      try {
+        const headers = {
+          'Content-Type': 'application/json',
+          'Accept': 'application/zip, application/octet-stream, */*'
+        };
+        const key = apiKeyInput.value.trim();
+        if (key) {
+          headers['X-API-KEY'] = key;
+        }
+
+        const res = await fetch(`${getBaseUrl()}/api/v1/trivias/export`, {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify({ triviaIds: ids })
+        });
+
+        if (!res.ok) {
+          const errJson = await res.json().catch(() => null);
+          throw new Error((errJson && (errJson.detail || errJson.title)) || `Error HTTP ${res.status}`);
+        }
+
+        const blob = await res.blob();
+        const blobUrl = window.URL.createObjectURL(blob);
+        const filename = (ids.length === 1) ? `${ids[0]}.zip` : 'trivias_export.zip';
+
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = blobUrl;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+
+        setTimeout(() => {
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(blobUrl);
+        }, 500);
+
+        showToast(`¡Descarga completada! (${ids.length} trivia${ids.length === 1 ? '' : 's'} en ZIP)`, 'success');
+
+        // Marcar como DESCARGADA DESPUÉS del éxito (solo si el blob se procesó correctamente)
+        markTriviaAsDownloaded(ids);
+
+        // Deseleccionar los elementos ya descargados
+        ids.forEach(id => state.selectedTriviaIds.delete(id));
+        updateSelectionUi();
+
+      } catch (err) {
+        console.error('Error al exportar ZIP:', err);
+        showToast(`Fallo al descargar ZIP: ${err.message}`, 'error');
+        // NO marcar como descargada si falló
+      } finally {
+        if (btnElement) {
+          btnElement.innerHTML = originalText;
+          btnElement.disabled = false;
+        }
+      }
+    }
+
+    // Marca trivias como DESCARGADA en BD y sincroniza UI
+    async function markTriviaAsDownloaded(ids) {
+      if (!ids || ids.length === 0) return;
+      try {
+        const headers = { 'Content-Type': 'application/json' };
+        const key = apiKeyInput.value.trim();
+        if (key) headers['X-API-KEY'] = key;
+
+        await fetch(`${getBaseUrl()}/api/v1/trivias/mark-downloaded`, {
+          method: 'PATCH',
+          headers: headers,
+          body: JSON.stringify({ triviaIds: ids })
+        });
+
+        // Actualizar caché local y todos los badges de celda en cualquier tabla
+        ids.forEach(id => {
+          const cached = state.cachedTrivias.get(id);
+          if (cached) {
+            cached.estado = 'DESCARGADA';
+            state.cachedTrivias.set(id, cached);
+          }
+          // Actualizar todas las celdas de estado para este id (tanto en generador como en explorador)
+          document.querySelectorAll(`[data-estado-cell="${id}"]`).forEach(cell => {
+            cell.innerHTML = estadoBadgeHtml('DESCARGADA');
+          });
+          // Si el modal de detalle está abierto para esta trivia, actualizar su badge
+          if (state.currentDetailTriviaId === id) {
+            const detailBadge = document.getElementById('detailBadgeEstado');
+            if (detailBadge) {
+              detailBadge.outerHTML = estadoBadgeHtml('DESCARGADA').replace('class="badge ', 'id="detailBadgeEstado" class="badge ');
+            }
+          }
+        });
+      } catch (e) {
+        console.warn('No se pudo marcar como descargada en BD:', e);
+      }
+    }
+
+    // ==========================================
+    // EXPLORADOR Y FILTROS
+    // ==========================================
+    // Estado de filtros del explorador
+    const explorerFilters = {
+      estado: '',
+      dificultad: '',
+      tipoTrivia: '',
+      subtema: '',
+      query: ''
+    };
+
+    let _filterDebounceTimer = null;
+    function debounceApplyFilters() {
+      clearTimeout(_filterDebounceTimer);
+      _filterDebounceTimer = setTimeout(() => {
+        applyExplorerFilters();
+      }, 350);
+    }
+
+    function setEstadoFilter(btn, value) {
+      explorerFilters.estado = value;
+      document.querySelectorAll('#estadoFilter .filter-pill').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      applyExplorerFilters();
+    }
+
+    function setDificultadFilter(btn, value) {
+      explorerFilters.dificultad = value;
+      document.querySelectorAll('#dificultadFilter .filter-pill').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      applyExplorerFilters();
+    }
+
+    function resetExplorerFilters() {
+      explorerFilters.estado = '';
+      explorerFilters.dificultad = '';
+      explorerFilters.tipoTrivia = '';
+      explorerFilters.subtema = '';
+      explorerFilters.query = '';
+
+      const sInput = document.getElementById('searchInput');
+      if (sInput) sInput.value = '';
+      const tInput = document.getElementById('filterTipoTrivia');
+      if (tInput) tInput.value = '';
+      const subInput = document.getElementById('filterSubtema');
+      if (subInput) subInput.value = '';
+
+      document.querySelectorAll('#estadoFilter .filter-pill').forEach(b => {
+        b.classList.toggle('active', b.dataset.value === '');
+      });
+      document.querySelectorAll('#dificultadFilter .filter-pill').forEach(b => {
+        b.classList.toggle('active', b.dataset.value === '');
+      });
+
+      applyExplorerFilters();
+    }
+
+    async function applyExplorerFilters() {
+      explorerFilters.query      = (document.getElementById('searchInput')?.value || '').trim();
+      explorerFilters.tipoTrivia = (document.getElementById('filterTipoTrivia')?.value || '').trim();
+      explorerFilters.subtema    = (document.getElementById('filterSubtema')?.value || '').trim();
+
+      const container = document.getElementById('explorerResults');
+      container.innerHTML = '<p style="text-align:center; padding:2rem; color:var(--text-muted);">Buscando...</p>';
+
+      try {
+        const params = new URLSearchParams({ page: 0, size: 50, sort: 'createdAt,desc' });
+        if (explorerFilters.query)      params.append('q',          explorerFilters.query);
+        if (explorerFilters.estado)     params.append('estado',     explorerFilters.estado);
+        if (explorerFilters.dificultad) params.append('dificultad', explorerFilters.dificultad);
+        if (explorerFilters.tipoTrivia) params.append('tipoTrivia', explorerFilters.tipoTrivia);
+        if (explorerFilters.subtema)    params.append('subtema',    explorerFilters.subtema);
+
+        const url = `${getBaseUrl()}/api/v1/trivias/search?${params.toString()}`;
+        const headers = {};
+        const key = apiKeyInput.value.trim();
+        if (key) headers['X-API-KEY'] = key;
+
+        const res = await fetch(url, { headers });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        renderTriviaCards(data.content, container);
+      } catch (err) {
+        container.innerHTML = `<p style="text-align:center; color:var(--danger); padding:2rem;">Error al buscar trivias: ${err.message}</p>`;
+      }
+    }
+
+    async function loadRecentTrivias(isExplorerTab = false) {
+      const targetContainer = isExplorerTab ? document.getElementById('explorerResults') : document.getElementById('resultsContainer');
+      if (!isExplorerTab) document.getElementById('emptyResultsState').style.display = 'none';
+
+      targetContainer.innerHTML = '<p style="text-align:center; padding:2rem; color:var(--text-muted);">Consultando trivias recientes...</p>';
+
+      try {
+        const res = await fetch(`${getBaseUrl()}/api/v1/trivias/search?page=0&size=30&sort=createdAt,desc`);
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        renderTriviaCards(data.content, targetContainer);
+      } catch (err) {
+        targetContainer.innerHTML = `<p style="text-align:center; color:var(--danger); padding:2rem;">Error al cargar trivias: ${err.message}</p>`;
+      }
+    }
+
+    async function searchTrivias() {
+      await applyExplorerFilters();
+    }
     // ==========================================
     // QUIZ INTERACTIVO (MODO JUEGO)
     // ==========================================
@@ -1755,43 +2579,10 @@
       feedbackBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
-    // ==========================================
-    // EXPLORADOR Y BÚSQUEDA
-    // ==========================================
-    async function loadRecentTrivias(isExplorerTab = false) {
-      const targetContainer = isExplorerTab ? document.getElementById('explorerResults') : document.getElementById('resultsContainer');
-      if (!isExplorerTab) document.getElementById('emptyResultsState').style.display = 'none';
-
-      targetContainer.innerHTML = '<p style="text-align:center; padding:2rem; color:var(--text-muted);">Consultando trivias recientes...</p>';
-
-      try {
-        const res = await fetch(`${getBaseUrl()}/api/v1/trivias?page=0&size=10&sort=createdAt,desc`);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        renderTriviaCards(data.content, targetContainer);
-      } catch (err) {
-        targetContainer.innerHTML = `<p style="text-align:center; color:var(--danger); padding:2rem;">Error al cargar trivias: ${err.message}</p>`;
-      }
-    }
-
-    async function searchTrivias() {
-      const query = document.getElementById('searchInput').value.trim();
-      const container = document.getElementById('explorerResults');
-      container.innerHTML = '<p style="text-align:center; padding:2rem; color:var(--text-muted);">Buscando coincidencias...</p>';
-
-      try {
-        const url = query ? `${getBaseUrl()}/api/v1/trivias/search?q=${encodeURIComponent(query)}&page=0&size=20` : `${getBaseUrl()}/api/v1/trivias?page=0&size=20`;
-        const res = await fetch(url);
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const data = await res.json();
-        renderTriviaCards(data.content, container);
-      } catch (err) {
-        container.innerHTML = `<p style="text-align:center; color:var(--danger); padding:2rem;">Error en la búsqueda: ${err.message}</p>`;
-      }
-    }
 
     // ==========================================
     // MÉTRICAS
+
     // ==========================================
     async function loadStats() {
       try {
@@ -1890,7 +2681,10 @@
     }
 
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') closeModal();
+      if (e.key === 'Escape') {
+        closeModal();
+        closeTriviaDetailModal();
+      }
     });
 
     // ==========================================

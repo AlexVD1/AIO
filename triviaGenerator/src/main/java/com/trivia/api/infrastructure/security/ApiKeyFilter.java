@@ -92,11 +92,14 @@ public class ApiKeyFilter extends OncePerRequestFilter {
             return true;
         }
 
-        // Endpoints de infraestructura públicos
+        // Endpoints de infraestructura públicos y exportación de trivias
         return path.startsWith("/api/v1/health")
                 || path.startsWith("/actuator")
                 || path.startsWith("/v3/api-docs")
                 || path.startsWith("/swagger-ui")
-                || path.startsWith("/assets");
+                || path.startsWith("/assets")
+                || path.startsWith("/api/v1/catalogos")
+                || path.endsWith("/export")
+                || path.endsWith("/mark-downloaded");
     }
 }

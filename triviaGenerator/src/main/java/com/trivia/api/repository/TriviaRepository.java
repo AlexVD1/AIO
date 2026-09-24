@@ -108,4 +108,28 @@ public interface TriviaRepository extends JpaRepository<Trivia, UUID> {
     long countByDificultadAndEstado(Dificultad dificultad, EstadoTrivia estado);
 
     long countByIdiomaAndEstado(String idioma, EstadoTrivia estado);
+
+    /**
+     * Búsqueda combinada para el explorador de trivias.
+     * Todos los parámetros son opcionales (null = sin restricción para ese campo).
+     * - query:      búsqueda LIKE en pregunta y explicación
+     * - estado:     filtro exacto por estado
+     * - dificultad: filtro exacto por dificultad
+     * - subtema:    búsqueda LIKE en subtema
+     * - tipoTrivia: búsqueda LIKE en nombre o código del tipo de trivia
+     */
+    @Query("SELECT t FROM Trivia t WHERE " +
+           "(:query IS NULL OR LOWER(t.pregunta) LIKE :query OR LOWER(t.explicacion) LIKE :query) AND " +
+           "(:estado IS NULL OR t.estado = :estado) AND " +
+           "(:dificultad IS NULL OR t.dificultad = :dificultad) AND " +
+           "(:subtema IS NULL OR LOWER(t.subtema) LIKE :subtema) AND " +
+           "(:tipoTrivia IS NULL OR LOWER(t.tipoTrivia.nombre) LIKE :tipoTrivia OR LOWER(t.tipoTrivia.codigo) LIKE :tipoTrivia)")
+    Page<Trivia> buscarConFiltros(
+            @Param("query") String query,
+            @Param("estado") EstadoTrivia estado,
+            @Param("dificultad") Dificultad dificultad,
+            @Param("subtema") String subtema,
+            @Param("tipoTrivia") String tipoTrivia,
+            Pageable pageable);
 }
+

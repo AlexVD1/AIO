@@ -74,6 +74,47 @@ public class TriviaQueryService {
     }
 
     /**
+     * Realiza una búsqueda/filtrado combinado para el explorador de trivias.
+     * Todos los parámetros son opcionales: si se omiten se devuelven todas las trivias.
+     *
+     * @param query      Texto libre a buscar en pregunta/explicación (null = sin filtro de texto)
+     * @param estado     Filtro de estado: ACTIVA, DESCARGADA, INVALIDA, ARCHIVADA (null = todos)
+     * @param dificultad Filtro de dificultad: FACIL, MEDIA, DIFICIL (null = todas)
+     * @param subtema    Filtro de subtema parcial (null = todos)
+     * @param tipoTrivia Filtro de tipo/categoría parcial (null = todos)
+     * @param pageable   Configuración de paginación
+     * @return Página de resultados
+     */
+    public Page<TriviaResponse> buscarConFiltros(String query, String estado, String dificultad,
+                                                  String subtema, String tipoTrivia, Pageable pageable) {
+        EstadoTrivia estadoEnum = null;
+        if (estado != null && !estado.isBlank()) {
+            try {
+                estadoEnum = EstadoTrivia.valueOf(estado.toUpperCase());
+            } catch (IllegalArgumentException ignored) {
+                // Estado inválido: ignorar filtro
+            }
+        }
+
+        Dificultad dificultadEnum = null;
+        if (dificultad != null && !dificultad.isBlank()) {
+            try {
+                dificultadEnum = Dificultad.valueOf(dificultad.toUpperCase());
+            } catch (IllegalArgumentException ignored) {
+                // Dificultad inválida: ignorar filtro
+            }
+        }
+
+        String queryLike    = (query      != null && !query.isBlank())      ? "%" + query.trim().toLowerCase() + "%"      : null;
+        String subtemaLike  = (subtema    != null && !subtema.isBlank())    ? "%" + subtema.trim().toLowerCase() + "%"    : null;
+        String tipoLike     = (tipoTrivia != null && !tipoTrivia.isBlank()) ? "%" + tipoTrivia.trim().toLowerCase() + "%" : null;
+
+        return triviaRepository
+                .buscarConFiltros(queryLike, estadoEnum, dificultadEnum, subtemaLike, tipoLike, pageable)
+                .map(this::construirTriviaResponse);
+    }
+
+    /**
      * Realiza una búsqueda por coincidencia de texto en la pregunta y la explicación.
      *
      * @param query Texto a buscar
@@ -98,6 +139,23 @@ public class TriviaQueryService {
     public Page<TriviaResponse> listar(Pageable pageable) {
         return triviaRepository.findAll(pageable)
                 .map(this::construirTriviaResponse);
+    }
+
+    /**
+     * Marca las trivias especificadas con estado DESCARGADA.
+     * Este método debe invocarse ÚNICAMENTE después de confirmar que el ZIP fue
+     * generado y el blob descargado exitosamente en el cliente.
+     *
+     * @param ids Lista de UUIDs de trivias a marcar
+     */
+    @Transactional
+    public void marcarComoDescargadas(List<UUID> ids) {
+        if (ids == null || ids.isEmpty()) return;
+        List<Trivia> trivias = triviaRepository.findAllById(ids);
+        for (Trivia t : trivias) {
+            t.setEstado(EstadoTrivia.DESCARGADA);
+        }
+        triviaRepository.saveAll(trivias);
     }
 
     /**

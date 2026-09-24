@@ -28,5 +28,13 @@ public enum EstadoTrivia {
      * reemplazada por una versión mejor.
      * Se conserva el historial completo.
      */
-    ARCHIVADA
+    ARCHIVADA,
+
+    /**
+     * Trivia que ha sido exportada exitosamente mediante la funcionalidad de
+     * descarga ZIP. El estado se actualiza ÚNICAMENTE después de que el archivo
+     * ZIP haya sido generado y descargado correctamente por el cliente.
+     * No se marca como descargada simplemente por seleccionar la trivia.
+     */
+    DESCARGADA
 }

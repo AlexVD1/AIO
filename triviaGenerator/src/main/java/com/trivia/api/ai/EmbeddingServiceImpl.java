@@ -27,7 +27,7 @@ import java.util.List;
 public class EmbeddingServiceImpl implements EmbeddingService {
 
     private static final Logger log = LoggerFactory.getLogger(EmbeddingServiceImpl.class);
-    private static final String EMBEDDING_URL_TEMPLATE = "https://generativelanguage.googleapis.com/v1beta/models/text-embedding-004:embedContent?key=%s";
+    private static final String EMBEDDING_URL_TEMPLATE = "https://generativelanguage.googleapis.com/v1beta/models/gemini-embedding-001:embedContent?key=%s";
 
     private final String apiKey;
     private final ObjectMapper objectMapper;
