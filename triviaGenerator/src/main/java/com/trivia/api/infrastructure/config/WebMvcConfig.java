@@ -24,7 +24,8 @@ public class WebMvcConfig implements WebMvcConfigurer {
         }
 
         registry.addResourceHandler("/assets/**")
-                .addResourceLocations(absoluteUri);
+                .addResourceLocations(absoluteUri)
+                .setCacheControl(org.springframework.http.CacheControl.noCache().mustRevalidate());
 
         registry.addResourceHandler("/**")
                 .addResourceLocations("classpath:/static/");

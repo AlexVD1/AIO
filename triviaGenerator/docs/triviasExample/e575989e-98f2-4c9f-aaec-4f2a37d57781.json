@@ -1,0 +1,40 @@
+{
+  "id" : "e575989e-98f2-4c9f-aaec-4f2a37d57781",
+  "tipoTrivia" : "ASTRONOMIA",
+  "pregunta" : "¿Cuál es la galaxia espiral más grande y cercana a la Vía Láctea?",
+  "explicacion" : "Andrómeda (M31) es una galaxia espiral situada a unos 2.5 millones de años luz de la Tierra y es la galaxia de gran tamaño más cercana a la nuestra, con la cual colisionará en el futuro distante.",
+  "dificultad" : "MEDIA",
+  "idioma" : "es-MX",
+  "estado" : "ACTIVA",
+  "opciones" : [ {
+    "id" : "c4708aad-09ec-4d20-8c90-cf2ea67ef634",
+    "letra" : "A",
+    "texto" : "Galaxia de Andrómeda",
+    "correcta" : true
+  }, {
+    "id" : "c8d3ab10-ddd9-4678-ba73-0b0a2b7695ec",
+    "letra" : "B",
+    "texto" : "Galaxia del Triángulo",
+    "correcta" : false
+  }, {
+    "id" : "49b0f6bb-971d-4e5e-bd2d-d819ec7f4a6b",
+    "letra" : "C",
+    "texto" : "Gran Nube de Magallanes",
+    "correcta" : false
+  }, {
+    "id" : "8dc70402-f3e1-4dc7-ba0a-100488f8b1d4",
+    "letra" : "D",
+    "texto" : "Galaxia del Sombrero",
+    "correcta" : false
+  } ],
+  "assets" : [ {
+    "id" : "7961f4e6-ba3b-4fda-aeff-ec9f170032ca",
+    "tipo" : "PREGUNTA",
+    "url" : "http://localhost:8080/assets/0bb95d81-7125-45e9-9ac5-c137e2ec3cfc/e575989e-98f2-4c9f-aaec-4f2a37d57781-pregunta.png"
+  }, {
+    "id" : "1b73d217-1eb0-4243-81b8-a05fe959638d",
+    "tipo" : "RESPUESTA",
+    "url" : "http://localhost:8080/assets/0bb95d81-7125-45e9-9ac5-c137e2ec3cfc/e575989e-98f2-4c9f-aaec-4f2a37d57781-respuesta.png"
+  } ],
+  "createdAt" : "2026-09-24T17:32:42.04576"
+}

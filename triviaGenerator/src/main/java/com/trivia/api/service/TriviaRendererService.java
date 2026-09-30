@@ -279,14 +279,15 @@ public class TriviaRendererService {
     }
 
     private void drawFooter(Graphics2D g, String subtema) {
+        if (subtema == null || subtema.isBlank()) {
+            return;
+        }
+
         g.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 20));
         g.setColor(TEXT_MUTED);
         FontMetrics fm = g.getFontMetrics();
 
-        String footerText = (subtema != null && !subtema.isBlank())
-                ? "Subtema: " + subtema
-                : "Plataforma de Trivias con IA";
-
+        String footerText = "Subtema: " + subtema;
         int textX = (WIDTH - fm.stringWidth(footerText)) / 2;
         g.drawString(footerText, textX, HEIGHT - 50);
     }

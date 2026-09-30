@@ -8,13 +8,30 @@ package com.trivia.api.domain;
  *   Si se detecta un error, se cambia su estado y se guarda el motivo.
  *   El historial siempre queda completo para trazabilidad.
  *
- * Este enum se almacena como STRING en la base de datos (VARCHAR 15).
- * El valor más largo es "ARCHIVADA" = 9 caracteres.
+ * Este enum se almacena como STRING en la base de datos (VARCHAR 35).
  */
 public enum EstadoTrivia {
 
-    /** Trivia válida, disponible para consultas. Estado inicial. */
+    /** Trivia válida, recién creada y disponible para consultas. Estado inicial. */
     ACTIVA,
+
+    /**
+     * Trivia que ha sido descargada exitosamente en paquete ZIP (JSON + imágenes),
+     * pero aún no se le ha generado video compilatorio.
+     */
+    DESCARGADA,
+
+    /**
+     * Trivia para la cual ya se compiló/exportó exitosamente un video MP4,
+     * pero aún no ha sido descargada en paquete ZIP.
+     */
+    EXPORTADA,
+
+    /**
+     * Trivia completa: ha sido descargada en paquete ZIP Y además ya se generó
+     * su video compilatorio MP4.
+     */
+    DESCARGADA_Y_EXPORTADA,
 
     /**
      * Trivia marcada como inválida después de ser almacenada.
@@ -28,13 +45,5 @@ public enum EstadoTrivia {
      * reemplazada por una versión mejor.
      * Se conserva el historial completo.
      */
-    ARCHIVADA,
-
-    /**
-     * Trivia que ha sido exportada exitosamente mediante la funcionalidad de
-     * descarga ZIP. El estado se actualiza ÚNICAMENTE después de que el archivo
-     * ZIP haya sido generado y descargado correctamente por el cliente.
-     * No se marca como descargada simplemente por seleccionar la trivia.
-     */
-    DESCARGADA
+    ARCHIVADA
 }

@@ -1,0 +1,394 @@
+[ {
+  "id" : "30a3d4db-7829-4541-a133-2e3e2285a8a9",
+  "tipoTrivia" : "HISTORIA",
+  "subtema" : "Roma Antigua",
+  "pregunta" : "¿Qué general romano llevó a cabo una exitosa campaña de conquista en la Galia, detallada en sus 'Comentarios a la guerra de las Galias'?",
+  "explicacion" : "Julio César fue el general romano que conquistó la Galia (aproximadamente la actual Francia y Bélgica) entre el 58 y el 50 a.C. Sus campañas fueron documentadas por él mismo en su obra 'Commentarii de Bello Gallico' (Comentarios a la guerra de las Galias), una valiosa fuente histórica.",
+  "dificultad" : "MEDIA",
+  "idioma" : "es-MX",
+  "estado" : "ACTIVA",
+  "opciones" : [ {
+    "id" : "96c992f3-af1b-4972-a1a8-919bd3ebc742",
+    "letra" : "A",
+    "texto" : "Escipión el Africano",
+    "correcta" : false
+  }, {
+    "id" : "526e923b-e541-4d2a-b9f0-f93f2f5c8853",
+    "letra" : "B",
+    "texto" : "Cayo Mario",
+    "correcta" : false
+  }, {
+    "id" : "b00a4aea-0c1a-4c66-8437-fb753c81dfc4",
+    "letra" : "C",
+    "texto" : "Julio César",
+    "correcta" : true
+  }, {
+    "id" : "85269096-0c31-44be-a232-a79fec86dcf8",
+    "letra" : "D",
+    "texto" : "Pompeyo el Grande",
+    "correcta" : false
+  } ],
+  "assets" : [ {
+    "id" : "4645efff-b34e-41aa-a026-d875efaca1e8",
+    "tipo" : "PREGUNTA",
+    "url" : "http://localhost:8080/assets/cc92eb0d-fd3d-45ab-82fd-f7ed4d50b1a3/30a3d4db-7829-4541-a133-2e3e2285a8a9-pregunta.png"
+  }, {
+    "id" : "301dd9dc-20a5-476f-8ed5-c992decf17b0",
+    "tipo" : "RESPUESTA",
+    "url" : "http://localhost:8080/assets/cc92eb0d-fd3d-45ab-82fd-f7ed4d50b1a3/30a3d4db-7829-4541-a133-2e3e2285a8a9-respuesta.png"
+  } ],
+  "createdAt" : "2026-09-24T16:19:46.891402"
+}, {
+  "id" : "f9e8ba64-5b23-4ffa-97c2-7fcce144431d",
+  "tipoTrivia" : "HISTORIA",
+  "subtema" : "Roma Antigua",
+  "pregunta" : "¿Quién fue el primer emperador romano, marcando el fin de la República Romana y el inicio del Imperio?",
+  "explicacion" : "Augusto, originalmente conocido como Octaviano, fue el primer emperador romano y gobernó desde el 27 a.C. hasta el 14 d.C. Su ascenso al poder marcó el fin de la República Romana y el inicio del Imperio Romano, un periodo de relativa paz y prosperidad conocido como la Pax Romana.",
+  "dificultad" : "MEDIA",
+  "idioma" : "es-MX",
+  "estado" : "ACTIVA",
+  "opciones" : [ {
+    "id" : "aec4402d-7e87-4d80-9e44-9b53020a371e",
+    "letra" : "A",
+    "texto" : "Julio César",
+    "correcta" : false
+  }, {
+    "id" : "53471a4a-8338-41ce-9e38-9b7630cdf6d1",
+    "letra" : "B",
+    "texto" : "Augusto",
+    "correcta" : true
+  }, {
+    "id" : "713b3d5f-8dbd-4780-b453-e12ae3504340",
+    "letra" : "C",
+    "texto" : "Marco Antonio",
+    "correcta" : false
+  }, {
+    "id" : "2b101fc8-2817-4ef1-b624-450d7fb76dfc",
+    "letra" : "D",
+    "texto" : "Nerón",
+    "correcta" : false
+  } ],
+  "assets" : [ {
+    "id" : "7c44b237-7b1b-4f28-a6f1-f848537bb11e",
+    "tipo" : "PREGUNTA",
+    "url" : "http://localhost:8080/assets/cc92eb0d-fd3d-45ab-82fd-f7ed4d50b1a3/f9e8ba64-5b23-4ffa-97c2-7fcce144431d-pregunta.png"
+  }, {
+    "id" : "5cf3dbc2-32ae-4609-9bbe-9ff80fe9bacc",
+    "tipo" : "RESPUESTA",
+    "url" : "http://localhost:8080/assets/cc92eb0d-fd3d-45ab-82fd-f7ed4d50b1a3/f9e8ba64-5b23-4ffa-97c2-7fcce144431d-respuesta.png"
+  } ],
+  "createdAt" : "2026-09-24T16:19:46.876968"
+}, {
+  "id" : "09643dda-1eec-44a0-905a-f946a79998c6",
+  "tipoTrivia" : "HISTORIA",
+  "subtema" : "Roma Antigua",
+  "pregunta" : "¿Qué famosa estructura romana se utilizaba principalmente para carreras de carros y espectáculos masivos?",
+  "explicacion" : "El Circo Máximo (Circus Maximus) era el hipódromo más grande de la antigua Roma y se utilizaba principalmente para carreras de carros, aunque también albergaba otros eventos deportivos y procesiones. Podía albergar a más de 150,000 espectadores, convirtiéndolo en el centro de entretenimiento masivo más grande de su tiempo.",
+  "dificultad" : "MEDIA",
+  "idioma" : "es-MX",
+  "estado" : "ACTIVA",
+  "opciones" : [ {
+    "id" : "9d1df504-21f9-4f22-a63c-c2cb77e882ff",
+    "letra" : "A",
+    "texto" : "El Panteón",
+    "correcta" : false
+  }, {
+    "id" : "b85ccc95-1ac1-4da0-ad37-922ceb5ce427",
+    "letra" : "B",
+    "texto" : "El Coliseo",
+    "correcta" : false
+  }, {
+    "id" : "e095d450-4218-4b85-99b4-27af95854a11",
+    "letra" : "C",
+    "texto" : "El Circo Máximo",
+    "correcta" : true
+  }, {
+    "id" : "06060f6a-1a3a-4ca1-a9d0-693a3dc976cd",
+    "letra" : "D",
+    "texto" : "Los Foros Imperiales",
+    "correcta" : false
+  } ],
+  "assets" : [ {
+    "id" : "b90b75b7-8315-44fa-86f6-4655ac454774",
+    "tipo" : "PREGUNTA",
+    "url" : "http://localhost:8080/assets/cc92eb0d-fd3d-45ab-82fd-f7ed4d50b1a3/09643dda-1eec-44a0-905a-f946a79998c6-pregunta.png"
+  }, {
+    "id" : "c7887266-f14d-49ea-bc8e-6df734fb53ef",
+    "tipo" : "RESPUESTA",
+    "url" : "http://localhost:8080/assets/cc92eb0d-fd3d-45ab-82fd-f7ed4d50b1a3/09643dda-1eec-44a0-905a-f946a79998c6-respuesta.png"
+  } ],
+  "createdAt" : "2026-09-24T16:19:46.886481"
+}, {
+  "id" : "42b6fd7a-286c-44b6-be2b-0c55846360a8",
+  "tipoTrivia" : "ASTRONOMIA",
+  "pregunta" : "¿Cuál es el planeta más caliente del sistema solar?",
+  "explicacion" : "Aunque Mercurio es el planeta más cercano al Sol, Venus es el más caliente debido a su densa atmósfera compuesta principalmente de dióxido de carbono, la cual provoca un efecto invernadero desbocado que atrapa el calor.",
+  "dificultad" : "MEDIA",
+  "idioma" : "es-MX",
+  "estado" : "ACTIVA",
+  "opciones" : [ {
+    "id" : "8c7c0772-ac6d-4630-a1ad-4937714b706a",
+    "letra" : "A",
+    "texto" : "Mercurio",
+    "correcta" : false
+  }, {
+    "id" : "67fb8b0c-7ef2-4542-b45f-93797799e211",
+    "letra" : "B",
+    "texto" : "Venus",
+    "correcta" : true
+  }, {
+    "id" : "781d29be-ac96-4ec4-91e0-8a6c782f8842",
+    "letra" : "C",
+    "texto" : "Marte",
+    "correcta" : false
+  }, {
+    "id" : "498dde5d-c833-41e8-9468-d853af3df475",
+    "letra" : "D",
+    "texto" : "Júpiter",
+    "correcta" : false
+  } ],
+  "assets" : [ {
+    "id" : "17ef79bb-85bf-4e21-8483-ff8573ed9062",
+    "tipo" : "PREGUNTA",
+    "url" : "http://localhost:8080/assets/0bb95d81-7125-45e9-9ac5-c137e2ec3cfc/42b6fd7a-286c-44b6-be2b-0c55846360a8-pregunta.png"
+  }, {
+    "id" : "0af666d2-baf4-4745-87ea-190ba84e7d5e",
+    "tipo" : "RESPUESTA",
+    "url" : "http://localhost:8080/assets/0bb95d81-7125-45e9-9ac5-c137e2ec3cfc/42b6fd7a-286c-44b6-be2b-0c55846360a8-respuesta.png"
+  } ],
+  "createdAt" : "2026-09-24T17:32:42.034637"
+}, {
+  "id" : "9306c86f-ab46-48ae-ad57-626d616f3630",
+  "tipoTrivia" : "ASTRONOMIA",
+  "pregunta" : "¿Cómo se le llama al punto en la órbita de un planeta donde está más alejado del Sol?",
+  "explicacion" : "El afelio es el punto de la órbita elíptica de un planeta o cuerpo celeste en el que se encuentra a la mayor distancia del Sol. El perihelio, por el contrario, es el punto más cercano.",
+  "dificultad" : "MEDIA",
+  "idioma" : "es-MX",
+  "estado" : "ACTIVA",
+  "opciones" : [ {
+    "id" : "1b6eb496-f7ce-485e-a09d-095d5ce610ce",
+    "letra" : "A",
+    "texto" : "Perihelio",
+    "correcta" : false
+  }, {
+    "id" : "9b969571-9d7b-43c0-9067-0dfb6fbdb224",
+    "letra" : "B",
+    "texto" : "Apogeo",
+    "correcta" : false
+  }, {
+    "id" : "775929a1-2367-4cb3-b90e-334ea71da5f2",
+    "letra" : "C",
+    "texto" : "Afelio",
+    "correcta" : true
+  }, {
+    "id" : "df1f5fdb-3116-4643-b2e4-ce18652969fd",
+    "letra" : "D",
+    "texto" : "Perigeo",
+    "correcta" : false
+  } ],
+  "assets" : [ {
+    "id" : "7fc01362-5b15-472d-bd13-dc8b1754cdfe",
+    "tipo" : "PREGUNTA",
+    "url" : "http://localhost:8080/assets/0bb95d81-7125-45e9-9ac5-c137e2ec3cfc/9306c86f-ab46-48ae-ad57-626d616f3630-pregunta.png"
+  }, {
+    "id" : "8be53fa8-51cb-4834-8493-f1d24e60da32",
+    "tipo" : "RESPUESTA",
+    "url" : "http://localhost:8080/assets/0bb95d81-7125-45e9-9ac5-c137e2ec3cfc/9306c86f-ab46-48ae-ad57-626d616f3630-respuesta.png"
+  } ],
+  "createdAt" : "2026-09-24T17:32:42.04113"
+}, {
+  "id" : "e575989e-98f2-4c9f-aaec-4f2a37d57781",
+  "tipoTrivia" : "ASTRONOMIA",
+  "pregunta" : "¿Cuál es la galaxia espiral más grande y cercana a la Vía Láctea?",
+  "explicacion" : "Andrómeda (M31) es una galaxia espiral situada a unos 2.5 millones de años luz de la Tierra y es la galaxia de gran tamaño más cercana a la nuestra, con la cual colisionará en el futuro distante.",
+  "dificultad" : "MEDIA",
+  "idioma" : "es-MX",
+  "estado" : "ACTIVA",
+  "opciones" : [ {
+    "id" : "c4708aad-09ec-4d20-8c90-cf2ea67ef634",
+    "letra" : "A",
+    "texto" : "Galaxia de Andrómeda",
+    "correcta" : true
+  }, {
+    "id" : "c8d3ab10-ddd9-4678-ba73-0b0a2b7695ec",
+    "letra" : "B",
+    "texto" : "Galaxia del Triángulo",
+    "correcta" : false
+  }, {
+    "id" : "49b0f6bb-971d-4e5e-bd2d-d819ec7f4a6b",
+    "letra" : "C",
+    "texto" : "Gran Nube de Magallanes",
+    "correcta" : false
+  }, {
+    "id" : "8dc70402-f3e1-4dc7-ba0a-100488f8b1d4",
+    "letra" : "D",
+    "texto" : "Galaxia del Sombrero",
+    "correcta" : false
+  } ],
+  "assets" : [ {
+    "id" : "7961f4e6-ba3b-4fda-aeff-ec9f170032ca",
+    "tipo" : "PREGUNTA",
+    "url" : "http://localhost:8080/assets/0bb95d81-7125-45e9-9ac5-c137e2ec3cfc/e575989e-98f2-4c9f-aaec-4f2a37d57781-pregunta.png"
+  }, {
+    "id" : "1b73d217-1eb0-4243-81b8-a05fe959638d",
+    "tipo" : "RESPUESTA",
+    "url" : "http://localhost:8080/assets/0bb95d81-7125-45e9-9ac5-c137e2ec3cfc/e575989e-98f2-4c9f-aaec-4f2a37d57781-respuesta.png"
+  } ],
+  "createdAt" : "2026-09-24T17:32:42.04576"
+}, {
+  "id" : "01a085af-f4b9-4e54-a988-850297aae791",
+  "tipoTrivia" : "ASTRONOMIA",
+  "pregunta" : "¿Qué elemento químico compone principalmente a las estrellas en su etapa de secuencia principal?",
+  "explicacion" : "Las estrellas en la secuencia principal obtienen su energía de la fusión nuclear de hidrógeno en helio en sus núcleos, siendo el hidrógeno el elemento más abundante en el universo.",
+  "dificultad" : "MEDIA",
+  "idioma" : "es-MX",
+  "estado" : "ACTIVA",
+  "opciones" : [ {
+    "id" : "3882b42e-1ac9-4a1b-8ceb-043cd1cf26db",
+    "letra" : "A",
+    "texto" : "Carbono",
+    "correcta" : false
+  }, {
+    "id" : "b28bc22e-ee7d-4c08-b840-5f7fd5987246",
+    "letra" : "B",
+    "texto" : "Hierro",
+    "correcta" : false
+  }, {
+    "id" : "f89ae506-f905-4964-ba46-3969de16189d",
+    "letra" : "C",
+    "texto" : "Hidrógeno",
+    "correcta" : true
+  }, {
+    "id" : "5ada07c2-f2e2-43c1-9c17-9dd769c4e5e2",
+    "letra" : "D",
+    "texto" : "Oxígeno",
+    "correcta" : false
+  } ],
+  "assets" : [ {
+    "id" : "776c1475-0891-4b79-9bba-c736b518132e",
+    "tipo" : "PREGUNTA",
+    "url" : "http://localhost:8080/assets/0bb95d81-7125-45e9-9ac5-c137e2ec3cfc/01a085af-f4b9-4e54-a988-850297aae791-pregunta.png"
+  }, {
+    "id" : "3e837d97-f496-4a41-9ef2-89b534f5d477",
+    "tipo" : "RESPUESTA",
+    "url" : "http://localhost:8080/assets/0bb95d81-7125-45e9-9ac5-c137e2ec3cfc/01a085af-f4b9-4e54-a988-850297aae791-respuesta.png"
+  } ],
+  "createdAt" : "2026-09-24T17:32:42.051397"
+}, {
+  "id" : "343d51f6-5866-4e9f-a583-68afc1775237",
+  "tipoTrivia" : "ASTRONOMIA",
+  "pregunta" : "¿Qué instrumento se utilizó por primera vez para descubrir los satélites galileanos de Júpiter?",
+  "explicacion" : "Galileo Galilei apuntó su telescopio refractor hacia Júpiter en 1610 y descubrió sus cuatro lunas principales (Ío, Europa, Ganimedes y Calixto), revolucionando la astronomía.",
+  "dificultad" : "MEDIA",
+  "idioma" : "es-MX",
+  "estado" : "ACTIVA",
+  "opciones" : [ {
+    "id" : "7bdf82f2-8f3e-47df-8cbe-ad43bae6eaca",
+    "letra" : "A",
+    "texto" : "Radiotelescopio",
+    "correcta" : false
+  }, {
+    "id" : "2a70f291-72cb-4f2f-972b-cc485a270d60",
+    "letra" : "B",
+    "texto" : "Telescopio refractor",
+    "correcta" : true
+  }, {
+    "id" : "3af80ffe-fb62-4ead-a64b-8bbef77b162c",
+    "letra" : "C",
+    "texto" : "Espectroscopio",
+    "correcta" : false
+  }, {
+    "id" : "84c468b8-cb74-4ae0-bb99-77686725bf32",
+    "letra" : "D",
+    "texto" : "Telescopio reflector",
+    "correcta" : false
+  } ],
+  "assets" : [ {
+    "id" : "3b479164-b088-40cc-aa0a-9897715f0514",
+    "tipo" : "PREGUNTA",
+    "url" : "http://localhost:8080/assets/0bb95d81-7125-45e9-9ac5-c137e2ec3cfc/343d51f6-5866-4e9f-a583-68afc1775237-pregunta.png"
+  }, {
+    "id" : "357bdc08-7dd5-44b4-b164-756322fab4e1",
+    "tipo" : "RESPUESTA",
+    "url" : "http://localhost:8080/assets/0bb95d81-7125-45e9-9ac5-c137e2ec3cfc/343d51f6-5866-4e9f-a583-68afc1775237-respuesta.png"
+  } ],
+  "createdAt" : "2026-09-24T17:32:42.056159"
+}, {
+  "id" : "61fd5a07-0f0f-494f-a504-26adedbdb2e6",
+  "tipoTrivia" : "ASTRONOMIA",
+  "pregunta" : "¿Cuál es la capa visible del Sol que emite la luz que llega a la Tierra?",
+  "explicacion" : "La fotosfera es la capa más externa de la atmósfera solar que es visible y desde la cual se emite la mayor parte de la radiación lumínica y calórica hacia el sistema solar.",
+  "dificultad" : "MEDIA",
+  "idioma" : "es-MX",
+  "estado" : "ACTIVA",
+  "opciones" : [ {
+    "id" : "b63b81ef-bec7-4e1c-aac5-22ce7ad4ddf1",
+    "letra" : "A",
+    "texto" : "Cromosfera",
+    "correcta" : false
+  }, {
+    "id" : "a13750a6-b30f-4a24-ab58-fc29b2659f8c",
+    "letra" : "B",
+    "texto" : "Corona",
+    "correcta" : false
+  }, {
+    "id" : "a8bd6216-b796-4e12-9f8a-a768f0fbfade",
+    "letra" : "C",
+    "texto" : "Núcleo",
+    "correcta" : false
+  }, {
+    "id" : "ba03feff-8287-42ee-bdd5-1b28a32cade0",
+    "letra" : "D",
+    "texto" : "Fotosfera",
+    "correcta" : true
+  } ],
+  "assets" : [ {
+    "id" : "e71883ca-16c6-4cb5-b8ba-ce1591694f31",
+    "tipo" : "PREGUNTA",
+    "url" : "http://localhost:8080/assets/0bb95d81-7125-45e9-9ac5-c137e2ec3cfc/61fd5a07-0f0f-494f-a504-26adedbdb2e6-pregunta.png"
+  }, {
+    "id" : "15fb273c-cdab-4950-995f-1b7d20e3db81",
+    "tipo" : "RESPUESTA",
+    "url" : "http://localhost:8080/assets/0bb95d81-7125-45e9-9ac5-c137e2ec3cfc/61fd5a07-0f0f-494f-a504-26adedbdb2e6-respuesta.png"
+  } ],
+  "createdAt" : "2026-09-24T17:32:42.061241"
+}, {
+  "id" : "27452ae5-c345-4079-b74b-e7eb99d7995f",
+  "tipoTrivia" : "ASTRONOMIA",
+  "pregunta" : "¿Qué nombre recibe el límite alrededor de un agujero negro del cual nada, ni siquiera la luz, puede escapar?",
+  "explicacion" : "El horizonte de sucesos es la frontera matemática y física que rodea a un agujero negro a partir de la cual la velocidad de escape supera a la velocidad de la luz.",
+  "dificultad" : "MEDIA",
+  "idioma" : "es-MX",
+  "estado" : "ACTIVA",
+  "opciones" : [ {
+    "id" : "14583c39-7c61-4bb8-a040-5cdfceb19e44",
+    "letra" : "A",
+    "texto" : "Horizonte de sucesos",
+    "correcta" : true
+  }, {
+    "id" : "db75c7c7-8609-401b-b626-11ae85e1fda7",
+    "letra" : "B",
+    "texto" : "Singularidad",
+    "correcta" : false
+  }, {
+    "id" : "22ca8bd3-0cdc-4ac7-8ff4-d9a6e8f4fb7a",
+    "letra" : "C",
+    "texto" : "Ergósfera",
+    "correcta" : false
+  }, {
+    "id" : "0d9f5c9e-e20c-4eb6-b449-3902e649ed7f",
+    "letra" : "D",
+    "texto" : "Disco de acreción",
+    "correcta" : false
+  } ],
+  "assets" : [ {
+    "id" : "74dcbff4-39a1-43ff-b066-107003d823f8",
+    "tipo" : "PREGUNTA",
+    "url" : "http://localhost:8080/assets/0bb95d81-7125-45e9-9ac5-c137e2ec3cfc/27452ae5-c345-4079-b74b-e7eb99d7995f-pregunta.png"
+  }, {
+    "id" : "d40b7e62-db58-41ab-b791-2d5341732bd6",
+    "tipo" : "RESPUESTA",
+    "url" : "http://localhost:8080/assets/0bb95d81-7125-45e9-9ac5-c137e2ec3cfc/27452ae5-c345-4079-b74b-e7eb99d7995f-respuesta.png"
+  } ],
+  "createdAt" : "2026-09-24T17:32:42.065995"
+} ]

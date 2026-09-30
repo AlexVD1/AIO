@@ -60,6 +60,19 @@ class ApiKeyFilterTest {
     }
 
     @Test
+    @DisplayName("Permite peticiones HEAD públicas para health checks y proxies")
+    void permiteHeadPublico() throws ServletException, IOException {
+        ApiKeyFilter filter = new ApiKeyFilter("secret-token", objectMapper);
+
+        MockHttpServletRequest request = new MockHttpServletRequest("HEAD", "/");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+
+        filter.doFilterInternal(request, response, filterChain);
+
+        verify(filterChain).doFilter(request, response);
+    }
+
+    @Test
     @DisplayName("Rechaza con HTTP 401 peticiones POST sin cabecera X-API-KEY")
     void rechazaPostSinCabecera() throws ServletException, IOException {
         ApiKeyFilter filter = new ApiKeyFilter("secret-token", objectMapper);

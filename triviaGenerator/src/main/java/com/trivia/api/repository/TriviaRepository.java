@@ -60,18 +60,15 @@ public interface TriviaRepository extends JpaRepository<Trivia, UUID> {
             TipoTrivia tipoTrivia, String idioma, EstadoTrivia estado, Pageable pageable);
 
     /** Búsqueda de texto en pregunta o explicación (GET /trivias/search?q=...) */
-    @Query("SELECT t FROM Trivia t WHERE t.estado = 'ACTIVA' AND " +
+    @Query("SELECT t FROM Trivia t WHERE t.estado NOT IN (com.trivia.api.domain.EstadoTrivia.INVALIDA, com.trivia.api.domain.EstadoTrivia.ARCHIVADA) AND " +
            "(LOWER(t.pregunta) LIKE LOWER(CONCAT('%', :q, '%')) OR " +
            " LOWER(t.explicacion) LIKE LOWER(CONCAT('%', :q, '%')))")
     Page<Trivia> searchByTexto(@Param("q") String query, Pageable pageable);
 
     /**
-     * Una trivia aleatoria activa.
-     * ORDER BY RANDOM() funciona en PostgreSQL. No es eficiente para tablas muy grandes
-     * (escanea toda la tabla), pero es aceptable para el volumen inicial del sistema.
-     * En Fase 9 puede optimizarse si el volumen lo requiere.
+     * Una trivia aleatoria válida y activa para juego.
      */
-    @Query(value = "SELECT * FROM trivia WHERE estado = 'ACTIVA' ORDER BY RANDOM() LIMIT 1",
+    @Query(value = "SELECT * FROM trivia WHERE estado NOT IN ('INVALIDA', 'ARCHIVADA') ORDER BY RANDOM() LIMIT 1",
            nativeQuery = true)
     Optional<Trivia> findRandom();
 
@@ -89,7 +86,7 @@ public interface TriviaRepository extends JpaRepository<Trivia, UUID> {
      */
     @Query("SELECT t.pregunta FROM Trivia t WHERE t.tipoTrivia = :tipoTrivia " +
            "AND t.dificultad = :dificultad AND t.idioma = :idioma " +
-           "AND t.estado = 'ACTIVA' " +
+           "AND t.estado NOT IN (com.trivia.api.domain.EstadoTrivia.INVALIDA, com.trivia.api.domain.EstadoTrivia.ARCHIVADA) " +
            "ORDER BY t.createdAt DESC")
     List<String> findPreguntasContexto(
             @Param("tipoTrivia") TipoTrivia tipoTrivia,

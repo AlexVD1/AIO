@@ -19,7 +19,7 @@ public class WebCorsConfig {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowedOriginPatterns(List.of("*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS", "HEAD"));
-        config.setAllowedHeaders(List.of("Origin", "Content-Type", "Accept", "Authorization", "X-API-KEY", "X-Requested-With"));
+        config.setAllowedHeaders(List.of("Origin", "Content-Type", "Accept", "Authorization", "X-API-KEY", "X-Requested-With", "ngrok-skip-browser-warning"));
         config.setExposedHeaders(List.of("Location", "Content-Disposition"));
         config.setAllowCredentials(true);
         config.setMaxAge(3600L);

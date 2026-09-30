@@ -88,7 +88,7 @@ public class ApiKeyFilter extends OncePerRequestFilter {
 
     private boolean isPublicEndpoint(String path, String method) {
         // Métodos de lectura y preflight son públicos
-        if ("GET".equalsIgnoreCase(method) || "OPTIONS".equalsIgnoreCase(method)) {
+        if ("GET".equalsIgnoreCase(method) || "HEAD".equalsIgnoreCase(method) || "OPTIONS".equalsIgnoreCase(method)) {
             return true;
         }
 

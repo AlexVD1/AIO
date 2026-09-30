@@ -38,8 +38,9 @@ Thumbs.db
 *.log
 /logs/
 
-# --- Storage local (generado en runtime) ---
+# --- Storage local y videos generados en runtime ---
 /storage/
+*.mp4
 
 # --- Playwright (si se usa en el futuro) ---
 playwright/.local-browsers/

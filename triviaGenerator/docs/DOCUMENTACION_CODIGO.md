@@ -140,6 +140,7 @@ src/main/java/com/trivia/api/
 │
 ├── controller/                                 # Controladores REST (Spring MVC)
 │   ├── TriviaController.java                   # Endpoints de generación, consulta y stats
+│   ├── TriviaVideoController.java              # Endpoints de compilación y descarga de videos
 │   ├── CatalogController.java                  # Endpoints del catálogo de tipos de trivia
 │   └── HealthController.java                   # Verificación de salud y conectividad
 │
@@ -157,7 +158,9 @@ src/main/java/com/trivia/api/
 │   ├── TriviaResponse.java                     # Detalle de trivia con opciones y assets
 │   ├── TriviaOpcionResponse.java               # DTO de opción con flag de respuesta correcta
 │   ├── TriviaAssetResponse.java                # DTO con URLs públicas de imágenes
-│   └── StatsResponse.java                      # Métricas globales de la plataforma
+│   ├── StatsResponse.java                      # Métricas globales de la plataforma
+│   ├── VideoGenerationRequest.java             # Petición de video (IDs, formato, TTS, voz)
+│   └── VideoGenerationResponse.java            # Resultado con URL de descarga y metadatos
 │
 ├── exception/                                  # Manejo global de excepciones
 │   ├── GlobalExceptionHandler.java             # RFC 7807 ProblemDetails unificado
@@ -190,7 +193,18 @@ src/main/java/com/trivia/api/
     ├── AsyncTriviaPipelineExecutor.java        # Ejecutor asíncrono desacoplado (@Async)
     ├── TriviaRendererService.java              # Motor de renderizado gráfico AWT (PNG)
     ├── AssetStorageService.java                # Interfaz de persistencia de archivos
-    └── TriviaQueryService.java                 # Consultas de lectura optimizadas (@Transactional readOnly)
+    ├── TriviaQueryService.java                 # Consultas de lectura optimizadas (@Transactional readOnly)
+    └── video/                                  # Pipeline de Generación de Video y Audio
+        ├── TriviaVideoService.java             # Orquestador del flujo y concatenación MP4
+        ├── FFmpegCommandBuilder.java           # Constructor de filtros de video/audio y timing
+        ├── FFmpegProcessExecutor.java          # Ejecutor de procesos del CLI de FFmpeg
+        ├── NarrationService.java               # Interfaz para temporizado y síntesis de voz
+        ├── EdgeTtsNarrationService.java        # Integración con Edge-TTS vía scripts/tts_bridge.py
+        ├── NoOpNarrationService.java           # Fallback determinista para temporizado fijo
+        ├── VideoAssetExtractor.java            # Extracción de SFX y tipografías desde el JAR
+        ├── VideoFormat.java                    # Enums VERTICAL_9_16 y SQUARE_1_1
+        ├── TriviaSceneTiming.java              # Modelo temporal de fases por escena
+        └── TimelinePlan.java                   # Plan secuencial de clips de audio y video
 ```
 
 ---
@@ -281,7 +295,36 @@ Controla el flujo de cálculo del buffer (+50%), el bucle de reintentos (hasta 5
 
 ---
 
-### 4.6. Seguridad y Protección de la API
+### 4.6. Subsistema de Generación de Video y Narración TTS (`com.trivia.api.service.video`)
+
+Permite compilar series de trivias (~10 preguntas) en videos MP4 completos de alta calidad con transiciones, audio y locución por voz de IA:
+
+#### Componentes Principales:
+1. **[`TriviaVideoService.java`](file:///c:/Users/villa/GIT%20DESKTOP/AIO/triviaGenerator/src/main/java/com/trivia/api/service/video/TriviaVideoService.java)**:
+   * Carga las trivias y sus opciones asociadas desde PostgreSQL.
+   * **Auto-renderizado bajo demanda**: Si alguna trivia no cuenta con sus imágenes (`question.png`, `answer.png`), las sintetiza inmediatamente con `TriviaRendererService` antes de procesar el video.
+   * Invoca a `NarrationService` para calcular el cronograma temporal (`TimelinePlan`).
+   * Extrae los recursos audiovisuales del JAR (`VideoAssetExtractor`).
+   * Genera los clips de video independientes por trivia y ejecuta la concatenación final en MP4 (`H.264 / AAC`).
+
+2. **[`FFmpegCommandBuilder.java`](file:///c:/Users/villa/GIT%20DESKTOP/AIO/triviaGenerator/src/main/java/com/trivia/api/service/video/FFmpegCommandBuilder.java)**:
+   * Construye los filtros complejos de FFmpeg (`-filter_complex`).
+   * **Formato Vertical 9:16 (1080x1920)**: Escala la imagen original a 1080x1080 centrada y rellena los extremos superior e inferior con la misma imagen desenfocada (`boxblur=20:5`). Agrega encabezado superior y cuenta regresiva animada con `drawtext`.
+   * **Formato Cuadrado 1:1 (1080x1080)**: Mantiene la relación de aspecto nativa de las tarjetas gráficas.
+   * **Prevención de Truncamiento de Audio**: Inyecta una pista de silencio absoluto calculada a la duración exacta del clip (`aevalsrc=0:d=DURACION[asilence]`) como entrada principal de `amix`, asegurando que no se corten los paquetes de audio en reproductores estrictos (como Windows Media Player).
+
+3. **[`EdgeTtsNarrationService.java`](file:///c:/Users/villa/GIT%20DESKTOP/AIO/triviaGenerator/src/main/java/com/trivia/api/service/video/EdgeTtsNarrationService.java)**:
+   * Servicio `@Primary` que delega la síntesis a `scripts/tts_bridge.py` utilizando la biblioteca `edge-tts`.
+   * Genera la locución fonética para la pregunta y la posterior revelación con explicación.
+   * Adapta las duraciones de cada escena a los segundos exactos de la voz sintetizada.
+   * Posee *fallback* automático a temporizado estándar si Python o la red no están disponibles.
+
+4. **[`NoOpNarrationService.java`](file:///c:/Users/villa/GIT%20DESKTOP/AIO/triviaGenerator/src/main/java/com/trivia/api/service/video/NoOpNarrationService.java)**:
+   * Fallback determinista que aplica ritmos calibrados para lectura humana (7.0s pregunta + 5.0s cuenta regresiva con ticks + 6.5s respuesta = 18.5s por trivia).
+
+---
+
+### 4.7. Seguridad y Protección de la API
 
 1. **[`ApiKeyFilter.java`](file:///c:/Users/villa/GIT%20DESKTOP/AIO/triviaGenerator/src/main/java/com/trivia/api/infrastructure/security/ApiKeyFilter.java)**:
    * Filtro `OncePerRequestFilter`.
@@ -385,8 +428,15 @@ erDiagram
 | `GET` | `/api/v1/trivias/search?q=...` | Búsqueda por texto paginada | No | `200 OK` |
 | `GET` | `/api/v1/trivias` | Listado paginado de todas las trivias | No | `200 OK` |
 | `GET` | `/api/v1/trivias/stats` | Estadísticas y métricas del repositorio | No | `200 OK` |
-| `GET` | `/assets/**` | Servicio directo de imágenes PNG generadas | No | `200 OK` (image/png) |
-| `GET` | `/` o `/index.html` | Interfaz Web SPA interactiva | No | `200 OK` (text/html) |
+| `POST` | `/api/v1/trivias/export` | Exporta paquete ZIP con trivias e imágenes | Sí* | `200 OK` (`application/zip`) |
+| `GET` | `/api/v1/trivias/{id}/export` | Exporta ZIP individual de una trivia | No | `200 OK` (`application/zip`) |
+| `PATCH` | `/api/v1/trivias/mark-downloaded` | Actualiza estado a DESCARGADA / DESCARGADA_Y_EXPORTADA | Sí* | `204 No Content` |
+| `PATCH` | `/api/v1/trivias/mark-exported` | Actualiza estado a EXPORTADA / DESCARGADA_Y_EXPORTADA | Sí* | `204 No Content` |
+| `POST` | `/api/v1/trivias/rerender` | Re-renderiza masivamente las tarjetas PNG en disco sin marcas | Sí* | `200 OK` |
+| `POST` | `/api/v1/videos/generate` | Generar video MP4 de trivias con TTS y SFX | Sí* | `200 OK` |
+| `GET` | `/api/v1/videos/{id}/download` | Descargar archivo MP4 generado en streaming | No | `200 OK` (`video/mp4`) |
+| `GET` | `/assets/**` | Servicio directo de imágenes PNG generadas | No | `200 OK` (`image/png`) |
+| `GET` | `/` o `/index.html` | Interfaz Web SPA interactiva | No | `200 OK` (`text/html`) |
 
 *\* Requiere `X-API-KEY` únicamente si la variable `API_KEY` está configurada en el entorno.*
 
@@ -394,11 +444,11 @@ erDiagram
 
 ## 7. Estrategia de Pruebas Automatizadas
 
-La suite cuenta con **89 pruebas automatizadas** organizadas por capas de abstracción:
+La suite cuenta con **107 pruebas automatizadas** organizadas por capas de abstracción:
 
 ```
 Resultados de la suite:
-Tests run: 89, Failures: 0, Errors: 0, Skipped: 0 (100% pasando)
+Tests run: 107, Failures: 0, Errors: 0, Skipped: 0 (100% pasando)
 ```
 
 ### Cobertura por Paquetes de Prueba:
@@ -423,10 +473,16 @@ Tests run: 89, Failures: 0, Errors: 0, Skipped: 0 (100% pasando)
 6. **Renderizado de Imágenes** (`TriviaRendererServiceTest`, `LocalAssetStorageServiceTest`):
    * Creación de imágenes AWT sin entorno gráfico (modo headless).
    * Verificación de dimensiones (1080x1080) y encabezado de bytes del formato PNG (`89 50 4E 47`).
-7. **Controladores Web** (`CatalogControllerTest`, `HealthControllerTest`, `TriviaControllerTest`):
+   * Validación del pie de página sin branding forzado (`drawFooter` sin textos de plataforma).
+7. **Controladores Web** (`CatalogControllerTest`, `HealthControllerTest`, `TriviaControllerTest`, `TriviaVideoControllerTest`):
    * Pruebas con `MockMvc` extendiendo `AbstractControllerTest`.
    * Validación de respuestas en formato RFC 7807 (`ProblemDetail`).
-8. **Filtros de Seguridad** (`ApiKeyFilterTest`):
+   * Validación del flujo de compilación y descarga de videos MP4.
+8. **Subsistema de Video y Audio** (`FFmpegCommandBuilderTest`, `NoOpNarrationServiceTest`):
+   * Construcción de cadenas complejas de filtros FFmpeg para 9:16 y 1:1.
+   * Verificación de inyección de canal de silencio (`aevalsrc=0`) para sincronía exacta de streams.
+   * Cálculo determinista del cronograma de escenas (7.0s pregunta, 5.0s countdown, 6.5s respuesta).
+9. **Filtros de Seguridad** (`ApiKeyFilterTest`):
    * Validación de rechazo `HTTP 401 Unauthorized` cuando falta la cabecera `X-API-KEY`.
    * Exención de métodos `GET` y endpoints públicos.
 

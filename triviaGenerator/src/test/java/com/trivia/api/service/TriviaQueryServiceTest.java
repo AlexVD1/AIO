@@ -23,6 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -141,5 +142,45 @@ class TriviaQueryServiceTest {
         assertThat(stats.promedioIntentosPorGeneracion()).isEqualTo(1.3);
         assertThat(stats.promedioDescartadasPorGeneracion()).isEqualTo(0.8);
         assertThat(stats.triviasPorDificultad()).containsKeys("FACIL", "MEDIA", "DIFICIL");
+    }
+
+    @Test
+    @DisplayName("marcarComoDescargadas transiciona ACTIVA a DESCARGADA y EXPORTADA a DESCARGADA_Y_EXPORTADA")
+    void marcarComoDescargadasTransiciones() {
+        Trivia t1 = triviaMock;
+        t1.setEstado(EstadoTrivia.ACTIVA);
+
+        Trivia t2 = org.mockito.Mockito.mock(Trivia.class);
+        when(t2.getEstado()).thenReturn(EstadoTrivia.EXPORTADA);
+
+        UUID id1 = UUID.randomUUID();
+        UUID id2 = UUID.randomUUID();
+        when(triviaRepository.findAllById(List.of(id1, id2))).thenReturn(List.of(t1, t2));
+
+        queryService.marcarComoDescargadas(List.of(id1, id2));
+
+        assertThat(t1.getEstado()).isEqualTo(EstadoTrivia.DESCARGADA);
+        verify(t2).setEstado(EstadoTrivia.DESCARGADA_Y_EXPORTADA);
+        verify(triviaRepository).saveAll(any());
+    }
+
+    @Test
+    @DisplayName("marcarComoExportadas transiciona ACTIVA a EXPORTADA y DESCARGADA a DESCARGADA_Y_EXPORTADA")
+    void marcarComoExportadasTransiciones() {
+        Trivia t1 = triviaMock;
+        t1.setEstado(EstadoTrivia.ACTIVA);
+
+        Trivia t2 = org.mockito.Mockito.mock(Trivia.class);
+        when(t2.getEstado()).thenReturn(EstadoTrivia.DESCARGADA);
+
+        UUID id1 = UUID.randomUUID();
+        UUID id2 = UUID.randomUUID();
+        when(triviaRepository.findAllById(List.of(id1, id2))).thenReturn(List.of(t1, t2));
+
+        queryService.marcarComoExportadas(List.of(id1, id2));
+
+        assertThat(t1.getEstado()).isEqualTo(EstadoTrivia.EXPORTADA);
+        verify(t2).setEstado(EstadoTrivia.DESCARGADA_Y_EXPORTADA);
+        verify(triviaRepository).saveAll(any());
     }
 }

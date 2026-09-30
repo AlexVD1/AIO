@@ -62,4 +62,13 @@ public abstract class AbstractControllerTest {
 
     @MockBean
     protected com.trivia.api.service.TriviaExportService triviaExportService;
+
+    @MockBean
+    protected com.trivia.api.service.video.TriviaVideoService triviaVideoService;
+
+    @MockBean
+    protected com.trivia.api.service.video.narration.NarrationService narrationService;
+
+    @MockBean
+    protected com.trivia.api.service.TriviaMaintenanceService triviaMaintenanceService;
 }

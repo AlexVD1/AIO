@@ -1,0 +1,40 @@
+{
+  "id" : "61fd5a07-0f0f-494f-a504-26adedbdb2e6",
+  "tipoTrivia" : "ASTRONOMIA",
+  "pregunta" : "¿Cuál es la capa visible del Sol que emite la luz que llega a la Tierra?",
+  "explicacion" : "La fotosfera es la capa más externa de la atmósfera solar que es visible y desde la cual se emite la mayor parte de la radiación lumínica y calórica hacia el sistema solar.",
+  "dificultad" : "MEDIA",
+  "idioma" : "es-MX",
+  "estado" : "ACTIVA",
+  "opciones" : [ {
+    "id" : "b63b81ef-bec7-4e1c-aac5-22ce7ad4ddf1",
+    "letra" : "A",
+    "texto" : "Cromosfera",
+    "correcta" : false
+  }, {
+    "id" : "a13750a6-b30f-4a24-ab58-fc29b2659f8c",
+    "letra" : "B",
+    "texto" : "Corona",
+    "correcta" : false
+  }, {
+    "id" : "a8bd6216-b796-4e12-9f8a-a768f0fbfade",
+    "letra" : "C",
+    "texto" : "Núcleo",
+    "correcta" : false
+  }, {
+    "id" : "ba03feff-8287-42ee-bdd5-1b28a32cade0",
+    "letra" : "D",
+    "texto" : "Fotosfera",
+    "correcta" : true
+  } ],
+  "assets" : [ {
+    "id" : "e71883ca-16c6-4cb5-b8ba-ce1591694f31",
+    "tipo" : "PREGUNTA",
+    "url" : "http://localhost:8080/assets/0bb95d81-7125-45e9-9ac5-c137e2ec3cfc/61fd5a07-0f0f-494f-a504-26adedbdb2e6-pregunta.png"
+  }, {
+    "id" : "15fb273c-cdab-4950-995f-1b7d20e3db81",
+    "tipo" : "RESPUESTA",
+    "url" : "http://localhost:8080/assets/0bb95d81-7125-45e9-9ac5-c137e2ec3cfc/61fd5a07-0f0f-494f-a504-26adedbdb2e6-respuesta.png"
+  } ],
+  "createdAt" : "2026-09-24T17:32:42.061241"
+}

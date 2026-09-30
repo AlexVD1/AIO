@@ -104,7 +104,7 @@ public class Trivia {
     private String subtema;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "estado", nullable = false, length = 15)
+    @Column(name = "estado", nullable = false, length = 35)
     private EstadoTrivia estado = EstadoTrivia.ACTIVA;
 
     @CreationTimestamp

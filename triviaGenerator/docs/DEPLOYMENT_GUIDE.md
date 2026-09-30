@@ -86,41 +86,44 @@ VPS (Ubuntu 22.04 / 24.04 o Debian 12)
 
 ---
 
-## 5. Configuración de Cloudflare Tunnel
+---
 
-1. Iniciar sesión en Cloudflare:
+## 5. Acceso Público por Internet con Cloudflare Tunnel
+
+La infraestructura ya incluye el servicio `trivia-tunnel` preconfigurado en `compose.yaml` utilizando la imagen oficial `docker.io/cloudflare/cloudflared:latest`.
+
+Existen dos modalidades compatibles:
+
+### Opción A: Quick Tunnel (Gratuito, Sin cuenta ni dominio previo)
+Esta es la opción predeterminada. Al levantar el entorno con:
+```bash
+podman compose up -d
+```
+Cloudflare genera automáticamente un túnel temporal con certificado SSL público (ej. `https://xyz-subdomain.trycloudflare.com`).
+
+Para consultar la URL activa y verificar la salud del servicio en cualquier momento:
+- En Windows (PowerShell):
+  ```powershell
+  .\get-public-url.ps1
+  ```
+- En Linux / WSL (Bash):
+  ```bash
+  ./get-public-url.sh
+  ```
+
+### Opción B: Túnel Persistente con Dominio Propio (Cloudflare Zero Trust)
+Si posees un dominio gestionado en Cloudflare:
+1. Crea un túnel en el dashboard de Cloudflare Zero Trust (**Networks > Tunnels**).
+2. Obtén el token del túnel (`eyJh...`).
+3. En `.env`, configura:
+   ```properties
+   CLOUDFLARE_TUNNEL_CMD=tunnel --no-autoupdate run --token eyJh...
+   ```
+4. Reinicia el contenedor del túnel:
    ```bash
-   cloudflared tunnel login
+   podman compose up -d tunnel
    ```
-   (Abrirá un enlace en el navegador para autorizar tu cuenta).
-
-2. Crear el túnel:
-   ```bash
-   cloudflared tunnel create trivia-tunnel
-   ```
-   Esto generará un UUID y un archivo de credenciales en `~/.cloudflared/<UUID>.json`.
-
-3. Crear el archivo de configuración `~/.cloudflared/config.yml`:
-   ```yaml
-   tunnel: <UUID_DEL_TUNEL>
-   credentials-file: /root/.cloudflared/<UUID_DEL_TUNEL>.json
-
-   ingress:
-     - hostname: trivia.midominio.com
-       service: http://localhost:8080
-     - service: http_status:404
-   ```
-
-4. Enrutar el subdominio DNS:
-   ```bash
-   cloudflared tunnel route dns trivia-tunnel trivia.midominio.com
-   ```
-
-5. Instalar y arrancar `cloudflared` como servicio systemd:
-   ```bash
-   sudo cloudflared service install
-   sudo systemctl enable --now cloudflared
-   ```
+5. Tu aplicación quedará accesible permanentemente bajo tu propio subdominio (ej. `https://trivia.tudominio.com`).
 
 ---
 

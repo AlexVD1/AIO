@@ -1,0 +1,40 @@
+{
+  "id" : "27452ae5-c345-4079-b74b-e7eb99d7995f",
+  "tipoTrivia" : "ASTRONOMIA",
+  "pregunta" : "¿Qué nombre recibe el límite alrededor de un agujero negro del cual nada, ni siquiera la luz, puede escapar?",
+  "explicacion" : "El horizonte de sucesos es la frontera matemática y física que rodea a un agujero negro a partir de la cual la velocidad de escape supera a la velocidad de la luz.",
+  "dificultad" : "MEDIA",
+  "idioma" : "es-MX",
+  "estado" : "ACTIVA",
+  "opciones" : [ {
+    "id" : "14583c39-7c61-4bb8-a040-5cdfceb19e44",
+    "letra" : "A",
+    "texto" : "Horizonte de sucesos",
+    "correcta" : true
+  }, {
+    "id" : "db75c7c7-8609-401b-b626-11ae85e1fda7",
+    "letra" : "B",
+    "texto" : "Singularidad",
+    "correcta" : false
+  }, {
+    "id" : "22ca8bd3-0cdc-4ac7-8ff4-d9a6e8f4fb7a",
+    "letra" : "C",
+    "texto" : "Ergósfera",
+    "correcta" : false
+  }, {
+    "id" : "0d9f5c9e-e20c-4eb6-b449-3902e649ed7f",
+    "letra" : "D",
+    "texto" : "Disco de acreción",
+    "correcta" : false
+  } ],
+  "assets" : [ {
+    "id" : "74dcbff4-39a1-43ff-b066-107003d823f8",
+    "tipo" : "PREGUNTA",
+    "url" : "http://localhost:8080/assets/0bb95d81-7125-45e9-9ac5-c137e2ec3cfc/27452ae5-c345-4079-b74b-e7eb99d7995f-pregunta.png"
+  }, {
+    "id" : "d40b7e62-db58-41ab-b791-2d5341732bd6",
+    "tipo" : "RESPUESTA",
+    "url" : "http://localhost:8080/assets/0bb95d81-7125-45e9-9ac5-c137e2ec3cfc/27452ae5-c345-4079-b74b-e7eb99d7995f-respuesta.png"
+  } ],
+  "createdAt" : "2026-09-24T17:32:42.065995"
+}

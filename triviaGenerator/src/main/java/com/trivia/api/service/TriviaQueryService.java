@@ -142,9 +142,10 @@ public class TriviaQueryService {
     }
 
     /**
-     * Marca las trivias especificadas con estado DESCARGADA.
-     * Este método debe invocarse ÚNICAMENTE después de confirmar que el ZIP fue
-     * generado y el blob descargado exitosamente en el cliente.
+    /**
+     * Marca las trivias especificadas como descargadas en paquete ZIP.
+     * Si una trivia ya era EXPORTADA (tenía video), pasa a DESCARGADA_Y_EXPORTADA.
+     * Si era ACTIVA, pasa a DESCARGADA.
      *
      * @param ids Lista de UUIDs de trivias a marcar
      */
@@ -153,7 +154,32 @@ public class TriviaQueryService {
         if (ids == null || ids.isEmpty()) return;
         List<Trivia> trivias = triviaRepository.findAllById(ids);
         for (Trivia t : trivias) {
-            t.setEstado(EstadoTrivia.DESCARGADA);
+            if (t.getEstado() == EstadoTrivia.ACTIVA) {
+                t.setEstado(EstadoTrivia.DESCARGADA);
+            } else if (t.getEstado() == EstadoTrivia.EXPORTADA) {
+                t.setEstado(EstadoTrivia.DESCARGADA_Y_EXPORTADA);
+            }
+        }
+        triviaRepository.saveAll(trivias);
+    }
+
+    /**
+     * Marca las trivias especificadas como exportadas a video MP4.
+     * Si una trivia ya era DESCARGADA (tenía paquete ZIP), pasa a DESCARGADA_Y_EXPORTADA.
+     * Si era ACTIVA, pasa a EXPORTADA.
+     *
+     * @param ids Lista de UUIDs de trivias a marcar
+     */
+    @Transactional
+    public void marcarComoExportadas(List<UUID> ids) {
+        if (ids == null || ids.isEmpty()) return;
+        List<Trivia> trivias = triviaRepository.findAllById(ids);
+        for (Trivia t : trivias) {
+            if (t.getEstado() == EstadoTrivia.ACTIVA) {
+                t.setEstado(EstadoTrivia.EXPORTADA);
+            } else if (t.getEstado() == EstadoTrivia.DESCARGADA) {
+                t.setEstado(EstadoTrivia.DESCARGADA_Y_EXPORTADA);
+            }
         }
         triviaRepository.saveAll(trivias);
     }

@@ -1,0 +1,40 @@
+{
+  "id" : "343d51f6-5866-4e9f-a583-68afc1775237",
+  "tipoTrivia" : "ASTRONOMIA",
+  "pregunta" : "¿Qué instrumento se utilizó por primera vez para descubrir los satélites galileanos de Júpiter?",
+  "explicacion" : "Galileo Galilei apuntó su telescopio refractor hacia Júpiter en 1610 y descubrió sus cuatro lunas principales (Ío, Europa, Ganimedes y Calixto), revolucionando la astronomía.",
+  "dificultad" : "MEDIA",
+  "idioma" : "es-MX",
+  "estado" : "ACTIVA",
+  "opciones" : [ {
+    "id" : "7bdf82f2-8f3e-47df-8cbe-ad43bae6eaca",
+    "letra" : "A",
+    "texto" : "Radiotelescopio",
+    "correcta" : false
+  }, {
+    "id" : "2a70f291-72cb-4f2f-972b-cc485a270d60",
+    "letra" : "B",
+    "texto" : "Telescopio refractor",
+    "correcta" : true
+  }, {
+    "id" : "3af80ffe-fb62-4ead-a64b-8bbef77b162c",
+    "letra" : "C",
+    "texto" : "Espectroscopio",
+    "correcta" : false
+  }, {
+    "id" : "84c468b8-cb74-4ae0-bb99-77686725bf32",
+    "letra" : "D",
+    "texto" : "Telescopio reflector",
+    "correcta" : false
+  } ],
+  "assets" : [ {
+    "id" : "3b479164-b088-40cc-aa0a-9897715f0514",
+    "tipo" : "PREGUNTA",
+    "url" : "http://localhost:8080/assets/0bb95d81-7125-45e9-9ac5-c137e2ec3cfc/343d51f6-5866-4e9f-a583-68afc1775237-pregunta.png"
+  }, {
+    "id" : "357bdc08-7dd5-44b4-b164-756322fab4e1",
+    "tipo" : "RESPUESTA",
+    "url" : "http://localhost:8080/assets/0bb95d81-7125-45e9-9ac5-c137e2ec3cfc/343d51f6-5866-4e9f-a583-68afc1775237-respuesta.png"
+  } ],
+  "createdAt" : "2026-09-24T17:32:42.056159"
+}

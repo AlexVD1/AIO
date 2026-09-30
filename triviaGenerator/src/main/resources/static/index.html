@@ -489,9 +489,16 @@
     .badge {
       font-size: 0.72rem;
       font-weight: 700;
-      padding: 0.2rem 0.6rem;
+      padding: 0.22rem 0.65rem;
       border-radius: 999px;
       text-transform: uppercase;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.3rem;
+      line-height: 1.25;
+      flex-shrink: 0;
     }
 
     .badge-cat { background: rgba(99, 102, 241, 0.15); color: #a5b4fc; border: 1px solid rgba(99, 102, 241, 0.3); }
@@ -913,9 +920,9 @@
     }
     .filter-group { display: flex; flex-direction: column; gap: 0.3rem; }
     .filter-label { font-size: 0.72rem; font-weight: 700; color: var(--text-dim); text-transform: uppercase; letter-spacing: 0.04em; }
-    .filter-pills { display: flex; gap: 0.35rem; flex-wrap: nowrap; }
+    .filter-pills { display: flex; gap: 0.4rem; flex-wrap: wrap; }
     .filter-pill {
-      padding: 0.22rem 0.7rem;
+      padding: 0.25rem 0.75rem;
       border-radius: 999px;
       border: 1px solid var(--border-color);
       background: transparent;
@@ -925,6 +932,10 @@
       cursor: pointer;
       transition: all 0.15s ease;
       white-space: nowrap;
+      flex-shrink: 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
     }
     .filter-pill:hover { border-color: var(--primary); color: var(--text-main); }
     .filter-pill.active { background: var(--primary); border-color: var(--primary); color: #fff; }
@@ -932,6 +943,8 @@
     .filter-pill.media.active  { background: var(--warning); border-color: var(--warning); color: #1a1a1a; }
     .filter-pill.dificil.active { background: var(--danger); border-color: var(--danger); }
     .filter-pill.downloaded.active { background: #7c3aed; border-color: #7c3aed; }
+    .filter-pill.video.active      { background: #0891b2; border-color: #0891b2; color: #fff; }
+    .filter-pill.complete.active   { background: #d97706; border-color: #d97706; color: #fff; }
 
     /* Tabla de trivias compacta */
     .trivias-table-wrap { overflow-x: auto; }
@@ -956,11 +969,12 @@
     }
     .trivias-table th.col-check { width: 36px; text-align: center; }
     .trivias-table th.col-id    { width: 90px; }
-    .trivias-table th.col-cat   { width: 110px; }
-    .trivias-table th.col-diff  { width: 80px; }
+    .trivias-table th.col-cat   { width: 120px; }
+    .trivias-table th.col-diff  { width: 85px; }
     .trivias-table th.col-sub   { width: 130px; }
-    .trivias-table th.col-est   { width: 100px; }
-    .trivias-table th.col-act   { width: 96px; text-align: right; }
+    .trivias-table th.col-est   { width: 180px; min-width: 175px; text-align: center; }
+    .trivias-table th.col-act   { width: 100px; text-align: right; }
+    .trivias-table td.col-est   { text-align: center; white-space: nowrap; }
     .trivias-table tbody tr {
       border-bottom: 1px solid var(--border-color);
       transition: background 0.12s ease;
@@ -984,9 +998,11 @@
     .trivias-table td.col-act { text-align: right; }
     .trivias-table td code { font-size: 0.75rem; color: var(--text-dim); }
 
-    /* Badge estado DESCARGADA */
-    .badge-descargada { background: rgba(124,58,237,0.2); color: #c4b5fd; border: 1px solid rgba(124,58,237,0.4); }
+    /* Badges de estados del ciclo de vida */
     .badge-activa     { background: var(--success-bg); color: #6ee7b7; border: 1px solid rgba(16,185,129,0.3); }
+    .badge-descargada { background: rgba(124,58,237,0.2); color: #c4b5fd; border: 1px solid rgba(124,58,237,0.4); }
+    .badge-exportada  { background: rgba(6,182,212,0.2); color: #67e8f9; border: 1px solid rgba(6,182,212,0.4); }
+    .badge-completa   { background: rgba(245,158,11,0.2); color: #fde68a; border: 1px solid rgba(245,158,11,0.4); }
     .badge-invalida   { background: var(--danger-bg); color: #fca5a5; }
     .badge-archivada  { background: var(--warning-bg); color: #fcd34d; }
 
@@ -1095,6 +1111,210 @@
     .detail-text-summary::after { content: ' ▾'; font-size: 0.7rem; color: var(--text-dim); }
     details[open] .detail-text-summary::after { content: ' ▴'; }
     .detail-text-body { padding: 1rem; border-top: 1px solid var(--border-color); }
+
+    /* =============================================
+       ESTUDIO DE VIDEO
+       ============================================= */
+    .video-studio-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 1.5rem;
+      align-items: start;
+    }
+    @media (max-width: 960px) {
+      .video-studio-grid { grid-template-columns: 1fr; }
+    }
+    .video-trivia-chip {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      padding: 0.4rem 0.65rem;
+      font-size: 0.82rem;
+      margin-bottom: 0.4rem;
+      transition: background 0.15s ease;
+    }
+    .video-trivia-chip:hover {
+      background: var(--bg-card-hover);
+    }
+    .video-trivia-chip .chip-title {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1;
+    }
+    .video-trivia-chip .chip-remove {
+      cursor: pointer;
+      color: var(--danger);
+      background: none;
+      border: none;
+      font-size: 1rem;
+      line-height: 1;
+      padding: 2px 4px;
+      opacity: 0.75;
+    }
+    .video-trivia-chip .chip-remove:hover {
+      opacity: 1;
+    }
+    .video-preview-box {
+      background: #000;
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 380px;
+      position: relative;
+    }
+    .video-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      color: var(--text-dim);
+      padding: 2rem;
+      text-align: center;
+    }
+    .video-placeholder-icon {
+      font-size: 3.5rem;
+      opacity: 0.6;
+    }
+    .video-meta-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: rgba(99, 102, 241, 0.15);
+      color: #a5b4fc;
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 999px;
+      padding: 0.2rem 0.65rem;
+      font-size: 0.78rem;
+      font-weight: 600;
+    }
+
+    /* Items de trivias seleccionadas en el Estudio de Video */
+    .video-trivia-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.75rem;
+      padding: 0.55rem 0.75rem;
+      margin-bottom: 0.45rem;
+      background: rgba(255, 255, 255, 0.025);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      transition: all 0.15s ease;
+    }
+    .video-trivia-item:hover {
+      border-color: rgba(99, 102, 241, 0.5);
+      background: rgba(99, 102, 241, 0.05);
+    }
+    .video-order-badge {
+      font-weight: 800;
+      color: #818cf8;
+      font-size: 0.8rem;
+      min-width: 26px;
+      height: 26px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(99, 102, 241, 0.15);
+      border-radius: 6px;
+      border: 1px solid rgba(99, 102, 241, 0.25);
+    }
+    .video-trivia-thumb {
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      border-radius: 6px;
+      object-fit: cover;
+      border: 1px solid var(--border-color);
+      background: #000;
+      cursor: pointer;
+      transition: transform 0.15s ease, border-color 0.15s ease;
+    }
+    .video-trivia-thumb:hover {
+      transform: scale(1.08);
+      border-color: var(--primary);
+    }
+    .video-trivia-thumb-placeholder {
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px dashed var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      color: var(--text-dim);
+    }
+    .video-trivia-content {
+      min-width: 0;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .video-trivia-question {
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: var(--text-main);
+      line-height: 1.35;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .video-trivia-meta {
+      display: flex;
+      gap: 0.4rem;
+      align-items: center;
+      flex-wrap: wrap;
+      font-size: 0.72rem;
+      color: var(--text-dim);
+    }
+    .video-trivia-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.2rem;
+      flex-shrink: 0;
+    }
+    .btn-icon {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-dim);
+      border-radius: 4px;
+      padding: 0.25rem 0.45rem;
+      font-size: 0.75rem;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.12s ease;
+    }
+    .btn-icon:hover:not(:disabled) {
+      background: rgba(255, 255, 255, 0.08);
+      color: var(--text-main);
+      border-color: var(--border-color);
+    }
+    .btn-icon:disabled {
+      opacity: 0.25;
+      cursor: not-allowed;
+    }
+    .btn-icon.delete:hover {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border-color: rgba(239, 68, 68, 0.3);
+    }
   </style>
 
 </head>
@@ -1146,6 +1366,9 @@
     </button>
     <button class="tab-btn" onclick="switchTab('tab-stats')">
       <span>📊</span> Métricas & Catálogo
+    </button>
+    <button class="tab-btn" onclick="switchTab('tab-video')">
+      <span>🎬</span> Estudio de Video
     </button>
   </nav>
 
@@ -1264,7 +1487,7 @@
         <!-- Right: Results & Generated Cards -->
         <div>
           <!-- Summary Metrics -->
-          <div id="generationSummary" class="summary-metrics" style="display: none;">
+          <div id="generationSummary" class="summary-metrics" style="display: none; align-items: center; flex-wrap: wrap;">
             <div class="metric-badge">
               <span class="label">Total Creadas</span>
               <span id="metricFinal" class="value">0</span>
@@ -1280,6 +1503,11 @@
             <div class="metric-badge">
               <span class="label">Modelo</span>
               <span class="value" style="font-size: 0.95rem; color: #a5b4fc;">gemini-3.5-flash-lite</span>
+            </div>
+            <div style="margin-left: auto;">
+              <button type="button" class="btn btn-secondary btn-sm" style="background: rgba(6,182,212,0.15); color: #67e8f9; border: 1px solid rgba(6,182,212,0.4);" onclick="sendLastBatchToVideoStudio()">
+                🎬 Crear Video de este lote
+              </button>
             </div>
           </div>
 
@@ -1371,6 +1599,8 @@
               <button class="filter-pill active" data-value="" onclick="setEstadoFilter(this, '')">Todas</button>
               <button class="filter-pill" data-value="ACTIVA" onclick="setEstadoFilter(this, 'ACTIVA')">Activas</button>
               <button class="filter-pill downloaded" data-value="DESCARGADA" onclick="setEstadoFilter(this, 'DESCARGADA')">Descargadas</button>
+              <button class="filter-pill video" data-value="EXPORTADA" onclick="setEstadoFilter(this, 'EXPORTADA')">Con Video</button>
+              <button class="filter-pill complete" data-value="DESCARGADA_Y_EXPORTADA" onclick="setEstadoFilter(this, 'DESCARGADA_Y_EXPORTADA')">Descargadas & Video</button>
             </div>
           </div>
           <div class="filter-group">
@@ -1454,6 +1684,192 @@
             </tbody>
           </table>
         </div>
+      <!-- Herramientas de Mantenimiento -->
+      <div class="card" style="margin-top: 24px;">
+        <h2 class="card-title"><span>🛠️</span> Mantenimiento del Sistema</h2>
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+          <div style="max-width: 650px;">
+            <h4 style="margin: 0 0 6px 0; color: var(--text-primary, #ffffff); font-size: 1rem;">Re-renderizar Todas las Tarjetas (Diseño Limpio)</h4>
+            <p style="margin: 0; color: var(--text-secondary, #94a3b8); font-size: 0.875rem; line-height: 1.5;">
+              Regenera en disco las imágenes PNG (1080x1080) de todas las trivias existentes en la base de datos sin el texto anterior «Plataforma de Trivias con IA», aplicando el diseño gráfico actualizado.
+            </p>
+          </div>
+          <button id="btnRerenderAll" class="btn btn-secondary" style="white-space: nowrap; padding: 10px 18px; border: 1px solid var(--accent-color, #6366f1); color: #fff;" onclick="handleRerenderAllImages()">
+            <span>🔄</span> Re-renderizar Tarjetas
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ========================================== -->
+    <!-- TAB 5: ESTUDIO DE VIDEO -->
+    <!-- ========================================== -->
+    <section id="tab-video" class="tab-panel">
+      <div class="video-studio-grid">
+        
+        <!-- Left: Configuration Form -->
+        <div class="card">
+          <h2 class="card-title">
+            <span>🎬</span> Parámetros del Video
+          </h2>
+
+          <!-- Trivias Seleccionadas -->
+          <div class="form-group">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+              <label class="form-label" style="margin-bottom:0;">Preguntas para el Video</label>
+              <span id="videoSelectedCountBadge" class="video-meta-badge">0 seleccionadas</span>
+            </div>
+            
+            <div style="display:flex; gap:0.5rem; margin-bottom:0.75rem; flex-wrap:wrap;">
+              <button type="button" class="btn btn-secondary btn-sm" onclick="loadLatestTriviasForVideo(10)">
+                ⚡ Cargar últimas 10
+              </button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="switchTab('tab-explorer')">
+                🔍 Seleccionar en Explorador
+              </button>
+              <button type="button" class="btn btn-secondary btn-sm" style="color:var(--danger);" onclick="clearVideoTriviaSelection()">
+                🗑️ Vaciar
+              </button>
+            </div>
+
+            <!-- Listado scrolleable de trivias seleccionadas -->
+            <div id="videoSelectedList" style="max-height: 380px; min-height: 140px; overflow-y: auto; border: 1px dashed var(--border-color); border-radius: var(--radius-sm); padding: 0.6rem; background: var(--bg-main);">
+              <div style="color:var(--text-dim); text-align:center; padding:2rem 1rem; font-size:0.85rem;">
+                <div style="font-size:2rem; margin-bottom:0.4rem; opacity:0.6;">📭</div>
+                <div style="font-weight:600; color:var(--text-main); margin-bottom:0.25rem;">No hay trivias seleccionadas</div>
+                <div>Usa "⚡ Cargar últimas 10" o selecciónalas en el Explorador.</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Formato de Video -->
+          <div class="form-group">
+            <label class="form-label">Formato de Salida</label>
+            <div class="pill-group" style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+              <button type="button" id="btnFormatVertical" class="pill-btn active" style="flex:1; min-width:130px;" onclick="setVideoFormat('VERTICAL_9_16')">
+                📱 Vertical 9:16 (Shorts / Reels)
+              </button>
+              <button type="button" id="btnFormatHorizontal" class="pill-btn" style="flex:1; min-width:130px;" onclick="setVideoFormat('HORIZONTAL_16_9')">
+                📺 Horizontal 16:9 (YouTube)
+              </button>
+              <button type="button" id="btnFormatSquare" class="pill-btn" style="flex:1; min-width:130px;" onclick="setVideoFormat('SQUARE_1_1')">
+                ⬛ Cuadrado 1:1 (Feed)
+              </button>
+            </div>
+          </div>
+
+          <!-- Narración por Voz TTS -->
+          <div class="form-group" style="background:rgba(255,255,255,0.02); padding:0.75rem; border-radius:var(--radius-sm); border:1px solid var(--border-color);">
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.4rem;">
+              <label class="form-label" style="margin-bottom:0; cursor:pointer;" for="videoWithTts">
+                🗣️ Narración por Voz con IA (Edge-TTS)
+              </label>
+              <input type="checkbox" id="videoWithTts" checked onchange="toggleTtsVoiceOptions(this.checked)" style="width:18px; height:18px; cursor:pointer; accent-color:var(--primary);">
+            </div>
+            
+            <div id="videoTtsVoiceGroup">
+              <label class="form-label" style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.25rem;">Voz Neuronal</label>
+              <select id="videoTtsVoice" class="form-control" style="font-size:0.85rem;">
+                <option value="es-MX-JorgeNeural" selected>🇲🇽 es-MX-JorgeNeural (México, Masculino - Recomendada)</option>
+                <option value="es-MX-DaliaNeural">🇲🇽 es-MX-DaliaNeural (México, Femenino)</option>
+                <option value="es-ES-AlvaroNeural">🇪🇸 es-ES-AlvaroNeural (España, Masculino)</option>
+                <option value="es-ES-ElviraNeural">🇪🇸 es-ES-ElviraNeural (España, Femenino)</option>
+                <option value="es-CO-GonzaloNeural">🇨🇴 es-CO-GonzaloNeural (Colombia, Masculino)</option>
+                <option value="es-AR-TomasNeural">🇦🇷 es-AR-TomasNeural (Argentina, Masculino)</option>
+                <option value="en-US-ChristopherNeural">🇺🇸 en-US-ChristopherNeural (Inglés EE.UU.)</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Música de fondo (BGM) -->
+          <div class="form-group">
+            <div style="display:flex; align-items:center; justify-content:space-between;">
+              <label class="form-label" style="margin-bottom:0; cursor:pointer;" for="videoWithBgm">
+                🎵 Música de Fondo Suave (BGM)
+              </label>
+              <input type="checkbox" id="videoWithBgm" checked style="width:18px; height:18px; cursor:pointer; accent-color:var(--primary);">
+            </div>
+          </div>
+
+          <!-- Botón de Envío -->
+          <button type="button" id="btnSubmitVideo" class="btn btn-primary" onclick="handleGenerateVideo()" style="width:100%; margin-top:0.5rem;">
+            <span>🎬</span> Compilar Video con IA
+          </button>
+
+          <!-- Barra de Progreso de Video -->
+          <div id="videoProgressBox" style="display:none; margin-top:1rem; background:var(--bg-main); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:1rem;">
+            <div style="display:flex; justify-content:space-between; font-size:0.85rem; margin-bottom:0.4rem;">
+              <span id="videoProgressStatus" style="font-weight:600; color:#a5b4fc;">Compilando video con FFmpeg...</span>
+              <span id="videoProgressTimer" style="font-family:monospace; color:var(--text-muted);">0s</span>
+            </div>
+            <div style="background:var(--border-color); height:6px; border-radius:3px; overflow:hidden;">
+              <div id="videoProgressBar" style="width:30%; height:100%; background:linear-gradient(90deg, var(--primary), var(--secondary)); transition: width 0.4s ease;"></div>
+            </div>
+            <div style="font-size:0.75rem; color:var(--text-dim); margin-top:0.5rem; text-align:center;">
+              Este proceso puede tardar unos segundos según la cantidad de trivias y locución TTS.
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Right: Video Player & Output -->
+        <div class="card" style="display:flex; flex-direction:column;">
+          <h2 class="card-title">
+            <span>📺</span> Resultado Audiovisual
+          </h2>
+
+          <div id="videoContainer" class="video-preview-box">
+            <!-- Placeholder Inicial -->
+            <div id="videoPlaceholder" class="video-placeholder">
+              <div class="video-placeholder-icon">🎬</div>
+              <div style="font-weight:600; font-size:1.1rem; color:var(--text-main);">Sin video generado</div>
+              <p style="font-size:0.85rem; max-width:320px;">
+                Selecciona las trivias a incluir en la columna izquierda y presiona <strong>Compilar Video con IA</strong> para ver aquí el reproductor en tiempo real.
+              </p>
+            </div>
+
+            <!-- Reproductor HTML5 -->
+            <video id="videoPlayer" controls playsinline style="display:none; width:100%; max-height:520px; border-radius:var(--radius-sm); outline:none; background:#000;"></video>
+          </div>
+
+          <!-- Metadatos y Descarga del Video -->
+          <div id="videoResultDetails" style="display:none; margin-top:1.25rem;">
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(110px, 1fr)); gap:0.6rem; margin-bottom:1rem;">
+              <div style="background:var(--bg-main); padding:0.5rem 0.65rem; border-radius:var(--radius-sm); border:1px solid var(--border-color);">
+                <div style="font-size:0.7rem; color:var(--text-dim);">DURACIÓN</div>
+                <div id="videoDurationVal" style="font-weight:700; font-size:0.95rem; color:var(--text-main);">-</div>
+              </div>
+              <div style="background:var(--bg-main); padding:0.5rem 0.65rem; border-radius:var(--radius-sm); border:1px solid var(--border-color);">
+                <div style="font-size:0.7rem; color:var(--text-dim);">TAMAÑO</div>
+                <div id="videoSizeVal" style="font-weight:700; font-size:0.95rem; color:var(--text-main);">-</div>
+              </div>
+              <div style="background:var(--bg-main); padding:0.5rem 0.65rem; border-radius:var(--radius-sm); border:1px solid var(--border-color);">
+                <div style="font-size:0.7rem; color:var(--text-dim);">TRIVIAS</div>
+                <div id="videoCountVal" style="font-weight:700; font-size:0.95rem; color:var(--text-main);">-</div>
+              </div>
+              <div style="background:var(--bg-main); padding:0.5rem 0.65rem; border-radius:var(--radius-sm); border:1px solid var(--border-color);">
+                <div style="font-size:0.7rem; color:var(--text-dim);">FORMATO</div>
+                <div id="videoFormatVal" style="font-weight:700; font-size:0.85rem; color:#67e8f9;">-</div>
+              </div>
+            </div>
+
+            <div style="display:flex; gap:0.75rem; flex-wrap:wrap;">
+              <a id="videoDownloadBtn" class="btn btn-success" style="flex:1; text-align:center; text-decoration:none;" download>
+                ⬇️ Descargar Video MP4
+              </a>
+              <button type="button" class="btn btn-secondary" onclick="shareVideoLink()">
+                🔗 Copiar Enlace
+              </button>
+            </div>
+
+            <div style="margin-top:0.75rem; font-size:0.8rem; color:#6ee7b7; display:flex; align-items:center; gap:0.4rem;">
+              <span>✅</span>
+              <span>¡Las trivias compiladas se actualizaron automáticamente a estado <strong>Con Video</strong> o <strong>Descargada & Video</strong>!</span>
+            </div>
+          </div>
+
+        </div>
+
       </div>
     </section>
 
@@ -1521,11 +1937,17 @@
           <button id="detailDownloadZipBtn" class="btn btn-primary" style="width:auto;" onclick="downloadSingleTriviaZipFromDetail()">
             📦 Descargar ZIP
           </button>
+          <button id="detailCreateVideoBtn" class="btn btn-secondary" style="width:auto; background:rgba(6,182,212,0.15); color:#67e8f9; border:1px solid rgba(6,182,212,0.4);" onclick="sendSingleToVideoStudio()">
+            🎬 Crear Video
+          </button>
           <button id="detailDownloadQBtn" class="btn btn-secondary" style="width:auto; display:none;" onclick="downloadDetailImage('question')">
             ⬇️ question.png
           </button>
           <button id="detailDownloadABtn" class="btn btn-secondary" style="width:auto; display:none;" onclick="downloadDetailImage('answer')">
             ⬇️ answer.png
+          </button>
+          <button id="detailRerenderBtn" class="btn btn-secondary" style="width:auto;" onclick="rerenderCurrentDetailTrivia()" title="Regenera las tarjetas gráficas en disco con el diseño limpio">
+            🔄 Re-renderizar
           </button>
           <button class="btn btn-secondary" style="width:auto; margin-left:auto;" onclick="closeTriviaDetailModal()">
             Cerrar
@@ -1558,6 +1980,7 @@
     // Configuración Inicial
     const state = {
       pipelineMode: 'sync',
+      cacheBuster: Date.now(),
       currentQuizTrivia: null,
       quizScore: 0,
       quizWrongs: 0,
@@ -1568,7 +1991,11 @@
       selectedTriviaIds: new Set(),
       cachedTrivias: new Map(),
       currentDisplayedTrivias: [],
-      currentDetailTriviaId: null
+      currentDetailTriviaId: null,
+      selectedVideoTrivias: new Map(),
+      videoFormat: 'VERTICAL_9_16',
+      videoTimer: null,
+      lastGeneratedBatch: []
     };
 
     // Inicializar URL base y API Key
@@ -1616,20 +2043,23 @@
     function resolveAssetUrl(rawUrl) {
       if (!rawUrl) return '';
       const baseUrl = getBaseUrl();
+      let url = rawUrl;
       const idx = rawUrl.indexOf('/assets/');
       if (idx !== -1) {
-        return `${baseUrl}${rawUrl.substring(idx)}`;
+        url = `${baseUrl}${rawUrl.substring(idx)}`;
+      } else if (rawUrl.startsWith('/')) {
+        url = `${baseUrl}${rawUrl}`;
       }
-      if (rawUrl.startsWith('/')) {
-        return `${baseUrl}${rawUrl}`;
-      }
-      return rawUrl;
+      const buster = state.cacheBuster || Date.now();
+      const sep = url.includes('?') ? '&' : '?';
+      return `${url}${sep}_cb=${buster}`;
     }
 
     function getHeaders() {
       const headers = {
         'Content-Type': 'application/json',
-        'Accept': 'application/json'
+        'Accept': 'application/json',
+        'ngrok-skip-browser-warning': 'true'
       };
       const key = apiKeyInput.value.trim();
       if (key) {
@@ -1646,7 +2076,7 @@
 
       try {
         const start = performance.now();
-        const res = await fetch(`${getBaseUrl()}/api/v1/health`, { method: 'GET' });
+        const res = await fetch(`${getBaseUrl()}/api/v1/health`, { method: 'GET', headers: getHeaders() });
         const latency = Math.round(performance.now() - start);
 
         if (res.ok) {
@@ -1667,7 +2097,7 @@
     // Cargar Catálogo de Categorías
     async function loadCatalog() {
       try {
-        const res = await fetch(`${getBaseUrl()}/api/v1/catalogos/tipos-trivia`);
+        const res = await fetch(`${getBaseUrl()}/api/v1/catalogos/tipos-trivia`, { headers: getHeaders() });
         if (!res.ok) return;
         const tipos = await res.json();
         
@@ -1752,6 +2182,8 @@
         applyExplorerFilters();
       } else if (tabId === 'tab-stats') {
         loadStats();
+      } else if (tabId === 'tab-video') {
+        renderVideoSelectedList();
       }
     }
 
@@ -1885,7 +2317,7 @@
           pollPercent = Math.min(pollPercent + 15, 90);
           progressBar.style.width = `${pollPercent}%`;
 
-          const res = await fetch(`${getBaseUrl()}/api/v1/trivias/generations/${generationId}/status`);
+          const res = await fetch(`${getBaseUrl()}/api/v1/trivias/generations/${generationId}/status`, { headers: getHeaders() });
           if (!res.ok) return;
 
           const data = await res.json();
@@ -1931,9 +2363,10 @@
 
       try {
         const count = genData.cantidadFinal || genData.cantidadGenerada || 2;
-        const res = await fetch(`${getBaseUrl()}/api/v1/trivias?page=0&size=${Math.max(count, 5)}&sort=createdAt,desc`);
+        const res = await fetch(`${getBaseUrl()}/api/v1/trivias?page=0&size=${Math.max(count, 5)}&sort=createdAt,desc`, { headers: getHeaders() });
         if (!res.ok) throw new Error('Error al consultar trivias');
         const page = await res.json();
+        state.lastGeneratedBatch = page.content || [];
         renderTriviaCards(page.content, container);
         loadCatalog(); // Refrescar catálogo por si se auto-creó una nueva categoría
       } catch (err) {
@@ -1949,10 +2382,12 @@
 
     function estadoBadgeHtml(estado) {
       const map = {
-        'ACTIVA':      ['badge-activa',      'Activa'],
-        'DESCARGADA':  ['badge-descargada',  'Descargada'],
-        'INVALIDA':    ['badge-invalida',     'Inválida'],
-        'ARCHIVADA':   ['badge-archivada',   'Archivada'],
+        'ACTIVA':                 ['badge-activa',      '🟢 Activa'],
+        'DESCARGADA':             ['badge-descargada',  '📦 Descargada'],
+        'EXPORTADA':              ['badge-exportada',   '🎬 Con Video'],
+        'DESCARGADA_Y_EXPORTADA': ['badge-completa',    '✨ Descargada & Video'],
+        'INVALIDA':               ['badge-invalida',    '⚠️ Inválida'],
+        'ARCHIVADA':              ['badge-archivada',   '📁 Archivada'],
       };
       const [cls, label] = map[estado] || ['', estado || '—'];
       return `<span class="badge ${cls}">${label}</span>`;
@@ -1987,6 +2422,9 @@
             ${selCount > 0 ? `<button class="btn btn-secondary btn-sm" style="padding: 2px 8px; font-size: 0.75rem;" onclick="clearSelection()">Limpiar selección</button>` : ''}
           </div>
           <div class="table-toolbar-right">
+            <button class="btn btn-secondary btn-sm btn-create-video" style="background:rgba(6,182,212,0.15); color:#67e8f9; border:1px solid rgba(6,182,212,0.4);" ${selCount === 0 ? 'disabled' : ''} onclick="sendSelectedToVideoStudio()">
+              🎬 Crear Video (${selCount})
+            </button>
             <button class="btn btn-primary btn-sm btn-download-zip" ${selCount === 0 ? 'disabled' : ''} onclick="downloadSelectedTriviasZip()">
               📦 Descargar ZIP (${selCount})
             </button>
@@ -2088,6 +2526,10 @@
       document.querySelectorAll('.btn-download-zip').forEach(btn => {
         btn.disabled = (count === 0);
         btn.innerHTML = `📦 Descargar ZIP (${count})`;
+      });
+      document.querySelectorAll('.btn-create-video').forEach(btn => {
+        btn.disabled = (count === 0);
+        btn.innerHTML = `🎬 Crear Video (${count})`;
       });
 
       document.querySelectorAll('.table-toolbar').forEach(toolbar => {
@@ -2258,7 +2700,8 @@
       try {
         const headers = {
           'Content-Type': 'application/json',
-          'Accept': 'application/zip, application/octet-stream, */*'
+          'Accept': 'application/zip, application/octet-stream, */*',
+          'ngrok-skip-browser-warning': 'true'
         };
         const key = apiKeyInput.value.trim();
         if (key) {
@@ -2317,7 +2760,7 @@
     async function markTriviaAsDownloaded(ids) {
       if (!ids || ids.length === 0) return;
       try {
-        const headers = { 'Content-Type': 'application/json' };
+        const headers = { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' };
         const key = apiKeyInput.value.trim();
         if (key) headers['X-API-KEY'] = key;
 
@@ -2331,18 +2774,21 @@
         ids.forEach(id => {
           const cached = state.cachedTrivias.get(id);
           if (cached) {
-            cached.estado = 'DESCARGADA';
+            cached.estado = (cached.estado === 'EXPORTADA' || cached.estado === 'DESCARGADA_Y_EXPORTADA')
+              ? 'DESCARGADA_Y_EXPORTADA'
+              : 'DESCARGADA';
             state.cachedTrivias.set(id, cached);
           }
+          const finalEst = cached ? cached.estado : 'DESCARGADA';
           // Actualizar todas las celdas de estado para este id (tanto en generador como en explorador)
           document.querySelectorAll(`[data-estado-cell="${id}"]`).forEach(cell => {
-            cell.innerHTML = estadoBadgeHtml('DESCARGADA');
+            cell.innerHTML = estadoBadgeHtml(finalEst);
           });
           // Si el modal de detalle está abierto para esta trivia, actualizar su badge
           if (state.currentDetailTriviaId === id) {
             const detailBadge = document.getElementById('detailBadgeEstado');
             if (detailBadge) {
-              detailBadge.outerHTML = estadoBadgeHtml('DESCARGADA').replace('class="badge ', 'id="detailBadgeEstado" class="badge ');
+              detailBadge.outerHTML = estadoBadgeHtml(finalEst).replace('class="badge ', 'id="detailBadgeEstado" class="badge ');
             }
           }
         });
@@ -2426,9 +2872,7 @@
         if (explorerFilters.subtema)    params.append('subtema',    explorerFilters.subtema);
 
         const url = `${getBaseUrl()}/api/v1/trivias/search?${params.toString()}`;
-        const headers = {};
-        const key = apiKeyInput.value.trim();
-        if (key) headers['X-API-KEY'] = key;
+        const headers = getHeaders();
 
         const res = await fetch(url, { headers });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -2446,7 +2890,7 @@
       targetContainer.innerHTML = '<p style="text-align:center; padding:2rem; color:var(--text-muted);">Consultando trivias recientes...</p>';
 
       try {
-        const res = await fetch(`${getBaseUrl()}/api/v1/trivias/search?page=0&size=30&sort=createdAt,desc`);
+        const res = await fetch(`${getBaseUrl()}/api/v1/trivias/search?page=0&size=30&sort=createdAt,desc`, { headers: getHeaders() });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const data = await res.json();
         renderTriviaCards(data.content, targetContainer);
@@ -2469,7 +2913,7 @@
       card.innerHTML = '<div style="text-align: center; padding: 2.5rem;"><p style="color:var(--text-muted);">Obteniendo pregunta aleatoria...</p></div>';
 
       try {
-        const res = await fetch(`${getBaseUrl()}/api/v1/trivias/random`);
+        const res = await fetch(`${getBaseUrl()}/api/v1/trivias/random`, { headers: getHeaders() });
         if (!res.ok) {
           throw new Error('No hay trivias activas en la BD aún. ¡Genera algunas en la pestaña Generador!');
         }
@@ -2586,7 +3030,7 @@
     // ==========================================
     async function loadStats() {
       try {
-        const res = await fetch(`${getBaseUrl()}/api/v1/trivias/stats`);
+        const res = await fetch(`${getBaseUrl()}/api/v1/trivias/stats`, { headers: getHeaders() });
         if (!res.ok) return;
         const data = await res.json();
 
@@ -2596,6 +3040,89 @@
         document.getElementById('statAvgDescartadas').innerText = data.promedioDescartadasPorGeneracion != null ? data.promedioDescartadasPorGeneracion.toFixed(2) : '0.00';
       } catch (err) {
         console.warn('Error al cargar métricas:', err);
+      }
+    }
+
+    // ==========================================
+    // MANTENIMIENTO: RE-RENDERIZADO DE IMÁGENES
+    // ==========================================
+    async function handleRerenderAllImages() {
+      const btn = document.getElementById('btnRerenderAll');
+      const originalText = btn.innerHTML;
+
+      if (!confirm('¿Deseas re-renderizar todas las tarjetas gráficas (PNG)?\n\nEste proceso regenerará en disco las imágenes de pregunta y respuesta para todas las trivias existentes, aplicando el diseño visual actualizado sin el texto «Plataforma de Trivias con IA».')) {
+        return;
+      }
+
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳</span> Re-renderizando imágenes...';
+      showToast('Iniciando re-renderizado masivo de tarjetas gráficas...', 'info');
+
+      try {
+        const res = await fetch(`${getBaseUrl()}/api/v1/trivias/rerender`, {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify([])
+        });
+
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        }
+
+        const data = await res.json();
+        state.cacheBuster = Date.now();
+        showToast(`¡Completado! ${data.totalTrivias} trivias (${data.totalImagenesProcesadas} imágenes) actualizadas con éxito.`, 'success');
+
+        // Refrescar listado si el explorador está activo
+        if (typeof applyExplorerFilters === 'function') {
+          applyExplorerFilters();
+        }
+      } catch (err) {
+        console.error('Error al re-renderizar imágenes:', err);
+        showToast(`Error al re-renderizar imágenes: ${err.message}`, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalText;
+      }
+    }
+
+    async function rerenderCurrentDetailTrivia() {
+      const id = state.currentDetailTriviaId;
+      if (!id) return;
+      const btn = document.getElementById('detailRerenderBtn');
+      const origText = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = '<span>⏳</span> Renderizando...';
+      showToast('Re-renderizando tarjetas para esta trivia...', 'info');
+
+      try {
+        const res = await fetch(`${getBaseUrl()}/api/v1/trivias/rerender`, {
+          method: 'POST',
+          headers: getHeaders(),
+          body: JSON.stringify([id])
+        });
+
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        }
+
+        const data = await res.json();
+        state.cacheBuster = Date.now();
+        showToast('Tarjetas gráficas actualizadas exitosamente', 'success');
+
+        // Burlar cache del navegador para las imágenes en el modal
+        const cacheBuster = `?_cb=${state.cacheBuster}`;
+        const imgEls = document.querySelectorAll('#detailAssetsSection img');
+        imgEls.forEach(img => {
+          const base = img.src.split('?')[0];
+          img.src = `${base}${cacheBuster}`;
+        });
+      } catch (err) {
+        console.error('Error al re-renderizar trivia individual:', err);
+        showToast(`Error al re-renderizar: ${err.message}`, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = origText;
       }
     }
 
@@ -2678,6 +3205,421 @@
           btn.disabled = false;
         }
       }
+    }
+
+    // ==========================================
+    // ESTUDIO DE VIDEO
+    // ==========================================
+    let currentVideoDownloadUrl = '';
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    function setVideoFormat(format) {
+      state.videoFormat = format;
+      const btnVert = document.getElementById('btnFormatVertical');
+      const btnHoriz = document.getElementById('btnFormatHorizontal');
+      const btnSq = document.getElementById('btnFormatSquare');
+      if (btnVert) btnVert.classList.toggle('active', format === 'VERTICAL_9_16');
+      if (btnHoriz) btnHoriz.classList.toggle('active', format === 'HORIZONTAL_16_9');
+      if (btnSq) btnSq.classList.toggle('active', format === 'SQUARE_1_1');
+    }
+
+    function toggleTtsVoiceOptions(enabled) {
+      const group = document.getElementById('videoTtsVoiceGroup');
+      if (group) {
+        group.style.display = enabled ? 'block' : 'none';
+      }
+    }
+
+    function addTriviaToVideoSelection(trivia) {
+      if (!trivia || !trivia.id) return;
+      state.selectedVideoTrivias.set(trivia.id, trivia);
+      renderVideoSelectedList();
+    }
+
+    function removeTriviaFromVideoSelection(id) {
+      state.selectedVideoTrivias.delete(id);
+      renderVideoSelectedList();
+    }
+
+    function clearVideoTriviaSelection() {
+      state.selectedVideoTrivias.clear();
+      renderVideoSelectedList();
+      showToast('Selección de video vaciada', 'info');
+    }
+
+    function moveVideoTriviaUp(id) {
+      const entries = Array.from(state.selectedVideoTrivias.entries());
+      const idx = entries.findIndex(([k]) => k === id);
+      if (idx <= 0) return;
+      const temp = entries[idx];
+      entries[idx] = entries[idx - 1];
+      entries[idx - 1] = temp;
+      state.selectedVideoTrivias = new Map(entries);
+      renderVideoSelectedList();
+    }
+
+    function moveVideoTriviaDown(id) {
+      const entries = Array.from(state.selectedVideoTrivias.entries());
+      const idx = entries.findIndex(([k]) => k === id);
+      if (idx < 0 || idx >= entries.length - 1) return;
+      const temp = entries[idx];
+      entries[idx] = entries[idx + 1];
+      entries[idx + 1] = temp;
+      state.selectedVideoTrivias = new Map(entries);
+      renderVideoSelectedList();
+    }
+
+    function renderVideoSelectedList() {
+      const container = document.getElementById('videoSelectedList');
+      const badge = document.getElementById('videoSelectedCountBadge');
+      const count = state.selectedVideoTrivias.size;
+
+      if (badge) {
+        badge.textContent = `${count} seleccionada${count === 1 ? '' : 's'}`;
+      }
+
+      if (!container) return;
+
+      if (count === 0) {
+        container.innerHTML = `
+          <div style="color:var(--text-dim); text-align:center; padding:2rem 1rem; font-size:0.875rem;">
+            <div style="font-size:2rem; margin-bottom:0.4rem; opacity:0.6;">📭</div>
+            <div style="font-weight:600; color:var(--text-main); margin-bottom:0.25rem;">No hay trivias seleccionadas</div>
+            <div>Usa <strong>"⚡ Cargar últimas 10"</strong> o selecciónalas en el <strong>Explorador</strong>.</div>
+          </div>
+        `;
+        return;
+      }
+
+      let html = '';
+      let index = 1;
+      const entries = Array.from(state.selectedVideoTrivias.entries());
+
+      entries.forEach(([id, trivia], idx) => {
+        const questionText = trivia.pregunta || trivia.question || 'Sin pregunta';
+        const catName = trivia.tipoTrivia || trivia.tipoTriviaNombre || trivia.categoriaNombre || trivia.categoria || 'General';
+        const diff = trivia.dificultad || 'MEDIA';
+        const estado = trivia.estado || 'ACTIVA';
+        const subtema = trivia.subtema || '';
+
+        // Buscar asset de pregunta para thumbnail con resolución adaptativa
+        const qAsset = (trivia.assets || []).find(a => a.tipo === 'PREGUNTA') || (trivia.assets || [])[0];
+        const rawThumbUrl = qAsset ? qAsset.url : null;
+        const thumbUrl = rawThumbUrl ? resolveAssetUrl(rawThumbUrl) : null;
+
+        html += `
+          <div class="video-trivia-item" data-video-item-id="${id}">
+            <!-- Orden & Thumbnail -->
+            <div style="display:flex; align-items:center; gap:0.5rem; flex-shrink:0;">
+              <span class="video-order-badge">#${index++}</span>
+              ${thumbUrl ? `
+                <img src="${thumbUrl}" alt="Thumbnail" class="video-trivia-thumb" onclick="openModal('${thumbUrl}', 'Pregunta ${index-1}: ${escapeHtml(questionText)}')" title="Click para ver tarjeta gráfica">
+              ` : `
+                <div class="video-trivia-thumb-placeholder" title="Sin tarjeta gráfica">🖼️</div>
+              `}
+            </div>
+
+            <!-- Contenido textual con pregunta bien formateada -->
+            <div class="video-trivia-content">
+              <div class="video-trivia-question" title="${escapeHtml(questionText)}">
+                ${escapeHtml(questionText)}
+              </div>
+              <div class="video-trivia-meta">
+                <span class="badge badge-cat" style="font-size:0.68rem; padding:0.12rem 0.5rem;">${escapeHtml(catName)}</span>
+                ${diffBadgeHtml(diff)}
+                ${subtema ? `<span style="color:var(--text-dim); max-width:130px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${escapeHtml(subtema)}">• ${escapeHtml(subtema)}</span>` : ''}
+                <span>•</span>
+                ${estadoBadgeHtml(estado)}
+              </div>
+            </div>
+
+            <!-- Acciones: Subir, Bajar, Eliminar -->
+            <div class="video-trivia-actions">
+              <button type="button" class="btn-icon" onclick="moveVideoTriviaUp('${id}')" title="Mover arriba" ${idx === 0 ? 'disabled' : ''}>
+                ▲
+              </button>
+              <button type="button" class="btn-icon" onclick="moveVideoTriviaDown('${id}')" title="Mover abajo" ${idx === entries.length - 1 ? 'disabled' : ''}>
+                ▼
+              </button>
+              <button type="button" class="btn-icon delete" onclick="removeTriviaFromVideoSelection('${id}')" title="Quitar del video">
+                ✕
+              </button>
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    async function loadLatestTriviasForVideo(limit = 10) {
+      try {
+        showToast('Cargando últimas trivias...', 'info');
+        const headers = { 'ngrok-skip-browser-warning': 'true' };
+        const key = apiKeyInput.value.trim();
+        if (key) headers['X-API-KEY'] = key;
+
+        const res = await fetch(`${getBaseUrl()}/api/v1/trivias?page=0&size=${limit}&sort=createdAt,desc`, { headers });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const data = await res.json();
+        const items = data.content || (Array.isArray(data) ? data : []);
+
+        if (items.length === 0) {
+          showToast('No se encontraron trivias registradas en la base de datos', 'warning');
+          return;
+        }
+
+        state.selectedVideoTrivias.clear();
+        items.forEach(t => {
+          state.cachedTrivias.set(t.id, t);
+          state.selectedVideoTrivias.set(t.id, t);
+        });
+
+        renderVideoSelectedList();
+        showToast(`Se cargaron ${items.length} trivias para compilar`, 'success');
+      } catch (err) {
+        console.error('Error cargando trivias para video:', err);
+        showToast(`Error al cargar trivias: ${err.message}`, 'error');
+      }
+    }
+
+    function sendSelectedToVideoStudio() {
+      const ids = Array.from(state.selectedTriviaIds);
+      if (ids.length === 0) {
+        showToast('Selecciona al menos una trivia en el explorador', 'warning');
+        return;
+      }
+      let addedCount = 0;
+      ids.forEach(id => {
+        const trivia = state.cachedTrivias.get(id) || state.currentDisplayedTrivias.find(t => t.id === id);
+        if (trivia) {
+          state.selectedVideoTrivias.set(id, trivia);
+          addedCount++;
+        }
+      });
+      switchTab('tab-video');
+      showToast(`${addedCount} trivia${addedCount === 1 ? '' : 's'} enviada${addedCount === 1 ? '' : 's'} al Estudio de Video`, 'success');
+    }
+
+    function sendLastBatchToVideoStudio() {
+      if (!state.lastGeneratedBatch || state.lastGeneratedBatch.length === 0) {
+        showToast('No hay trivias generadas recientemente en esta sesión', 'warning');
+        return;
+      }
+      state.selectedVideoTrivias.clear();
+      state.lastGeneratedBatch.forEach(t => {
+        state.cachedTrivias.set(t.id, t);
+        state.selectedVideoTrivias.set(t.id, t);
+      });
+      switchTab('tab-video');
+      showToast(`${state.lastGeneratedBatch.length} trivias del lote enviadas al Estudio de Video`, 'success');
+    }
+
+    function sendSingleToVideoStudio() {
+      const id = state.currentDetailTriviaId;
+      if (!id) return;
+      const trivia = state.cachedTrivias.get(id);
+      if (!trivia) return;
+      state.selectedVideoTrivias.set(id, trivia);
+      closeTriviaDetailModal();
+      switchTab('tab-video');
+      showToast('Trivia agregada al Estudio de Video', 'success');
+    }
+
+    async function handleGenerateVideo() {
+      const triviaIds = Array.from(state.selectedVideoTrivias.keys());
+      if (triviaIds.length === 0) {
+        showToast('Selecciona al menos una trivia para compilar el video', 'warning');
+        return;
+      }
+
+      const btn = document.getElementById('btnSubmitVideo');
+      const progressBox = document.getElementById('videoProgressBox');
+      const progressStatus = document.getElementById('videoProgressStatus');
+      const progressTimer = document.getElementById('videoProgressTimer');
+      const progressBar = document.getElementById('videoProgressBar');
+
+      const withTts = document.getElementById('videoWithTts').checked;
+      const ttsVoice = document.getElementById('videoTtsVoice').value;
+      const withBgm = document.getElementById('videoWithBgm').checked;
+      const format = state.videoFormat || 'VERTICAL_9_16';
+
+      const payload = {
+        triviaIds: triviaIds,
+        format: format,
+        withBgm: withBgm,
+        withTts: withTts,
+        ttsVoice: ttsVoice
+      };
+
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span>⏳</span> Compilando Video con IA...';
+      }
+      if (progressBox) progressBox.style.display = 'block';
+      if (progressStatus) progressStatus.textContent = withTts ? 'Generando narración Edge-TTS y renderizando con FFmpeg...' : 'Renderizando escenas y audio con FFmpeg...';
+      if (progressBar) progressBar.style.width = '20%';
+
+      let secondsElapsed = 0;
+      if (state.videoTimer) clearInterval(state.videoTimer);
+      state.videoTimer = setInterval(() => {
+        secondsElapsed++;
+        if (progressTimer) progressTimer.textContent = `${secondsElapsed}s`;
+        if (progressBar) {
+          const simulated = Math.min(92, 20 + secondsElapsed * 3);
+          progressBar.style.width = `${simulated}%`;
+        }
+      }, 1000);
+
+      try {
+        const headers = { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' };
+        const key = apiKeyInput.value.trim();
+        if (key) headers['X-API-KEY'] = key;
+
+        const res = await fetch(`${getBaseUrl()}/api/v1/videos/generate`, {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          const errorJson = await res.json().catch(() => ({}));
+          throw new Error(errorJson.message || `HTTP ${res.status}: ${res.statusText}`);
+        }
+
+        const data = await res.json();
+        if (progressBar) progressBar.style.width = '100%';
+        if (progressStatus) progressStatus.textContent = '¡Video renderizado exitosamente!';
+
+        // Actualizar estado en UI y memoria a EXPORTADA o DESCARGADA_Y_EXPORTADA
+        triviaIds.forEach(id => {
+          const cached = state.cachedTrivias.get(id);
+          if (cached) {
+            cached.estado = (cached.estado === 'DESCARGADA' || cached.estado === 'DESCARGADA_Y_EXPORTADA')
+              ? 'DESCARGADA_Y_EXPORTADA'
+              : 'EXPORTADA';
+            state.cachedTrivias.set(id, cached);
+          }
+          const selected = state.selectedVideoTrivias.get(id);
+          if (selected) {
+            selected.estado = cached ? cached.estado : 'EXPORTADA';
+          }
+          const finalEst = cached ? cached.estado : 'EXPORTADA';
+          document.querySelectorAll(`[data-estado-cell="${id}"]`).forEach(cell => {
+            cell.innerHTML = estadoBadgeHtml(finalEst);
+          });
+          if (state.currentDetailTriviaId === id) {
+            const detailBadge = document.getElementById('detailBadgeEstado');
+            if (detailBadge) {
+              detailBadge.outerHTML = estadoBadgeHtml(finalEst).replace('class="badge ', 'id="detailBadgeEstado" class="badge ');
+            }
+          }
+        });
+
+        renderVideoSelectedList();
+        displayVideoResult(data);
+        showToast(`¡Video compilado con éxito! (${data.totalTrivias} trivias, ${Math.round(data.durationSeconds)}s)`, 'success');
+
+      } catch (err) {
+        console.error('Error generando video:', err);
+        showToast(`Fallo en la generación del video: ${err.message}`, 'error');
+      } finally {
+        if (state.videoTimer) {
+          clearInterval(state.videoTimer);
+          state.videoTimer = null;
+        }
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<span>🎬</span> Compilar Video con IA';
+        }
+        setTimeout(() => {
+          if (progressBox) progressBox.style.display = 'none';
+        }, 4000);
+      }
+    }
+
+    function displayVideoResult(data) {
+      const placeholder = document.getElementById('videoPlaceholder');
+      const player = document.getElementById('videoPlayer');
+      const details = document.getElementById('videoResultDetails');
+      const durationVal = document.getElementById('videoDurationVal');
+      const sizeVal = document.getElementById('videoSizeVal');
+      const countVal = document.getElementById('videoCountVal');
+      const formatVal = document.getElementById('videoFormatVal');
+      const downloadBtn = document.getElementById('videoDownloadBtn');
+
+      if (placeholder) placeholder.style.display = 'none';
+      if (player) {
+        player.style.display = 'block';
+        const fullVideoUrl = data.videoUrl && data.videoUrl.startsWith('http')
+          ? data.videoUrl
+          : `${getBaseUrl()}${data.videoUrl ? (data.videoUrl.startsWith('/') ? '' : '/') + data.videoUrl : '/api/v1/videos/' + data.id + '/download'}`;
+        player.src = fullVideoUrl;
+        player.load();
+      }
+
+      const downloadUrl = `${getBaseUrl()}/api/v1/videos/${data.id}/download`;
+      currentVideoDownloadUrl = downloadUrl;
+
+      if (downloadBtn) {
+        downloadBtn.href = downloadUrl;
+        downloadBtn.setAttribute('download', `trivia_video_${data.id}.mp4`);
+      }
+
+      if (durationVal) {
+        const mins = Math.floor(data.durationSeconds / 60);
+        const secs = Math.round(data.durationSeconds % 60);
+        durationVal.textContent = mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+      }
+
+      if (sizeVal) {
+        if (data.format === 'HORIZONTAL_16_9') {
+          sizeVal.textContent = '1920x1080';
+        } else if (data.format === 'SQUARE_1_1') {
+          sizeVal.textContent = '1080x1080';
+        } else {
+          sizeVal.textContent = '1080x1920';
+        }
+      }
+
+      if (countVal) {
+        countVal.textContent = `${data.totalTrivias} preguntas`;
+      }
+
+      if (formatVal) {
+        if (data.format === 'HORIZONTAL_16_9') {
+          formatVal.textContent = 'Horizontal 16:9 (YouTube)';
+        } else if (data.format === 'SQUARE_1_1') {
+          formatVal.textContent = 'Cuadrado 1:1 (Feed)';
+        } else {
+          formatVal.textContent = 'Vertical 9:16 (Shorts)';
+        }
+      }
+
+      if (details) {
+        details.style.display = 'block';
+      }
+    }
+
+    function shareVideoLink() {
+      if (!currentVideoDownloadUrl) {
+        showToast('No hay ningún video generado para compartir', 'warning');
+        return;
+      }
+      navigator.clipboard.writeText(currentVideoDownloadUrl).then(() => {
+        showToast('Enlace de descarga copiado al portapapeles', 'success');
+      }).catch(() => {
+        prompt('Copia el siguiente enlace:', currentVideoDownloadUrl);
+      });
     }
 
     document.addEventListener('keydown', (e) => {

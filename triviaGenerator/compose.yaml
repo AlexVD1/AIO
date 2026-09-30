@@ -66,6 +66,32 @@ services:
       retries: 3
       start_period: 25s
 
+  # ----------------------------------------------------------
+  # Ngrok Tunnel (Dominio Público Fijo y Permanente)
+  # ----------------------------------------------------------
+  tunnel-ngrok:
+    image: docker.io/ngrok/ngrok:latest
+    container_name: trivia-tunnel-ngrok
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    environment:
+      NGROK_AUTHTOKEN: ${NGROK_AUTHTOKEN:-}
+    command: http api:8080 --url ${NGROK_DOMAIN:-either-provided-figment.ngrok-free.dev}
+
+  # ----------------------------------------------------------
+  # Cloudflare Tunnel (Túnel simultáneo sin pantalla de aviso)
+  # ----------------------------------------------------------
+  tunnel-cloudflare:
+    image: docker.io/cloudflare/cloudflared:latest
+    container_name: trivia-tunnel-cloudflare
+    restart: unless-stopped
+    depends_on:
+      api:
+        condition: service_healthy
+    command: ${CLOUDFLARE_TUNNEL_CMD:-tunnel --no-autoupdate --url http://api:8080}
+
 # ----------------------------------------------------------
 # Volúmenes persistentes
 # ----------------------------------------------------------

@@ -8,6 +8,7 @@ import com.trivia.api.dto.TriviaResponse;
 import com.trivia.api.service.AsyncTriviaPipelineExecutor;
 import com.trivia.api.service.TriviaExportService;
 import com.trivia.api.service.TriviaGenerationService;
+import com.trivia.api.service.TriviaMaintenanceService;
 import com.trivia.api.service.TriviaQueryService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -48,16 +49,19 @@ public class TriviaController {
     private final TriviaQueryService queryService;
     private final AsyncTriviaPipelineExecutor asyncPipelineExecutor;
     private final TriviaExportService exportService;
+    private final TriviaMaintenanceService maintenanceService;
 
     public TriviaController(
             TriviaGenerationService generationService,
             TriviaQueryService queryService,
             AsyncTriviaPipelineExecutor asyncPipelineExecutor,
-            TriviaExportService exportService) {
+            TriviaExportService exportService,
+            TriviaMaintenanceService maintenanceService) {
         this.generationService = generationService;
         this.queryService = queryService;
         this.asyncPipelineExecutor = asyncPipelineExecutor;
         this.exportService = exportService;
+        this.maintenanceService = maintenanceService;
     }
 
     @PostMapping
@@ -146,10 +150,25 @@ public class TriviaController {
     }
 
     @PatchMapping("/mark-downloaded")
-    @Operation(summary = "Marca las trivias especificadas con estado DESCARGADA. " +
+    @Operation(summary = "Marca las trivias especificadas con estado DESCARGADA (o DESCARGADA_Y_EXPORTADA si ya tenían video). " +
                          "Debe invocarse ÚNICAMENTE después de que el ZIP haya sido descargado exitosamente.")
     public ResponseEntity<Void> marcarDescargadas(@RequestBody TriviaExportRequest request) {
         queryService.marcarComoDescargadas(request.triviaIds());
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/mark-exported")
+    @Operation(summary = "Marca las trivias especificadas con estado EXPORTADA (o DESCARGADA_Y_EXPORTADA si ya estaban descargadas). " +
+                         "Debe invocarse cuando se genera o exporta un video para las mismas.")
+    public ResponseEntity<Void> marcarExportadas(@RequestBody TriviaExportRequest request) {
+        queryService.marcarComoExportadas(request.triviaIds());
+        return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/rerender")
+    @Operation(summary = "Re-renderiza masivamente las imágenes PNG de las trivias (pregunta y respuesta) con el diseño visual actualizado sin texto de plataforma")
+    public ResponseEntity<TriviaMaintenanceService.RerenderResult> rerenderTrivias(@RequestBody(required = false) List<UUID> triviaIds) {
+        TriviaMaintenanceService.RerenderResult result = maintenanceService.rerenderTrivias(triviaIds);
+        return ResponseEntity.ok(result);
     }
 }

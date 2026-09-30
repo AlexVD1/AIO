@@ -1,0 +1,41 @@
+{
+  "id" : "f9e8ba64-5b23-4ffa-97c2-7fcce144431d",
+  "tipoTrivia" : "HISTORIA",
+  "subtema" : "Roma Antigua",
+  "pregunta" : "¿Quién fue el primer emperador romano, marcando el fin de la República Romana y el inicio del Imperio?",
+  "explicacion" : "Augusto, originalmente conocido como Octaviano, fue el primer emperador romano y gobernó desde el 27 a.C. hasta el 14 d.C. Su ascenso al poder marcó el fin de la República Romana y el inicio del Imperio Romano, un periodo de relativa paz y prosperidad conocido como la Pax Romana.",
+  "dificultad" : "MEDIA",
+  "idioma" : "es-MX",
+  "estado" : "ACTIVA",
+  "opciones" : [ {
+    "id" : "aec4402d-7e87-4d80-9e44-9b53020a371e",
+    "letra" : "A",
+    "texto" : "Julio César",
+    "correcta" : false
+  }, {
+    "id" : "53471a4a-8338-41ce-9e38-9b7630cdf6d1",
+    "letra" : "B",
+    "texto" : "Augusto",
+    "correcta" : true
+  }, {
+    "id" : "713b3d5f-8dbd-4780-b453-e12ae3504340",
+    "letra" : "C",
+    "texto" : "Marco Antonio",
+    "correcta" : false
+  }, {
+    "id" : "2b101fc8-2817-4ef1-b624-450d7fb76dfc",
+    "letra" : "D",
+    "texto" : "Nerón",
+    "correcta" : false
+  } ],
+  "assets" : [ {
+    "id" : "7c44b237-7b1b-4f28-a6f1-f848537bb11e",
+    "tipo" : "PREGUNTA",
+    "url" : "http://localhost:8080/assets/cc92eb0d-fd3d-45ab-82fd-f7ed4d50b1a3/f9e8ba64-5b23-4ffa-97c2-7fcce144431d-pregunta.png"
+  }, {
+    "id" : "5cf3dbc2-32ae-4609-9bbe-9ff80fe9bacc",
+    "tipo" : "RESPUESTA",
+    "url" : "http://localhost:8080/assets/cc92eb0d-fd3d-45ab-82fd-f7ed4d50b1a3/f9e8ba64-5b23-4ffa-97c2-7fcce144431d-respuesta.png"
+  } ],
+  "createdAt" : "2026-09-24T16:19:46.876968"
+}

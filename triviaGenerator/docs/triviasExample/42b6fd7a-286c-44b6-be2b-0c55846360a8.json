@@ -1,0 +1,40 @@
+{
+  "id" : "42b6fd7a-286c-44b6-be2b-0c55846360a8",
+  "tipoTrivia" : "ASTRONOMIA",
+  "pregunta" : "¿Cuál es el planeta más caliente del sistema solar?",
+  "explicacion" : "Aunque Mercurio es el planeta más cercano al Sol, Venus es el más caliente debido a su densa atmósfera compuesta principalmente de dióxido de carbono, la cual provoca un efecto invernadero desbocado que atrapa el calor.",
+  "dificultad" : "MEDIA",
+  "idioma" : "es-MX",
+  "estado" : "ACTIVA",
+  "opciones" : [ {
+    "id" : "8c7c0772-ac6d-4630-a1ad-4937714b706a",
+    "letra" : "A",
+    "texto" : "Mercurio",
+    "correcta" : false
+  }, {
+    "id" : "67fb8b0c-7ef2-4542-b45f-93797799e211",
+    "letra" : "B",
+    "texto" : "Venus",
+    "correcta" : true
+  }, {
+    "id" : "781d29be-ac96-4ec4-91e0-8a6c782f8842",
+    "letra" : "C",
+    "texto" : "Marte",
+    "correcta" : false
+  }, {
+    "id" : "498dde5d-c833-41e8-9468-d853af3df475",
+    "letra" : "D",
+    "texto" : "Júpiter",
+    "correcta" : false
+  } ],
+  "assets" : [ {
+    "id" : "17ef79bb-85bf-4e21-8483-ff8573ed9062",
+    "tipo" : "PREGUNTA",
+    "url" : "http://localhost:8080/assets/0bb95d81-7125-45e9-9ac5-c137e2ec3cfc/42b6fd7a-286c-44b6-be2b-0c55846360a8-pregunta.png"
+  }, {
+    "id" : "0af666d2-baf4-4745-87ea-190ba84e7d5e",
+    "tipo" : "RESPUESTA",
+    "url" : "http://localhost:8080/assets/0bb95d81-7125-45e9-9ac5-c137e2ec3cfc/42b6fd7a-286c-44b6-be2b-0c55846360a8-respuesta.png"
+  } ],
+  "createdAt" : "2026-09-24T17:32:42.034637"
+}

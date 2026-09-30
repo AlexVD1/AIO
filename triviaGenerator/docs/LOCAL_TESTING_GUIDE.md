@@ -81,6 +81,8 @@ Desde allí podrás probar cada endpoint con un clic usando el botón **"Try it 
 * `GET /api/v1/trivias/{id}`: Consultar una trivia específica con sus opciones y URLs de imágenes.
 * `GET /api/v1/trivias/stats`: Ver métricas globales del sistema.
 * `GET /api/v1/catalogos/tipos-trivia`: Listar las categorías disponibles.
+* `POST /api/v1/videos/generate`: Generar un video MP4 a partir de una lista de IDs de trivias con TTS y SFX opcionales.
+* `GET /api/v1/videos/{id}/download`: Descargar el archivo de video generado.
 
 ---
 
@@ -147,6 +149,26 @@ En la respuesta de la trivia verás un bloque `assets` con URLs como:
 curl http://localhost:8080/api/v1/trivias/stats
 ```
 
+#### 9. Generar un video MP4 a partir de trivias existentes con TTS activado:
+```powershell
+curl -X POST http://localhost:8080/api/v1/videos/generate `
+  -H "Content-Type: application/json" `
+  -d '{
+    "triviaIds": ["<TRIVIA_UUID_1>", "<TRIVIA_UUID_2>"],
+    "format": "VERTICAL_9_16",
+    "includeBgm": true,
+    "withTts": true,
+    "ttsVoice": "es-MX-JorgeNeural"
+  }'
+```
+*(Puedes obtener los UUIDs de trivias previamente generadas ejecutando el paso 6 o consultando `GET /api/v1/trivias`).*
+
+#### 10. Descargar y reproducir el video MP4 generado:
+Toma el `downloadUrl` o el `videoId` devuelto en la respuesta del paso 9:
+```powershell
+Invoke-WebRequest -Uri "http://localhost:8080/api/v1/videos/<VIDEO_ID>/download" -OutFile "trivia_video.mp4"
+```
+
 ---
 
 ### Opción C: Interfaz Web Local (Studio & Quiz Interactivo) 🌟 (Recomendada)
@@ -183,6 +205,36 @@ La plataforma incluye una aplicación web interactiva completa (SPA) diseñada p
 4. **📊 Métricas y Catálogo**:
    * Consulta en tiempo real las estadísticas: trivias activas, generaciones, promedio de intentos y tasa de descarte de duplicados.
    * Tabla completa del catálogo de las 9 categorías oficiales.
+
+---
+
+### Opción D: Generación de Video Standalone con CLI (Python + FFmpeg) 🎬
+
+Si deseas generar videos de prueba directamente sin necesidad de arrancar el backend ni la base de datos, puedes utilizar el script CLI incluido:
+
+#### Requisitos:
+1. **FFmpeg** instalado y disponible en PATH (`ffmpeg -version`).
+2. **edge-tts** instalado en Python (`pip install edge-tts`).
+
+#### 1. Probar la generación de video vertical 9:16 con narración TTS:
+```powershell
+python scripts/generate_full_trivia_video.py `
+  --input-dir docs/triviasExample `
+  --output video_vertical_tts.mp4 `
+  --format vertical `
+  --tts `
+  --voice es-MX-JorgeNeural
+```
+
+#### 2. Probar la generación de video cuadrado 1:1 con ritmo estándar (sin TTS):
+```powershell
+python scripts/generate_full_trivia_video.py `
+  --input-dir docs/triviasExample `
+  --output video_cuadrado.mp4 `
+  --format square
+```
+
+*Consulta [docs/GUIA_GENERACION_VIDEOS_TTS.md](GUIA_GENERACION_VIDEOS_TTS.md) para conocer todas las opciones de personalización, voces disponibles y detalles del pipeline.*
 
 ---
 

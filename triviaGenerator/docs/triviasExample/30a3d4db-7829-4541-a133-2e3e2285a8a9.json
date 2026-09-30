@@ -1,0 +1,41 @@
+{
+  "id" : "30a3d4db-7829-4541-a133-2e3e2285a8a9",
+  "tipoTrivia" : "HISTORIA",
+  "subtema" : "Roma Antigua",
+  "pregunta" : "¿Qué general romano llevó a cabo una exitosa campaña de conquista en la Galia, detallada en sus 'Comentarios a la guerra de las Galias'?",
+  "explicacion" : "Julio César fue el general romano que conquistó la Galia (aproximadamente la actual Francia y Bélgica) entre el 58 y el 50 a.C. Sus campañas fueron documentadas por él mismo en su obra 'Commentarii de Bello Gallico' (Comentarios a la guerra de las Galias), una valiosa fuente histórica.",
+  "dificultad" : "MEDIA",
+  "idioma" : "es-MX",
+  "estado" : "ACTIVA",
+  "opciones" : [ {
+    "id" : "96c992f3-af1b-4972-a1a8-919bd3ebc742",
+    "letra" : "A",
+    "texto" : "Escipión el Africano",
+    "correcta" : false
+  }, {
+    "id" : "526e923b-e541-4d2a-b9f0-f93f2f5c8853",
+    "letra" : "B",
+    "texto" : "Cayo Mario",
+    "correcta" : false
+  }, {
+    "id" : "b00a4aea-0c1a-4c66-8437-fb753c81dfc4",
+    "letra" : "C",
+    "texto" : "Julio César",
+    "correcta" : true
+  }, {
+    "id" : "85269096-0c31-44be-a232-a79fec86dcf8",
+    "letra" : "D",
+    "texto" : "Pompeyo el Grande",
+    "correcta" : false
+  } ],
+  "assets" : [ {
+    "id" : "4645efff-b34e-41aa-a026-d875efaca1e8",
+    "tipo" : "PREGUNTA",
+    "url" : "http://localhost:8080/assets/cc92eb0d-fd3d-45ab-82fd-f7ed4d50b1a3/30a3d4db-7829-4541-a133-2e3e2285a8a9-pregunta.png"
+  }, {
+    "id" : "301dd9dc-20a5-476f-8ed5-c992decf17b0",
+    "tipo" : "RESPUESTA",
+    "url" : "http://localhost:8080/assets/cc92eb0d-fd3d-45ab-82fd-f7ed4d50b1a3/30a3d4db-7829-4541-a133-2e3e2285a8a9-respuesta.png"
+  } ],
+  "createdAt" : "2026-09-24T16:19:46.891402"
+}

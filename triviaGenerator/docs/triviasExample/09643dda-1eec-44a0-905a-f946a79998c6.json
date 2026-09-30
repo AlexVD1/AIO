@@ -1,0 +1,41 @@
+{
+  "id" : "09643dda-1eec-44a0-905a-f946a79998c6",
+  "tipoTrivia" : "HISTORIA",
+  "subtema" : "Roma Antigua",
+  "pregunta" : "¿Qué famosa estructura romana se utilizaba principalmente para carreras de carros y espectáculos masivos?",
+  "explicacion" : "El Circo Máximo (Circus Maximus) era el hipódromo más grande de la antigua Roma y se utilizaba principalmente para carreras de carros, aunque también albergaba otros eventos deportivos y procesiones. Podía albergar a más de 150,000 espectadores, convirtiéndolo en el centro de entretenimiento masivo más grande de su tiempo.",
+  "dificultad" : "MEDIA",
+  "idioma" : "es-MX",
+  "estado" : "ACTIVA",
+  "opciones" : [ {
+    "id" : "9d1df504-21f9-4f22-a63c-c2cb77e882ff",
+    "letra" : "A",
+    "texto" : "El Panteón",
+    "correcta" : false
+  }, {
+    "id" : "b85ccc95-1ac1-4da0-ad37-922ceb5ce427",
+    "letra" : "B",
+    "texto" : "El Coliseo",
+    "correcta" : false
+  }, {
+    "id" : "e095d450-4218-4b85-99b4-27af95854a11",
+    "letra" : "C",
+    "texto" : "El Circo Máximo",
+    "correcta" : true
+  }, {
+    "id" : "06060f6a-1a3a-4ca1-a9d0-693a3dc976cd",
+    "letra" : "D",
+    "texto" : "Los Foros Imperiales",
+    "correcta" : false
+  } ],
+  "assets" : [ {
+    "id" : "b90b75b7-8315-44fa-86f6-4655ac454774",
+    "tipo" : "PREGUNTA",
+    "url" : "http://localhost:8080/assets/cc92eb0d-fd3d-45ab-82fd-f7ed4d50b1a3/09643dda-1eec-44a0-905a-f946a79998c6-pregunta.png"
+  }, {
+    "id" : "c7887266-f14d-49ea-bc8e-6df734fb53ef",
+    "tipo" : "RESPUESTA",
+    "url" : "http://localhost:8080/assets/cc92eb0d-fd3d-45ab-82fd-f7ed4d50b1a3/09643dda-1eec-44a0-905a-f946a79998c6-respuesta.png"
+  } ],
+  "createdAt" : "2026-09-24T16:19:46.886481"
+}

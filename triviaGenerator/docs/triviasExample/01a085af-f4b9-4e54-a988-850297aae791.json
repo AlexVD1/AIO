@@ -1,0 +1,40 @@
+{
+  "id" : "01a085af-f4b9-4e54-a988-850297aae791",
+  "tipoTrivia" : "ASTRONOMIA",
+  "pregunta" : "¿Qué elemento químico compone principalmente a las estrellas en su etapa de secuencia principal?",
+  "explicacion" : "Las estrellas en la secuencia principal obtienen su energía de la fusión nuclear de hidrógeno en helio en sus núcleos, siendo el hidrógeno el elemento más abundante en el universo.",
+  "dificultad" : "MEDIA",
+  "idioma" : "es-MX",
+  "estado" : "ACTIVA",
+  "opciones" : [ {
+    "id" : "3882b42e-1ac9-4a1b-8ceb-043cd1cf26db",
+    "letra" : "A",
+    "texto" : "Carbono",
+    "correcta" : false
+  }, {
+    "id" : "b28bc22e-ee7d-4c08-b840-5f7fd5987246",
+    "letra" : "B",
+    "texto" : "Hierro",
+    "correcta" : false
+  }, {
+    "id" : "f89ae506-f905-4964-ba46-3969de16189d",
+    "letra" : "C",
+    "texto" : "Hidrógeno",
+    "correcta" : true
+  }, {
+    "id" : "5ada07c2-f2e2-43c1-9c17-9dd769c4e5e2",
+    "letra" : "D",
+    "texto" : "Oxígeno",
+    "correcta" : false
+  } ],
+  "assets" : [ {
+    "id" : "776c1475-0891-4b79-9bba-c736b518132e",
+    "tipo" : "PREGUNTA",
+    "url" : "http://localhost:8080/assets/0bb95d81-7125-45e9-9ac5-c137e2ec3cfc/01a085af-f4b9-4e54-a988-850297aae791-pregunta.png"
+  }, {
+    "id" : "3e837d97-f496-4a41-9ef2-89b534f5d477",
+    "tipo" : "RESPUESTA",
+    "url" : "http://localhost:8080/assets/0bb95d81-7125-45e9-9ac5-c137e2ec3cfc/01a085af-f4b9-4e54-a988-850297aae791-respuesta.png"
+  } ],
+  "createdAt" : "2026-09-24T17:32:42.051397"
+}

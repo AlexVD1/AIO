@@ -1,0 +1,40 @@
+{
+  "id" : "9306c86f-ab46-48ae-ad57-626d616f3630",
+  "tipoTrivia" : "ASTRONOMIA",
+  "pregunta" : "¿Cómo se le llama al punto en la órbita de un planeta donde está más alejado del Sol?",
+  "explicacion" : "El afelio es el punto de la órbita elíptica de un planeta o cuerpo celeste en el que se encuentra a la mayor distancia del Sol. El perihelio, por el contrario, es el punto más cercano.",
+  "dificultad" : "MEDIA",
+  "idioma" : "es-MX",
+  "estado" : "ACTIVA",
+  "opciones" : [ {
+    "id" : "1b6eb496-f7ce-485e-a09d-095d5ce610ce",
+    "letra" : "A",
+    "texto" : "Perihelio",
+    "correcta" : false
+  }, {
+    "id" : "9b969571-9d7b-43c0-9067-0dfb6fbdb224",
+    "letra" : "B",
+    "texto" : "Apogeo",
+    "correcta" : false
+  }, {
+    "id" : "775929a1-2367-4cb3-b90e-334ea71da5f2",
+    "letra" : "C",
+    "texto" : "Afelio",
+    "correcta" : true
+  }, {
+    "id" : "df1f5fdb-3116-4643-b2e4-ce18652969fd",
+    "letra" : "D",
+    "texto" : "Perigeo",
+    "correcta" : false
+  } ],
+  "assets" : [ {
+    "id" : "7fc01362-5b15-472d-bd13-dc8b1754cdfe",
+    "tipo" : "PREGUNTA",
+    "url" : "http://localhost:8080/assets/0bb95d81-7125-45e9-9ac5-c137e2ec3cfc/9306c86f-ab46-48ae-ad57-626d616f3630-pregunta.png"
+  }, {
+    "id" : "8be53fa8-51cb-4834-8493-f1d24e60da32",
+    "tipo" : "RESPUESTA",
+    "url" : "http://localhost:8080/assets/0bb95d81-7125-45e9-9ac5-c137e2ec3cfc/9306c86f-ab46-48ae-ad57-626d616f3630-respuesta.png"
+  } ],
+  "createdAt" : "2026-09-24T17:32:42.04113"
+}

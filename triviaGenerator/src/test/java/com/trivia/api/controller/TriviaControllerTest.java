@@ -247,4 +247,20 @@ class TriviaControllerTest extends AbstractControllerTest {
         assertThat(response.getHeaders().getContentType().toString()).contains("application/zip");
         assertThat(response.getHeaders().getFirst("Content-Disposition")).contains(id + ".zip");
     }
+
+    @Test
+    @DisplayName("POST /api/v1/trivias/rerender devuelve HTTP 200 con RerenderResult")
+    void postRerenderRetorna200() {
+        when(triviaMaintenanceService.rerenderTrivias(any()))
+                .thenReturn(new com.trivia.api.service.TriviaMaintenanceService.RerenderResult(5, 10, 0, "OK"));
+
+        ResponseEntity<com.trivia.api.service.TriviaMaintenanceService.RerenderResult> response = restTemplate.postForEntity(
+                url("/api/v1/trivias/rerender"), List.of(), com.trivia.api.service.TriviaMaintenanceService.RerenderResult.class
+        );
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(response.getBody()).isNotNull();
+        assertThat(response.getBody().totalTrivias()).isEqualTo(5);
+        assertThat(response.getBody().totalImagenesProcesadas()).isEqualTo(10);
+    }
 }

@@ -1,17 +1,18 @@
 # AI Development Session Status
 
 ## Última actualización
-2026-09-23T21:30 CDT (Sesión de Implementación Completa)
+2026-09-30T11:58 CDT (Sesión de Formato Horizontal 16:9 para YouTube)
 
 ## Objetivo actual
-Implementación integral de la plataforma de generación y consulta de trivias con Inteligencia Artificial, deduplicación en 5 capas, renderizado AWT Graphics2D, almacenamiento de assets, API REST asíncrona/síncrona, Podman Compose multi-contenedor y guía de despliegue en VPS con Cloudflare Tunnel.
+Implementación integral de la plataforma de generación y consulta de trivias con Inteligencia Artificial, deduplicación en 5 capas, renderizado AWT Graphics2D, almacenamiento de assets, API REST asíncrona/síncrona, compilación automatizada de videos en 9:16 (Shorts), 1:1 (Feed) y 16:9 (YouTube) con locución TTS (Microsoft Edge-TTS) y efectos de sonido (FFmpeg), empaquetado multi-contenedor, y mantenimiento para regeneración limpia de tarjetas gráficas.
 
 ## Estado general
-**100% de las fases de desarrollo (Fase 1 a 18) implementadas y validadas.**
-- Total de pruebas automatizadas: **78 tests ejecutados y pasando (0 failures, 0 errors)**.
-- Compilación y empaquetado: **BUILD SUCCESS** (`target/trivia-api-0.0.1-SNAPSHOT.jar` generado).
+**100% de las fases de desarrollo (Fase 1 a 22) implementadas y validadas.**
+- Total de pruebas automatizadas: **107 tests ejecutados y pasando (0 failures, 0 errors)**.
+- Compilación y empaquetado: **BUILD SUCCESS** (`mvn test` 100% verde).
 - Esquema de base de datos verificado con PostgreSQL 16 y 9 categorías iniciales cargadas.
-- Pipeline end-to-end con soporte síncrono (HTTP 201) y asíncrono (HTTP 202 con polling de estado).
+- Re-renderizado masivo ejecutado: **82 trivias (164 imágenes PNG) regeneradas en disco sin el texto «Plataforma de Trivias con IA»**.
+- Pipeline end-to-end con soporte síncrono (HTTP 201), asíncrono (HTTP 202) y generación de video MP4 en 9:16, 1:1 y 16:9 con narración neuronal (HTTP 200).
 
 ---
 
@@ -105,6 +106,23 @@ Implementación integral de la plataforma de generación y consulta de trivias c
 ### Fase 18 — Guía de Despliegue en VPS + Cloudflare Tunnel ✅
 - `docs/DEPLOYMENT_GUIDE.md`: manual completo para despliegue en VPS con Podman y exposición segura a Internet mediante Cloudflare Tunnel sin abrir puertos.
 
+### Fase 19 — Generación Automatizada de Videos y Narración TTS ✅
+- Pipeline completo de compilación de video en Java 21 y FFmpeg (`com.trivia.api.service.video.*`):
+  - Modelado de cronograma adaptable (`TimelinePlan`, `TriviaSceneTiming`, `VideoFormat`).
+  - Formato vertical 9:16 (1080x1920 con fondo desenfocado `boxblur`, título y contador animado) y cuadrado 1:1 (1080x1080).
+  - Integración con **Microsoft Edge-TTS** mediante el puente Python `scripts/tts_bridge.py` (`EdgeTtsNarrationService`) con duraciones fonéticas exactas.
+  - Temporizado calibrado de ritmo humano (`NoOpNarrationService`: 7.0s pregunta + 5.0s cuenta regresiva + 6.5s respuesta = 18.5s/trivia).
+  - Sincronización de audio sin truncamiento: inyección de pista de silencio (`aevalsrc=0`) para garantizar alineación de paquetes en Windows Media Player y reproductores móviles.
+  - Efectos de sonido empotrados (`whoosh.wav`, `tick.wav`, `correct.wav`, `bgm_loop.wav`) extraídos desde el JAR por `VideoAssetExtractor`.
+  - Endpoints REST: `POST /api/v1/videos/generate` y `GET /api/v1/videos/{id}/download`.
+  - Herramienta CLI independiente en Python: `scripts/generate_full_trivia_video.py`.
+
+### Fase 20 — Limpieza de Identidad Visual en Tarjetas AWT ✅
+- Actualización de `TriviaRendererService`:
+  - Eliminación de la leyenda fija `"Plataforma de Trivias con IA"` en el pie de página.
+  - Si la trivia tiene subtema se dibuja `"Subtema: <subtema>"`.
+  - Si el subtema es nulo o está en blanco, el pie de página permanece limpio sin texto.
+
 ### Interfaz Web Local de Pruebas (Studio & Quiz) ✅
 - `src/main/resources/static/index.html` y `test-client.html`: SPA completa y auto-contenida con diseño moderno en modo oscuro para probar la API visualmente.
 - Soporta generación síncrona y asíncrona con polling en vivo, visualizador de imágenes PNG 1080x1080 (pregunta y respuesta explicada), modo Quiz interactivo para jugar, explorador/búsqueda de trivias y panel de métricas del catálogo.
@@ -175,6 +193,15 @@ Ninguna tarea bloqueada. Todas las funcionalidades requeridas están implementad
 - `compose.yaml`: Stack de orquestación multi-contenedor.
 - `.env.example`: Plantilla de variables de entorno.
 - `docs/DEPLOYMENT_GUIDE.md`: Guía de despliegue en VPS con Cloudflare Tunnel.
+- `docs/GUIA_GENERACION_VIDEOS_TTS.md`: Guía integral de generación de videos con TTS y SFX.
+- `src/main/java/com/trivia/api/controller/TriviaVideoController.java`: Endpoints de video (generate y download).
+- `src/main/java/com/trivia/api/dto/VideoGenerationRequest.java` y `VideoGenerationResponse.java`: DTOs de video.
+- `src/main/java/com/trivia/api/service/video/*`: Orquestador de video, builders de FFmpeg, servicios de narración TTS y extractor de assets.
+- `src/main/resources/video-assets/audio/*`: SFX empotrados (`whoosh.wav`, `tick.wav`, `correct.wav`, `bgm_loop.wav`).
+- `src/main/resources/video-assets/fonts/font.ttf`: Fuente TrueType embebida para renders FFmpeg.
+- `scripts/generate_full_trivia_video.py`: CLI de generación de videos independiente.
+- `scripts/tts_bridge.py`: CLI bridge para integración con `edge-tts`.
+- `scripts/generate_sfx.py`: Generador de efectos de sonido sintéticos.
 
 ---
 
@@ -186,18 +213,40 @@ Ninguna tarea bloqueada. Todas las funcionalidades requeridas están implementad
 - `TriviaValidationServiceTest`: 8 tests (reglas de opciones, 1 sola correcta, explicaciones).
 - `TriviaGenerationServiceTest`: 3 tests (happy path, reintentos con buffer, fallo por intentos máximos).
 - `TriviaQueryServiceTest`: 5 tests (consulta ID, random, stats, búsquedas).
-- `TriviaRendererServiceTest`: 2 tests (PNG 1080x1080 PREGUNTA y RESPUESTA).
+- `TriviaRendererServiceTest`: 2 tests (PNG 1080x1080 PREGUNTA y RESPUESTA sin marca forzada).
 - `EmbeddingServiceTest`: 6 tests (similitud coseno, ortogonales, opuestos, serialización, fallback local).
 - `LocalAssetStorageServiceTest`: 2 tests (guardado en disco, URLs, lectura, borrado).
 - `HealthControllerTest`: 4 tests (HTTP 200, status UP, metadata).
-- `CatalogControllerTest`: 4 tests (GET catálogo, mapeo DTOs).
-- `TriviaControllerTest`: 9 tests (POST síncrono 201, POST asíncrono 202, GET status 200, GET id, random, search, stats).
-- `ApiKeyFilterTest`: 4 tests (bypass dev, GET público, rechazo 401, autorización correcta).
+- `CatalogControllerTest`: 4 tests (GET catálogo, mapeo DTOs, coincidencia difusa).
+- `CategorySimilarityMatcherTest`: 7 tests (coincidencias difusas de categorías).
+- `TriviaControllerTest`: 12 tests (POST síncrono 201, POST asíncrono 202, GET status 200, GET id, random, search, stats, validaciones, POST rerender).
+- `TriviaMaintenanceServiceTest`: 2 tests (re-renderizado masivo exitoso, manejo de excepciones individuales).
+- `TriviaVideoControllerTest`: 2 tests (POST /generate con MockMvc, GET /download streaming).
+- `FFmpegCommandBuilderTest`: 4 tests (filtros verticales 9:16, horizontales 16:9 para YouTube, filtros cuadrados 1:1, canal de silencio aevalsrc).
+- `NoOpNarrationServiceTest`: 1 test (cálculo de tiempos determinista sin TTS).
+- `ApiKeyFilterTest`: 5 tests (bypass dev, GET público, rechazo 401, autorización correcta).
 - `TriviaApiApplicationTest`: 1 smoke test de carga de contexto Spring Boot.
 
+### Fase 21 — Mantenimiento y Re-renderizado Limpio de Imágenes ✅
+- `TriviaMaintenanceService`: servicio transaccional para regenerar en lote las tarjetas PNG (1080x1080) en disco sin alterar IDs ni referencias de BD.
+- Endpoint `POST /api/v1/trivias/rerender`: soporta re-renderizado total (cuerpo vacío o null) o lista específica de UUIDs.
+- Controles web en la SPA:
+  * Botón masivo "🔄 Re-renderizar Tarjetas" en la pestaña "Métricas & Catálogo".
+  * Botón individual "🔄 Re-renderizar" en el modal de detalle de cada trivia en el Explorador.
+- Ejecución en vivo: **82 trivias (164 imágenes PNG) regeneradas en disco sin el texto «Plataforma de Trivias con IA»**.
+
+### Fase 22 — Soporte de Videos Horizontales 16:9 (Full HD 1920x1080) para YouTube ✅
+- Filtergraph especializado en `FFmpegCommandBuilder`:
+  * Lienzo Full HD 1920x1080 con color de fondo `#0F172A`.
+  * Tarjeta de trivia centrada (1080x1080) con relación de aspecto 1:1 nativa sin distorsión.
+  * Columna izquierda (420px): Número de pregunta (`PREGUNTA X DE Y`), badge temático y título de trivia.
+  * Columna derecha (420px): Cuenta regresiva sincronizada (`TIEMPO 5...4...3...`) e indicador destacado `RESPUESTA CORRECTA`.
+- Interfaz gráfica (SPA): Botón `📺 Horizontal 16:9 (YouTube)` en el Estudio de Video.
+- Validado y probado de extremo a extremo con video generado y comprobación ffprobe (1920x1080, 30 fps, AAC).
+
 ## Resultados
-- **Total tests**: 78
-- **Aprobados**: 78 (100%)
+- **Total tests**: 107
+- **Aprobados**: 107 (100%)
 - **Fallos**: 0
 - **Errores**: 0
 - **Build**: SUCCESS
@@ -218,4 +267,4 @@ podman compose up -d
 podman ps
 curl http://localhost:8080/api/v1/health
 ```
-Consulte `docs/DEPLOYMENT_GUIDE.md` para el procedimiento de despliegue en VPS y configuración de Cloudflare Tunnel.
+Consulte `docs/DEPLOYMENT_GUIDE.md` para el procedimiento de despliegue en VPS y `docs/GUIA_GENERACION_VIDEOS_TTS.md` para generar videos con narración TTS.
