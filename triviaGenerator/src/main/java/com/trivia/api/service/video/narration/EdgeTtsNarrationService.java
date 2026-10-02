@@ -1,12 +1,14 @@
 package com.trivia.api.service.video.narration;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trivia.api.domain.Trivia;
 import com.trivia.api.domain.TriviaOpcion;
 import com.trivia.api.service.video.TimelinePlan;
 import com.trivia.api.service.video.TriviaSceneTiming;
 import com.trivia.api.service.video.VideoFormat;
+import com.trivia.api.service.video.VideoIntroTiming;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -26,7 +28,7 @@ import java.util.concurrent.TimeUnit;
  *
  * Características:
  *   - Si withTts = false: Asigna duraciones calibradas fijas (7.0s + 5.0s + 6.5s) sin generar audio.
- *   - Si withTts = true: Sintetiza en tiempo real los audios MP3 para preguntas y respuestas,
+ *   - Si withTts = true: Sintetiza en tiempo real los audios MP3 para introducción, preguntas y respuestas,
  *     mide sus duraciones reales y ajusta de forma adaptativa cada escena del video.
  *   - Fallback resiliente: Si la síntesis TTS falla (ej. sin conexión a internet),
  *     conmuta de forma automática y transparente al modo sin voz, permitiendo que el video se genere.
@@ -53,6 +55,16 @@ public class EdgeTtsNarrationService implements NarrationService {
             double answerDuration
     ) {}
 
+    public record TtsIntroResult(
+            String audioPath,
+            double duration
+    ) {}
+
+    public record TtsBridgeOverallResult(
+            TtsIntroResult intro,
+            Map<UUID, TtsBridgeResult> scenes
+    ) {}
+
     public EdgeTtsNarrationService(
             ObjectMapper objectMapper,
             @Value("${trivia.video.timing.question:7.0}") double defaultQuestionDuration,
@@ -74,16 +86,31 @@ public class EdgeTtsNarrationService implements NarrationService {
             boolean withBgm,
             boolean withTts,
             String voice) {
+        return planTimeline(trivias, opcionesMap, format, withBgm, withTts, voice, null, null);
+    }
+
+    @Override
+    public TimelinePlan planTimeline(
+            List<Trivia> trivias,
+            Map<Trivia, List<TriviaOpcion>> opcionesMap,
+            VideoFormat format,
+            boolean withBgm,
+            boolean withTts,
+            String voice,
+            String introText,
+            String introTopic) {
 
         if (!withTts) {
             log.debug("TTS desactivado. Generando plan con duraciones estándar para {} trivias", trivias.size());
-            return planFixedTimeline(trivias, format, withBgm);
+            return planFixedTimeline(trivias, format, withBgm, introText, introTopic);
         }
 
-        log.info("Iniciando síntesis TTS para {} trivias usando voz '{}'", trivias.size(), voice);
+        log.info("Iniciando síntesis TTS para {} trivias usando voz '{}' (intro: {})",
+                trivias.size(), voice, (introText != null && !introText.isBlank()));
 
         try {
-            Map<UUID, TtsBridgeResult> ttsResults = synthesizeViaBridge(trivias, opcionesMap, voice);
+            TtsBridgeOverallResult ttsOverall = synthesizeViaBridge(trivias, opcionesMap, voice, introText);
+            Map<UUID, TtsBridgeResult> ttsResults = ttsOverall.scenes();
             List<TriviaSceneTiming> scenes = new ArrayList<>();
             int total = trivias.size();
 
@@ -124,15 +151,32 @@ public class EdgeTtsNarrationService implements NarrationService {
                 }
             }
 
-            return new TimelinePlan(scenes, format, withBgm);
+            VideoIntroTiming introTiming = null;
+            if (introText != null && !introText.isBlank()) {
+                if (ttsOverall.intro() != null && ttsOverall.intro().duration() > 0) {
+                    double introDuration = Math.max(3.5, ttsOverall.intro().duration() + 0.8);
+                    introTiming = new VideoIntroTiming(introText, introTopic, introDuration, ttsOverall.intro().audioPath());
+                } else {
+                    double introDuration = 4.0;
+                    introTiming = new VideoIntroTiming(introText, introTopic, introDuration, null);
+                }
+            }
+
+            return new TimelinePlan(introTiming, scenes, format, withBgm);
 
         } catch (Exception e) {
             log.warn("Fallo en síntesis TTS ({}). Conmutando a modo de respaldo sin locución.", e.getMessage());
-            return planFixedTimeline(trivias, format, withBgm);
+            return planFixedTimeline(trivias, format, withBgm, introText, introTopic);
         }
     }
 
-    private TimelinePlan planFixedTimeline(List<Trivia> trivias, VideoFormat format, boolean withBgm) {
+    private TimelinePlan planFixedTimeline(
+            List<Trivia> trivias,
+            VideoFormat format,
+            boolean withBgm,
+            String introText,
+            String introTopic) {
+
         List<TriviaSceneTiming> scenes = new ArrayList<>();
         int total = trivias.size();
 
@@ -154,13 +198,20 @@ public class EdgeTtsNarrationService implements NarrationService {
             ));
         }
 
-        return new TimelinePlan(scenes, format, withBgm);
+        VideoIntroTiming introTiming = null;
+        if (introText != null && !introText.isBlank()) {
+            double introDuration = 4.0;
+            introTiming = new VideoIntroTiming(introText, introTopic, introDuration, null);
+        }
+
+        return new TimelinePlan(introTiming, scenes, format, withBgm);
     }
 
-    private Map<UUID, TtsBridgeResult> synthesizeViaBridge(
+    private TtsBridgeOverallResult synthesizeViaBridge(
             List<Trivia> trivias,
             Map<Trivia, List<TriviaOpcion>> opcionesMap,
-            String voice) throws Exception {
+            String voice,
+            String introText) throws Exception {
 
         Path tempDir = Files.createTempDirectory("trivia_tts_job_");
         Path inputJsonPath = tempDir.resolve("trivias_payload.json");
@@ -191,7 +242,14 @@ public class EdgeTtsNarrationService implements NarrationService {
             payload.add(map);
         }
 
-        objectMapper.writeValue(inputJsonPath.toFile(), payload);
+        if (introText != null && !introText.isBlank()) {
+            Map<String, Object> rootPayload = new HashMap<>();
+            rootPayload.put("intro", Map.of("text", introText));
+            rootPayload.put("trivias", payload);
+            objectMapper.writeValue(inputJsonPath.toFile(), rootPayload);
+        } else {
+            objectMapper.writeValue(inputJsonPath.toFile(), payload);
+        }
 
         Path scriptPath = resolveScriptPath();
         String pythonBin = resolvePythonExecutable();
@@ -230,16 +288,34 @@ public class EdgeTtsNarrationService implements NarrationService {
             throw new IllegalStateException("Error en tts_bridge.py (exit code " + process.exitValue() + "): " + err);
         }
 
-        List<TtsBridgeResult> results = objectMapper.readValue(
-                stdout.toString().trim(),
-                new TypeReference<>() {}
-        );
+        JsonNode rootNode = objectMapper.readTree(stdout.toString().trim());
+        TtsIntroResult introResult = null;
+        List<TtsBridgeResult> results;
+
+        if (rootNode.isObject()) {
+            if (rootNode.has("intro") && !rootNode.get("intro").isNull()) {
+                introResult = objectMapper.treeToValue(rootNode.get("intro"), TtsIntroResult.class);
+            }
+            if (rootNode.has("scenes")) {
+                results = objectMapper.readValue(
+                        rootNode.get("scenes").traverse(),
+                        new TypeReference<List<TtsBridgeResult>>() {}
+                );
+            } else {
+                results = List.of();
+            }
+        } else {
+            results = objectMapper.readValue(
+                    rootNode.traverse(),
+                    new TypeReference<List<TtsBridgeResult>>() {}
+            );
+        }
 
         Map<UUID, TtsBridgeResult> map = new HashMap<>();
         for (TtsBridgeResult r : results) {
             map.put(UUID.fromString(r.triviaId()), r);
         }
-        return map;
+        return new TtsBridgeOverallResult(introResult, map);
     }
 
     private Path resolveScriptPath() throws Exception {

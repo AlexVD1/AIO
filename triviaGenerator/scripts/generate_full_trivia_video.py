@@ -124,18 +124,18 @@ def render_trivia_segment(trivia, index, total, input_dir, temp_dir, video_forma
         
         audio_filters = (
             f"aevalsrc=0:d={total_dur:.2f}[asilence];"
-            f"[2:a]adelay=0|0[a_whoosh];"
-            f"[5:a]adelay={q_speech_ms}|{q_speech_ms},volume=1.4[a_voice_q];"
-            f"[3:a]asplit=5[t1][t2][t3][t4][t5];"
+            f"[2:a]volume=0.7,adelay=0|0[a_whoosh];"
+            f"[5:a]adelay={q_speech_ms}|{q_speech_ms},volume=1.0[a_voice_q];"
+            f"[3:a]volume=0.6,asplit=5[t1][t2][t3][t4][t5];"
             f"[t1]adelay={t1_ms}|{t1_ms}[at1];"
             f"[t2]adelay={t2_ms}|{t2_ms}[at2];"
             f"[t3]adelay={t3_ms}|{t3_ms}[at3];"
             f"[t4]adelay={t4_ms}|{t4_ms}[at4];"
             f"[t5]adelay={t5_ms}|{t5_ms}[at5];"
-            f"[4:a]adelay={chime_ms}|{chime_ms}[a_correct];"
-            f"[6:a]adelay={a_speech_ms}|{a_speech_ms},volume=1.4[a_voice_a];"
+            f"[4:a]volume=0.75,adelay={chime_ms}|{chime_ms}[a_correct];"
+            f"[6:a]adelay={a_speech_ms}|{a_speech_ms},volume=1.0[a_voice_a];"
             f"[asilence][a_whoosh][a_voice_q][at1][at2][at3][at4][at5][a_correct][a_voice_a]"
-            f"amix=inputs=10:duration=first:dropout_transition=0,volume=1.8[afinal]"
+            f"amix=inputs=10:duration=first:dropout_transition=0:normalize=0,alimiter=limit=0.95[afinal]"
         )
         
         extra_inputs = [
@@ -145,15 +145,16 @@ def render_trivia_segment(trivia, index, total, input_dir, temp_dir, video_forma
     else:
         audio_filters = (
             f"aevalsrc=0:d={total_dur:.2f}[asilence];"
-            f"[2:a]adelay=0|0[a_whoosh];"
-            f"[3:a]asplit=5[t1][t2][t3][t4][t5];"
+            f"[2:a]volume=0.7,adelay=0|0[a_whoosh];"
+            f"[3:a]volume=0.6,asplit=5[t1][t2][t3][t4][t5];"
             f"[t1]adelay={t1_ms}|{t1_ms}[at1];"
             f"[t2]adelay={t2_ms}|{t2_ms}[at2];"
             f"[t3]adelay={t3_ms}|{t3_ms}[at3];"
             f"[t4]adelay={t4_ms}|{t4_ms}[at4];"
             f"[t5]adelay={t5_ms}|{t5_ms}[at5];"
-            f"[4:a]adelay={chime_ms}|{chime_ms}[a_correct];"
-            f"[asilence][a_whoosh][at1][at2][at3][at4][at5][a_correct]amix=inputs=8:duration=first:dropout_transition=0,volume=1.8[afinal]"
+            f"[4:a]volume=0.75,adelay={chime_ms}|{chime_ms}[a_correct];"
+            f"[asilence][a_whoosh][at1][at2][at3][at4][at5][a_correct]"
+            f"amix=inputs=8:duration=first:dropout_transition=0:normalize=0,alimiter=limit=0.95[afinal]"
         )
         extra_inputs = []
     
@@ -299,7 +300,7 @@ def generate_video(input_dir, output_path, video_format="vertical", max_trivias=
                 "-stream_loop", "-1", "-i", bgm_path,
                 "-filter_complex",
                 f"[1:a]volume={bgm_vol:.2f}[bgm_soft];"
-                f"[0:a][bgm_soft]amix=inputs=2:duration=first:dropout_transition=0[aout]",
+                f"[0:a][bgm_soft]amix=inputs=2:duration=first:dropout_transition=0:normalize=0,alimiter=limit=0.95[aout]",
                 "-map", "0:v",
                 "-map", "[aout]",
                 "-c:v", "copy",

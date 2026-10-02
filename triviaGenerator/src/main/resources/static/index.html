@@ -1781,6 +1781,104 @@
             </div>
           </div>
 
+          <!-- Introducción del Video -->
+          <div class="form-group" style="background:rgba(255,255,255,0.02); padding:0.85rem; border-radius:var(--radius-sm); border:1px solid var(--border-color);">
+            <label class="form-label" style="font-weight:600; display:flex; align-items:center; gap:0.4rem; margin-bottom:0.5rem;">
+              <span>🎬</span> Introducción del Video
+            </label>
+
+            <!-- Selector de Modalidad -->
+            <div style="display:flex; flex-direction:column; gap:0.4rem; margin-bottom:0.75rem; font-size:0.85rem;">
+              <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+                <input type="radio" name="videoIntroMode" value="NONE" checked onchange="handleIntroModeChange(this.value)" style="accent-color:var(--primary);">
+                <span>Sin introducción (iniciar directo en pregunta 1)</span>
+              </label>
+              <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+                <input type="radio" name="videoIntroMode" value="TEMPLATE" onchange="handleIntroModeChange(this.value)" style="accent-color:var(--primary);">
+                <span>Usar plantilla del catálogo</span>
+              </label>
+              <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+                <input type="radio" name="videoIntroMode" value="CUSTOM" onchange="handleIntroModeChange(this.value)" style="accent-color:var(--primary);">
+                <span>Escribir mi propia introducción</span>
+              </label>
+              <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+                <input type="radio" name="videoIntroMode" value="AI" onchange="handleIntroModeChange(this.value)" style="accent-color:var(--primary);">
+                <span>Generar automáticamente con IA (Gemini)</span>
+              </label>
+            </div>
+
+            <!-- Contenedor dinámico según modalidad -->
+            <div id="videoIntroDynamicControls" style="display:none; border-top:1px dashed var(--border-color); padding-top:0.75rem;">
+              
+              <!-- Opciones de Plantilla -->
+              <div id="videoIntroTemplateGroup" style="display:none; margin-bottom:0.6rem;">
+                <label class="form-label" style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.25rem;">Plantilla del catálogo</label>
+                <select id="videoIntroTemplateSelect" class="form-control" style="font-size:0.85rem;" onchange="updateIntroPreview()">
+                  <option value="tpl_pon_a_prueba">Pon a prueba tus conocimientos sobre {tema}.</option>
+                  <option value="tpl_que_tanto_sabes">¿Qué tanto sabes de {tema}?</option>
+                  <option value="tpl_cuanto_sabes">¿Cuánto sabes sobre {tema}?</option>
+                  <option value="tpl_demuestra">Demuestra cuánto sabes sobre {tema}.</option>
+                  <option value="tpl_experto">¿Te consideras experto en {tema}? ¡Vamos a comprobarlo!</option>
+                  <option value="tpl_solo_los_que_saben">Solo los que saben de {tema} podrán responderlas todas.</option>
+                  <option value="tpl_puedes_responder">¿Puedes responder estas preguntas sobre {tema}?</option>
+                </select>
+              </div>
+
+              <!-- Opción personalizada -->
+              <div id="videoIntroCustomGroup" style="display:none; margin-bottom:0.6rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.25rem;">
+                  <label class="form-label" style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0;">Tu frase de introducción</label>
+                  <span id="videoIntroCharCount" style="font-size:0.7rem; color:var(--text-dim);">0/160</span>
+                </div>
+                <input type="text" id="videoIntroCustomInput" class="form-control" maxlength="160" placeholder="Ej: ¿Eres realmente un experto en Interstellar?" style="font-size:0.85rem;" oninput="handleCustomIntroInput(this.value)">
+              </div>
+
+              <!-- Opción IA -->
+              <div id="videoIntroAiGroup" style="display:none; margin-bottom:0.6rem;">
+                <div style="display:flex; gap:0.5rem; align-items:center;">
+                  <button type="button" id="btnGenerateAiIntro" class="btn btn-outline" style="font-size:0.8rem; padding:0.35rem 0.75rem; flex:1;" onclick="handleGenerateAiIntroClick()">
+                    <span>✨</span> Generar frase con IA
+                  </button>
+                  <span style="font-size:0.75rem; color:var(--text-muted); flex:2;">Crea un gancho breve y viral con Gemini basado en el tema.</span>
+                </div>
+              </div>
+
+              <!-- Tema detectado / editable opcional -->
+              <div style="margin-bottom:0.6rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                  <label class="form-label" style="font-size:0.75rem; color:var(--text-muted); margin-bottom:0.2rem;">Tema de la trivia (para la introducción)</label>
+                  <span id="videoIntroDetectedTopicLabel" style="font-size:0.7rem; color:#38bdf8;">Auto-detectado</span>
+                </div>
+                <input type="text" id="videoIntroTopicInput" class="form-control" placeholder="Detectando tema..." style="font-size:0.85rem;" oninput="handleIntroTopicInput(this.value)">
+              </div>
+
+              <!-- Previsualización del texto -->
+              <div id="videoIntroPreviewContainer" style="background:var(--bg-main); border:1px solid rgba(56,189,248,0.25); border-radius:var(--radius-sm); padding:0.6rem;">
+                <div style="font-size:0.7rem; color:#38bdf8; font-weight:600; text-transform:uppercase; margin-bottom:0.25rem;">
+                  👁️ Previsualización de la Introducción:
+                </div>
+                <div id="videoIntroPreviewText" style="font-size:0.85rem; color:var(--text-main); font-style:italic;">
+                  -
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Título del Video / Publicación -->
+          <div class="form-group" style="background:rgba(255,255,255,0.02); padding:0.85rem; border-radius:var(--radius-sm); border:1px solid var(--border-color);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.35rem;">
+              <label class="form-label" style="font-weight:600; display:flex; align-items:center; gap:0.4rem; margin-bottom:0;" for="videoCustomTitleInput">
+                <span>🏷️</span> Título del Video / Publicación
+              </label>
+              <span id="videoTitleCharCount" style="font-size:0.7rem; color:var(--text-dim);">0/100</span>
+            </div>
+            <input type="text" id="videoCustomTitleInput" class="form-control" maxlength="100" placeholder="Ej: 3 Preguntas Capciosas Imposibles (opcional)" style="font-size:0.85rem;" oninput="handleVideoTitleInput(this.value)">
+            <div style="font-size:0.75rem; color:var(--text-muted); margin-top:0.35rem;">
+              Personaliza el título del archivo MP4 y de las publicaciones en YouTube Shorts, TikTok y Facebook. Si lo dejas vacío, tomará tu frase de introducción o el tema.
+            </div>
+          </div>
+
           <!-- Música de fondo (BGM) -->
           <div class="form-group">
             <div style="display:flex; align-items:center; justify-content:space-between;">
@@ -1834,6 +1932,10 @@
 
           <!-- Metadatos y Descarga del Video -->
           <div id="videoResultDetails" style="display:none; margin-top:1.25rem;">
+            <div style="background:var(--bg-main); padding:0.6rem 0.8rem; border-radius:var(--radius-sm); border:1px solid var(--border-color); margin-bottom:0.75rem;">
+              <div style="font-size:0.7rem; color:var(--text-dim); margin-bottom:0.2rem; text-transform:uppercase; font-weight:600;">Título / Archivo Generado:</div>
+              <div id="videoResultTitle" style="font-weight:700; font-size:0.95rem; color:#38bdf8; word-break:break-word;">-</div>
+            </div>
             <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(110px, 1fr)); gap:0.6rem; margin-bottom:1rem;">
               <div style="background:var(--bg-main); padding:0.5rem 0.65rem; border-radius:var(--radius-sm); border:1px solid var(--border-color);">
                 <div style="font-size:0.7rem; color:var(--text-dim);">DURACIÓN</div>
@@ -3359,6 +3461,162 @@
       });
 
       container.innerHTML = html;
+      syncVideoIntroTopic();
+    }
+
+    // ==========================================
+    // GESTIÓN DE INTRODUCCIÓN DINÁMICA DEL VIDEO
+    // ==========================================
+
+    function inferTopicFromSelectedTrivias() {
+      for (const [id, t] of state.selectedVideoTrivias) {
+        if (t.subtema && t.subtema.trim()) return t.subtema.trim();
+      }
+      for (const [id, t] of state.selectedVideoTrivias) {
+        const cat = t.tipoTrivia?.nombre || t.tipoTrivia || t.categoriaNombre || t.categoria;
+        if (cat && typeof cat === 'string' && cat.trim()) return cat.trim();
+      }
+      return 'Cultura general';
+    }
+
+    function syncVideoIntroTopic() {
+      const topicInput = document.getElementById('videoIntroTopicInput');
+      if (!topicInput) return;
+      if (!state.videoIntroTopicUserEdited) {
+        topicInput.value = inferTopicFromSelectedTrivias();
+      }
+      updateIntroPreview();
+    }
+
+    function handleIntroTopicInput(val) {
+      state.videoIntroTopicUserEdited = !!(val && val.trim());
+      updateIntroPreview();
+    }
+
+    function handleIntroModeChange(mode) {
+      state.videoIntroMode = mode;
+      const dynamicBox = document.getElementById('videoIntroDynamicControls');
+      const tplGroup = document.getElementById('videoIntroTemplateGroup');
+      const customGroup = document.getElementById('videoIntroCustomGroup');
+      const aiGroup = document.getElementById('videoIntroAiGroup');
+
+      if (!dynamicBox) return;
+
+      if (mode === 'NONE') {
+        dynamicBox.style.display = 'none';
+      } else {
+        dynamicBox.style.display = 'block';
+        if (tplGroup) tplGroup.style.display = (mode === 'TEMPLATE') ? 'block' : 'none';
+        if (customGroup) customGroup.style.display = (mode === 'CUSTOM') ? 'block' : 'none';
+        if (aiGroup) aiGroup.style.display = (mode === 'AI') ? 'block' : 'none';
+
+        syncVideoIntroTopic();
+        updateIntroPreview();
+      }
+    }
+
+    function handleCustomIntroInput(val) {
+      const counter = document.getElementById('videoIntroCharCount');
+      if (counter) counter.textContent = `${val.length}/160`;
+      updateIntroPreview();
+    }
+
+    function handleVideoTitleInput(val) {
+      const counter = document.getElementById('videoTitleCharCount');
+      if (counter) counter.textContent = `${val.length}/100`;
+    }
+
+    function updateIntroPreview() {
+      const mode = state.videoIntroMode || 'NONE';
+      const previewText = document.getElementById('videoIntroPreviewText');
+      const topicInput = document.getElementById('videoIntroTopicInput');
+      if (!previewText) return;
+
+      if (mode === 'NONE') {
+        previewText.textContent = '-';
+        return;
+      }
+
+      const topic = (topicInput && topicInput.value.trim()) ? topicInput.value.trim() : inferTopicFromSelectedTrivias();
+
+      if (mode === 'TEMPLATE') {
+        const select = document.getElementById('videoIntroTemplateSelect');
+        const tpl = select ? select.options[select.selectedIndex].text : 'Pon a prueba tus conocimientos sobre {tema}.';
+        previewText.textContent = tpl.replace('{tema}', topic).replace('{TEMA}', topic.toUpperCase());
+      } else if (mode === 'CUSTOM') {
+        const customInput = document.getElementById('videoIntroCustomInput');
+        const customVal = customInput ? customInput.value.trim() : '';
+        previewText.textContent = customVal || '(Escribe tu frase en el campo de texto superior)';
+      } else if (mode === 'AI') {
+        if (state.lastGeneratedAiIntro) {
+          previewText.textContent = state.lastGeneratedAiIntro;
+        } else {
+          previewText.textContent = `Se generará automáticamente con IA para "${topic}" al compilar, o haz clic en "✨ Generar frase con IA".`;
+        }
+      }
+    }
+
+    async function handleGenerateAiIntroClick() {
+      const topicInput = document.getElementById('videoIntroTopicInput');
+      const topic = (topicInput && topicInput.value.trim()) ? topicInput.value.trim() : inferTopicFromSelectedTrivias();
+      const triviaIds = Array.from(state.selectedVideoTrivias.keys());
+
+      const btn = document.getElementById('btnGenerateAiIntro');
+      if (btn) {
+        btn.disabled = true;
+        btn.innerHTML = '<span>⏳</span> Generando frase...';
+      }
+
+      try {
+        const headers = { 'Content-Type': 'application/json', 'ngrok-skip-browser-warning': 'true' };
+        const key = apiKeyInput ? apiKeyInput.value.trim() : '';
+        if (key) headers['X-API-KEY'] = key;
+
+        const res = await fetch(`${getBaseUrl()}/api/v1/videos/preview-intro`, {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify({
+            mode: 'AI',
+            topic: topic,
+            triviaIds: triviaIds,
+            idioma: 'es-MX'
+          })
+        });
+
+        if (!res.ok) {
+          throw new Error(`HTTP ${res.status}`);
+        }
+
+        const data = await res.json();
+        if (data && data.introText) {
+          state.lastGeneratedAiIntro = data.introText;
+          updateIntroPreview();
+          showToast('Frase de introducción generada con IA', 'success');
+        }
+      } catch (e) {
+        showToast('No se pudo generar la frase con IA: ' + e.message, 'error');
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<span>✨</span> Generar frase con IA';
+        }
+      }
+    }
+
+    async function loadIntroTemplates() {
+      try {
+        const res = await fetch(`${getBaseUrl()}/api/v1/videos/intro-templates`);
+        if (res.ok) {
+          const templates = await res.json();
+          const select = document.getElementById('videoIntroTemplateSelect');
+          if (select && Array.isArray(templates) && templates.length > 0) {
+            select.innerHTML = templates.map(t =>
+              `<option value="${escapeHtml(t.id)}">${escapeHtml(t.template)}</option>`
+            ).join('');
+            updateIntroPreview();
+          }
+        }
+      } catch (ignored) {}
     }
 
     async function loadLatestTriviasForVideo(limit = 10) {
@@ -3453,12 +3711,38 @@
       const withBgm = document.getElementById('videoWithBgm').checked;
       const format = state.videoFormat || 'VERTICAL_9_16';
 
+      const introMode = state.videoIntroMode || 'NONE';
+      let introTemplate = null;
+      let customIntroText = null;
+      const topicInput = document.getElementById('videoIntroTopicInput');
+      const introTopic = (topicInput && topicInput.value.trim()) ? topicInput.value.trim() : null;
+
+      if (introMode === 'TEMPLATE') {
+        const select = document.getElementById('videoIntroTemplateSelect');
+        introTemplate = select ? select.value : 'tpl_pon_a_prueba';
+      } else if (introMode === 'CUSTOM') {
+        const customInput = document.getElementById('videoIntroCustomInput');
+        customIntroText = customInput ? customInput.value.trim() : null;
+      } else if (introMode === 'AI') {
+        if (state.lastGeneratedAiIntro) {
+          customIntroText = state.lastGeneratedAiIntro;
+        }
+      }
+
+      const titleInput = document.getElementById('videoCustomTitleInput');
+      const customTitle = (titleInput && titleInput.value.trim()) ? titleInput.value.trim() : null;
+
       const payload = {
         triviaIds: triviaIds,
         format: format,
         withBgm: withBgm,
         withTts: withTts,
-        ttsVoice: ttsVoice
+        ttsVoice: ttsVoice,
+        introMode: introMode,
+        introTemplate: introTemplate,
+        customIntroText: customIntroText,
+        introTopic: introTopic,
+        customTitle: customTitle
       };
 
       if (btn) {
@@ -3555,7 +3839,12 @@
       const sizeVal = document.getElementById('videoSizeVal');
       const countVal = document.getElementById('videoCountVal');
       const formatVal = document.getElementById('videoFormatVal');
+      const titleVal = document.getElementById('videoResultTitle');
       const downloadBtn = document.getElementById('videoDownloadBtn');
+
+      if (titleVal) {
+        titleVal.textContent = data.title || data.filename || '-';
+      }
 
       if (placeholder) placeholder.style.display = 'none';
       if (player) {
@@ -3567,12 +3856,13 @@
         player.load();
       }
 
-      const downloadUrl = `${getBaseUrl()}/api/v1/videos/${data.id}/download`;
+      const videoFilename = data.filename || `trivia_video_${data.id}.mp4`;
+      const downloadUrl = `${getBaseUrl()}/api/v1/videos/${data.id}/download?filename=${encodeURIComponent(videoFilename)}`;
       currentVideoDownloadUrl = downloadUrl;
 
       if (downloadBtn) {
         downloadBtn.href = downloadUrl;
-        downloadBtn.setAttribute('download', `trivia_video_${data.id}.mp4`);
+        downloadBtn.setAttribute('download', videoFilename);
       }
 
       if (durationVal) {
@@ -3650,9 +3940,10 @@
       }, 4000);
     }
 
-    // Arrancar verificación de conexión al cargar la página
+    // Arrancar verificación de conexión y catálogo al cargar la página
     window.addEventListener('DOMContentLoaded', () => {
       checkApiHealth();
+      loadIntroTemplates();
     });
   </script>
 </body>

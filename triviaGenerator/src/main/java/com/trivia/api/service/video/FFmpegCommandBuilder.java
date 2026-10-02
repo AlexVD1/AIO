@@ -150,17 +150,17 @@ public class FFmpegCommandBuilder {
             long aVoiceMs = chimeMs + 400;
             audioFilter = String.format(Locale.US,
                     "aevalsrc=0:d=%.2f[asilence];" +
-                    "[2:a]adelay=0|0[a_whoosh];" +
-                    "[5:a]adelay=%d|%d,volume=1.4[a_voice_q];" +
-                    "[3:a]asplit=5[t1][t2][t3][t4][t5];" +
+                    "[2:a]volume=0.7,adelay=0|0[a_whoosh];" +
+                    "[5:a]adelay=%d|%d,volume=1.0[a_voice_q];" +
+                    "[3:a]volume=0.6,asplit=5[t1][t2][t3][t4][t5];" +
                     "[t1]adelay=%d|%d[at1];" +
                     "[t2]adelay=%d|%d[at2];" +
                     "[t3]adelay=%d|%d[at3];" +
                     "[t4]adelay=%d|%d[at4];" +
                     "[t5]adelay=%d|%d[at5];" +
-                    "[4:a]adelay=%d|%d[a_correct];" +
-                    "[6:a]adelay=%d|%d,volume=1.4[a_voice_a];" +
-                    "[asilence][a_whoosh][a_voice_q][at1][at2][at3][at4][at5][a_correct][a_voice_a]amix=inputs=10:duration=first:dropout_transition=0,volume=1.8[afinal]",
+                    "[4:a]volume=0.75,adelay=%d|%d[a_correct];" +
+                    "[6:a]adelay=%d|%d,volume=1.0[a_voice_a];" +
+                    "[asilence][a_whoosh][a_voice_q][at1][at2][at3][at4][at5][a_correct][a_voice_a]amix=inputs=10:duration=first:dropout_transition=0:normalize=0,alimiter=limit=0.95[afinal]",
                     totalDuration,
                     qVoiceMs, qVoiceMs,
                     tick1Ms, tick1Ms,
@@ -174,15 +174,15 @@ public class FFmpegCommandBuilder {
         } else {
             audioFilter = String.format(Locale.US,
                     "aevalsrc=0:d=%.2f[asilence];" +
-                    "[2:a]adelay=0|0[a_whoosh];" +
-                    "[3:a]asplit=5[t1][t2][t3][t4][t5];" +
+                    "[2:a]volume=0.7,adelay=0|0[a_whoosh];" +
+                    "[3:a]volume=0.6,asplit=5[t1][t2][t3][t4][t5];" +
                     "[t1]adelay=%d|%d[at1];" +
                     "[t2]adelay=%d|%d[at2];" +
                     "[t3]adelay=%d|%d[at3];" +
                     "[t4]adelay=%d|%d[at4];" +
                     "[t5]adelay=%d|%d[at5];" +
-                    "[4:a]adelay=%d|%d[a_correct];" +
-                    "[asilence][a_whoosh][at1][at2][at3][at4][at5][a_correct]amix=inputs=8:duration=first:dropout_transition=0,volume=1.8[afinal]",
+                    "[4:a]volume=0.75,adelay=%d|%d[a_correct];" +
+                    "[asilence][a_whoosh][at1][at2][at3][at4][at5][a_correct]amix=inputs=8:duration=first:dropout_transition=0:normalize=0,alimiter=limit=0.95[afinal]",
                     totalDuration,
                     tick1Ms, tick1Ms,
                     tick2Ms, tick2Ms,
@@ -262,7 +262,7 @@ public class FFmpegCommandBuilder {
         args.add("-filter_complex");
         args.add(String.format(Locale.US,
                 "[1:a]volume=%.2f[bgm_soft];" +
-                "[0:a][bgm_soft]amix=inputs=2:duration=first:dropout_transition=0[aout]",
+                "[0:a][bgm_soft]amix=inputs=2:duration=first:dropout_transition=0:normalize=0,alimiter=limit=0.95[aout]",
                 bgmVolume
         ));
 
@@ -279,6 +279,118 @@ public class FFmpegCommandBuilder {
         args.add("-t");
         args.add(String.format(Locale.US, "%.2f", totalDuration));
         args.add(finalOutputPath);
+        return args;
+    }
+
+    /**
+     * Construye el comando de FFmpeg para renderizar la escena de introducción al inicio del video.
+     */
+    public List<String> buildIntroSegmentCommand(
+            String introImagePath,
+            VideoIntroTiming introTiming,
+            VideoFormat format,
+            VideoAssetExtractor.ResolvedAssets assets,
+            String outputSegmentPath) {
+
+        List<String> args = new ArrayList<>();
+        args.add("-y");
+
+        double duration = introTiming.duration();
+
+        // Inputs
+        // [0] Imagen de introducción renderizada
+        args.add("-loop");
+        args.add("1");
+        args.add("-t");
+        args.add(String.format(Locale.US, "%.2f", duration));
+        args.add("-i");
+        args.add(introImagePath);
+
+        // [1] SFX Whoosh de entrada
+        args.add("-i");
+        args.add(assets.whooshAudioPath());
+
+        boolean hasTts = introTiming.audioPath() != null && !introTiming.audioPath().isBlank();
+        if (hasTts) {
+            // [2] Locución TTS de la introducción
+            args.add("-i");
+            args.add(introTiming.audioPath());
+        }
+
+        // Filtros de video según el formato
+        String font = assets.fontPath();
+        String videoFilter;
+
+        if (format == VideoFormat.VERTICAL_9_16) {
+            videoFilter = String.format(Locale.US,
+                    "color=c=0x0F172A:s=1080x1920:d=%.2f[bg0];" +
+                    "[0:v]scale=1080:1080[iv0];" +
+                    "[bg0][iv0]overlay=0:420[ibase];" +
+                    "[ibase]drawtext=fontfile='%s':text='¡NUEVA TRIVIA!':fontsize=42:fontcolor=0x38BDF8:x=(w-text_w)/2:y=200[vfinal];",
+                    duration,
+                    font
+            );
+        } else if (format == VideoFormat.HORIZONTAL_16_9) {
+            videoFilter = String.format(Locale.US,
+                    "color=c=0x0F172A:s=1920x1080:d=%.2f[bg0];" +
+                    "[0:v]scale=1080:1080[iv0];" +
+                    "[bg0][iv0]overlay=420:0[ibase];" +
+                    "[ibase]drawtext=fontfile='%s':text='¡NUEVA TRIVIA!':fontsize=36:fontcolor=0x38BDF8:x=(420-text_w)/2:y=200[vfinal];",
+                    duration,
+                    font
+            );
+        } else {
+            // SQUARE_1_1 (1080x1080)
+            videoFilter = "[0:v]scale=1080:1080,setsar=1[vfinal];";
+        }
+
+        // Filtros de audio
+        String audioFilter;
+        if (hasTts) {
+            long voiceDelayMs = 350;
+            audioFilter = String.format(Locale.US,
+                    "aevalsrc=0:d=%.2f[asilence];" +
+                    "[1:a]volume=0.7,adelay=0|0[a_whoosh];" +
+                    "[2:a]adelay=%d|%d,volume=1.0[a_voice_intro];" +
+                    "[asilence][a_whoosh][a_voice_intro]amix=inputs=3:duration=first:dropout_transition=0:normalize=0,alimiter=limit=0.95[afinal]",
+                    duration,
+                    voiceDelayMs, voiceDelayMs
+            );
+        } else {
+            audioFilter = String.format(Locale.US,
+                    "aevalsrc=0:d=%.2f[asilence];" +
+                    "[1:a]volume=0.7,adelay=0|0[a_whoosh];" +
+                    "[asilence][a_whoosh]amix=inputs=2:duration=first:dropout_transition=0:normalize=0,alimiter=limit=0.95[afinal]",
+                    duration
+            );
+        }
+
+        args.add("-filter_complex");
+        args.add(videoFilter + audioFilter);
+
+        args.add("-map");
+        args.add("[vfinal]");
+        args.add("-map");
+        args.add("[afinal]");
+
+        args.add("-c:v");
+        args.add("libx264");
+        args.add("-preset");
+        args.add("veryfast");
+        args.add("-pix_fmt");
+        args.add("yuv420p");
+        args.add("-r");
+        args.add("30");
+
+        args.add("-c:a");
+        args.add("aac");
+        args.add("-b:a");
+        args.add("192k");
+
+        args.add("-t");
+        args.add(String.format(Locale.US, "%.2f", duration));
+
+        args.add(outputSegmentPath);
         return args;
     }
 }

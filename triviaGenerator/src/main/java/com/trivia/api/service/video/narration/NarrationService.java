@@ -18,14 +18,28 @@ import java.util.Map;
 public interface NarrationService {
 
     /**
-     * Construye el plan de tiempos para la lista de trivias dada (sin TTS).
+     * Construye el plan de tiempos para la lista de trivias dada (sin TTS ni intro).
      */
     default TimelinePlan planTimeline(List<Trivia> trivias, VideoFormat format, boolean withBgm) {
-        return planTimeline(trivias, Map.of(), format, withBgm, false, "es-MX-JorgeNeural");
+        return planTimeline(trivias, Map.of(), format, withBgm, false, "es-MX-JorgeNeural", null, null);
     }
 
     /**
-     * Construye el plan de tiempos para la lista de trivias dada con soporte opcional de locución TTS.
+     * Construye el plan de tiempos para la lista de trivias dada con soporte opcional de locución TTS (sin intro).
+     */
+    default TimelinePlan planTimeline(
+            List<Trivia> trivias,
+            Map<Trivia, List<TriviaOpcion>> opcionesMap,
+            VideoFormat format,
+            boolean withBgm,
+            boolean withTts,
+            String voice) {
+        return planTimeline(trivias, opcionesMap, format, withBgm, withTts, voice, null, null);
+    }
+
+    /**
+     * Construye el plan de tiempos para la lista de trivias dada con soporte de locución TTS
+     * e introducción temática al inicio del video.
      *
      * @param trivias Lista ordenada de trivias que conformarán el video.
      * @param opcionesMap Mapa de opciones de respuesta por cada trivia.
@@ -33,6 +47,8 @@ public interface NarrationService {
      * @param withBgm Indica si se debe incluir música de fondo.
      * @param withTts Indica si se activa la síntesis de voz TTS.
      * @param voice Nombre de la voz neuronal deseada.
+     * @param introText Texto de introducción a narrar y mostrar (null si no hay intro).
+     * @param introTopic Tema o subtema correspondiente a la trivia.
      * @return Objeto TimelinePlan con los tiempos y rutas de audio resueltos.
      */
     TimelinePlan planTimeline(
@@ -41,6 +57,8 @@ public interface NarrationService {
             VideoFormat format,
             boolean withBgm,
             boolean withTts,
-            String voice
+            String voice,
+            String introText,
+            String introTopic
     );
 }

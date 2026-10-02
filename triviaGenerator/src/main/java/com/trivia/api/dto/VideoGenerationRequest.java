@@ -1,6 +1,7 @@
 package com.trivia.api.dto;
 
 import com.trivia.api.service.video.VideoFormat;
+import com.trivia.api.service.video.VideoIntroMode;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotEmpty;
 
@@ -36,7 +37,28 @@ public record VideoGenerationRequest(
         @Schema(description = "Voz neuronal a utilizar para TTS (ej. 'es-MX-JorgeNeural', 'es-MX-DaliaNeural')",
                 example = "es-MX-JorgeNeural",
                 defaultValue = "es-MX-JorgeNeural")
-        String ttsVoice
+        String ttsVoice,
+
+        @Schema(description = "Modalidad de introducción del video (NONE, TEMPLATE, CUSTOM, AI)",
+                example = "TEMPLATE",
+                defaultValue = "NONE")
+        VideoIntroMode introMode,
+
+        @Schema(description = "Plantilla a utilizar cuando introMode es TEMPLATE (ej. 'Pon a prueba tus conocimientos sobre {tema}.')",
+                example = "¿Qué tanto sabes de {tema}?")
+        String introTemplate,
+
+        @Schema(description = "Texto personalizado a utilizar cuando introMode es CUSTOM",
+                example = "¿Eres realmente un experto en Interstellar?")
+        String customIntroText,
+
+        @Schema(description = "Tema o subtema explícito para la introducción (si se omite se infiere de las trivias)",
+                example = "Historia romana")
+        String introTopic,
+
+        @Schema(description = "Título personalizado para el video y publicaciones en redes sociales (si se omite se infiere de la intro o tema)",
+                example = "3 Preguntas Capciosas Imposibles")
+        String customTitle
 ) {
     public VideoGenerationRequest {
         if (format == null) {
@@ -51,13 +73,24 @@ public record VideoGenerationRequest(
         if (ttsVoice == null || ttsVoice.isBlank()) {
             ttsVoice = "es-MX-JorgeNeural";
         }
+        if (introMode == null) {
+            introMode = VideoIntroMode.NONE;
+        }
+    }
+
+    public VideoGenerationRequest(List<UUID> triviaIds, VideoFormat format, Boolean withBgm, Boolean withTts, String ttsVoice, VideoIntroMode introMode, String introTemplate, String customIntroText, String introTopic) {
+        this(triviaIds, format, withBgm, withTts, ttsVoice, introMode, introTemplate, customIntroText, introTopic, null);
+    }
+
+    public VideoGenerationRequest(List<UUID> triviaIds, VideoFormat format, Boolean withBgm, Boolean withTts, String ttsVoice) {
+        this(triviaIds, format, withBgm, withTts, ttsVoice, VideoIntroMode.NONE, null, null, null, null);
     }
 
     public VideoGenerationRequest(List<UUID> triviaIds, VideoFormat format, Boolean withBgm) {
-        this(triviaIds, format, withBgm, false, "es-MX-JorgeNeural");
+        this(triviaIds, format, withBgm, false, "es-MX-JorgeNeural", VideoIntroMode.NONE, null, null, null, null);
     }
 
     public VideoGenerationRequest(List<UUID> triviaIds) {
-        this(triviaIds, VideoFormat.VERTICAL_9_16, true, false, "es-MX-JorgeNeural");
+        this(triviaIds, VideoFormat.VERTICAL_9_16, true, false, "es-MX-JorgeNeural", VideoIntroMode.NONE, null, null, null, null);
     }
 }

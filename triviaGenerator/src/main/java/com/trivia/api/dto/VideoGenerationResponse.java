@@ -32,5 +32,15 @@ public record VideoGenerationResponse(
         VideoFormat format,
 
         @Schema(description = "Fecha y hora de generación")
-        LocalDateTime createdAt
-) {}
+        LocalDateTime createdAt,
+
+        @Schema(description = "Título dinámico generado para el video", example = "Cuanto sabes sobre Historia romana - Trivia Express #Shorts #Viral")
+        String title,
+
+        @Schema(description = "Nombre de archivo sugerido con extensión .mp4", example = "Cuanto sabes sobre Historia romana - Trivia Express #Shorts #Viral.mp4")
+        String filename
+) {
+    public VideoGenerationResponse(UUID id, String status, String videoUrl, int totalTrivias, double durationSeconds, VideoFormat format, LocalDateTime createdAt) {
+        this(id, status, videoUrl, totalTrivias, durationSeconds, format, createdAt, null, null);
+    }
+}

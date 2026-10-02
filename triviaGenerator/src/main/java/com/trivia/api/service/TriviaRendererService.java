@@ -61,6 +61,104 @@ public class TriviaRendererService {
         return render(trivia, opciones, true);
     }
 
+    /**
+     * Renderiza una tarjeta PNG 1080x1080 para la escena de introducción del video.
+     */
+    public byte[] renderIntro(String topic, String introText) {
+        BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_ARGB);
+        Graphics2D g2d = image.createGraphics();
+
+        try {
+            g2d.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+            g2d.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
+            g2d.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+
+            // 1. Fondo degradado
+            GradientPaint gradient = new GradientPaint(0, 0, BG_TOP, 0, HEIGHT, BG_BOTTOM);
+            g2d.setPaint(gradient);
+            g2d.fillRect(0, 0, WIDTH, HEIGHT);
+
+            int cursorY = 80;
+
+            // 2. Badges de encabezado
+            String categoria = (topic != null && !topic.isBlank()) ? topic.toUpperCase() : "TRIVIA QUIZ";
+            String tag = "DESAFÍO";
+            cursorY = drawHeaderBadges(g2d, categoria, tag, cursorY);
+
+            // 3. Tarjeta central de introducción
+            cursorY += 50;
+            int cardWidth = WIDTH - 120; // 960 px
+            int cardHeight = 640;
+            RoundRectangle2D.Float card = new RoundRectangle2D.Float(60, cursorY, cardWidth, cardHeight, 28, 28);
+
+            // Fondo translúcido elegante
+            g2d.setColor(new Color(30, 41, 59, 235));
+            g2d.fill(card);
+
+            // Borde cian vibrante
+            g2d.setColor(new Color(56, 189, 248, 200));
+            g2d.setStroke(new BasicStroke(3.0f));
+            g2d.draw(card);
+
+            // Badge superior dentro de la tarjeta
+            int innerY = cursorY + 45;
+            g2d.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 26));
+            FontMetrics fmBadge = g2d.getFontMetrics();
+            String callout = "🎯 DESAFÍO DE CONOCIMIENTO";
+            int calloutW = fmBadge.stringWidth(callout) + 40;
+            int calloutH = fmBadge.getHeight() + 16;
+            int calloutX = 60 + (cardWidth - calloutW) / 2;
+            RoundRectangle2D.Float calloutBox = new RoundRectangle2D.Float(calloutX, innerY, calloutW, calloutH, 18, 18);
+            g2d.setColor(new Color(15, 23, 42, 220));
+            g2d.fill(calloutBox);
+            g2d.setColor(new Color(251, 191, 36)); // Amber 400
+            g2d.drawString(callout, calloutX + 20, innerY + 8 + fmBadge.getAscent());
+
+            // 4. Frase de introducción
+            innerY += calloutH + 50;
+            String textToShow = (introText != null && !introText.isBlank()) ? introText : "¡Pon a prueba tus conocimientos!";
+            int fontSize = textToShow.length() > 80 ? 38 : 46;
+            g2d.setFont(new Font(Font.SANS_SERIF, Font.BOLD, fontSize));
+            FontMetrics fmIntro = g2d.getFontMetrics();
+            g2d.setColor(TEXT_WHITE);
+
+            int maxTextWidth = cardWidth - 100;
+            List<String> lines = wrapText(textToShow, fmIntro, maxTextWidth);
+
+            int totalTextH = lines.size() * (fmIntro.getHeight() + 12);
+            int availableH = cardHeight - (innerY - cursorY) - 90;
+            int textStartY = innerY + Math.max(0, (availableH - totalTextH) / 2);
+
+            for (String line : lines) {
+                int lineW = fmIntro.stringWidth(line);
+                int lineX = 60 + (cardWidth - lineW) / 2;
+                g2d.drawString(line, lineX, textStartY + fmIntro.getAscent());
+                textStartY += fmIntro.getHeight() + 12;
+            }
+
+            // Subtítulo en la base de la tarjeta
+            g2d.setFont(new Font(Font.SANS_SERIF, Font.BOLD, 22));
+            FontMetrics fmSub = g2d.getFontMetrics();
+            g2d.setColor(new Color(148, 163, 184));
+            String sub = "¡Demuestra cuánto sabes!";
+            int subX = 60 + (cardWidth - fmSub.stringWidth(sub)) / 2;
+            g2d.drawString(sub, subX, cursorY + cardHeight - 35);
+
+            // 5. Pie de página
+            drawFooter(g2d, topic);
+
+            // Codificar a PNG
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ImageIO.write(image, "PNG", baos);
+            return baos.toByteArray();
+        } catch (IOException e) {
+            log.error("Error al renderizar imagen PNG de intro", e);
+            throw new IllegalStateException("Error al renderizar intro: " + e.getMessage(), e);
+        } finally {
+            g2d.dispose();
+        }
+    }
+
     private byte[] render(Trivia trivia, List<TriviaOpcion> opciones, boolean esModoRespuesta) {
         BufferedImage image = new BufferedImage(WIDTH, HEIGHT, BufferedImage.TYPE_INT_ARGB);
         Graphics2D g2d = image.createGraphics();

@@ -40,7 +40,9 @@ Thumbs.db
 
 # --- Storage local y videos generados en runtime ---
 /storage/
+/export_videos/
 *.mp4
+generation_60_state.json
 
 # --- Playwright (si se usa en el futuro) ---
 playwright/.local-browsers/

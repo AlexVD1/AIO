@@ -62,25 +62,54 @@ async def process_trivias(trivias, output_dir, voice="es-MX-JorgeNeural", rate="
         
     return results
 
+async def run_pipeline(payload, output_dir, voice="es-MX-JorgeNeural", rate="+0%"):
+    os.makedirs(output_dir, exist_ok=True)
+
+    intro_data = None
+    trivias = []
+
+    if isinstance(payload, dict):
+        intro_data = payload.get("intro")
+        if "trivias" in payload:
+            trivias = payload["trivias"]
+        else:
+            trivias = [payload]
+    elif isinstance(payload, list):
+        trivias = payload
+
+    intro_result = None
+    if intro_data and intro_data.get("text"):
+        intro_text = intro_data["text"].strip()
+        if intro_text:
+            intro_path = os.path.join(output_dir, "intro.mp3").replace("\\", "/")
+            dur_intro = await synthesize_item(intro_text, voice, intro_path, rate=rate)
+            intro_result = {
+                "audioPath": intro_path,
+                "duration": dur_intro
+            }
+
+    scenes_result = await process_trivias(trivias, output_dir, voice=voice, rate=rate)
+
+    if intro_result is not None:
+        return {
+            "intro": intro_result,
+            "scenes": scenes_result
+        }
+    return scenes_result
+
 def main():
-    parser = argparse.ArgumentParser(description="TTS Bridge for Trivia Narration")
-    parser.add_argument("--input-json", required=True, help="Path to JSON file with trivias")
+    parser = argparse.ArgumentParser(description="TTS Bridge for Trivia Narration with optional Intro")
+    parser.add_argument("--input-json", required=True, help="Path to JSON file with trivias or payload")
     parser.add_argument("--output-dir", required=True, help="Output directory for audio files")
     parser.add_argument("--voice", default="es-MX-JorgeNeural", help="Edge TTS voice name")
     parser.add_argument("--rate", default="+5%", help="Speech rate adjustment (e.g. +5%%)")
     
     args = parser.parse_args()
     
-    with open(args.input_json, "r", encoding="utf-8") as f:
-        trivias = json.load(f)
+    with open(args.input_json, "r", encoding="utf-8-sig") as f:
+        payload = json.load(f)
         
-    if isinstance(trivias, dict):
-        if "trivias" in trivias:
-            trivias = trivias["trivias"]
-        else:
-            trivias = [trivias]
-        
-    results = asyncio.run(process_trivias(trivias, args.output_dir, voice=args.voice, rate=args.rate))
+    results = asyncio.run(run_pipeline(payload, args.output_dir, voice=args.voice, rate=args.rate))
     
     print(json.dumps(results, indent=2))
 

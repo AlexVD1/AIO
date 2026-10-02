@@ -5,6 +5,7 @@ import com.trivia.api.domain.TriviaOpcion;
 import com.trivia.api.service.video.TimelinePlan;
 import com.trivia.api.service.video.TriviaSceneTiming;
 import com.trivia.api.service.video.VideoFormat;
+import com.trivia.api.service.video.VideoIntroTiming;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -40,7 +41,7 @@ public class NoOpNarrationService implements NarrationService {
 
     @Override
     public TimelinePlan planTimeline(List<Trivia> trivias, VideoFormat format, boolean withBgm) {
-        return planTimeline(trivias, Map.of(), format, withBgm, false, null);
+        return planTimeline(trivias, Map.of(), format, withBgm, false, null, null, null);
     }
 
     @Override
@@ -51,6 +52,19 @@ public class NoOpNarrationService implements NarrationService {
             boolean withBgm,
             boolean withTts,
             String voice) {
+        return planTimeline(trivias, opcionesMap, format, withBgm, withTts, voice, null, null);
+    }
+
+    @Override
+    public TimelinePlan planTimeline(
+            List<Trivia> trivias,
+            Map<Trivia, List<TriviaOpcion>> opcionesMap,
+            VideoFormat format,
+            boolean withBgm,
+            boolean withTts,
+            String voice,
+            String introText,
+            String introTopic) {
 
         log.debug("Planificando timeline sin TTS para {} trivias (formato: {})", trivias.size(), format);
         List<TriviaSceneTiming> scenes = new ArrayList<>();
@@ -74,6 +88,12 @@ public class NoOpNarrationService implements NarrationService {
             ));
         }
 
-        return new TimelinePlan(scenes, format, withBgm);
+        VideoIntroTiming introTiming = null;
+        if (introText != null && !introText.isBlank()) {
+            double introDuration = 4.0;
+            introTiming = new VideoIntroTiming(introText, introTopic, introDuration, null);
+        }
+
+        return new TimelinePlan(introTiming, scenes, format, withBgm);
     }
 }

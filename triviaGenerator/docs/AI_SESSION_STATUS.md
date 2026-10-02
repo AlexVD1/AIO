@@ -1,18 +1,18 @@
 # AI Development Session Status
 
 ## Última actualización
-2026-09-30T11:58 CDT (Sesión de Formato Horizontal 16:9 para YouTube)
+2026-10-02T02:55 CDT (Fase 24: Pipeline de Distribución Multicanal, Títulos Dinámicos y Generación de 60 Videos)
 
 ## Objetivo actual
-Implementación integral de la plataforma de generación y consulta de trivias con Inteligencia Artificial, deduplicación en 5 capas, renderizado AWT Graphics2D, almacenamiento de assets, API REST asíncrona/síncrona, compilación automatizada de videos en 9:16 (Shorts), 1:1 (Feed) y 16:9 (YouTube) con locución TTS (Microsoft Edge-TTS) y efectos de sonido (FFmpeg), empaquetado multi-contenedor, y mantenimiento para regeneración limpia de tarjetas gráficas.
+Implementación integral de la plataforma de generación y consulta de trivias con Inteligencia Artificial, deduplicación en 5 capas, renderizado AWT Graphics2D, almacenamiento de assets, API REST asíncrona/síncrona, compilación automatizada de videos en 9:16 (Shorts), 1:1 (Feed) y 16:9 (YouTube) con locución TTS (Microsoft Edge-TTS), efectos de sonido (FFmpeg), introducciones dinámicas, títulos personalizados, exportación automática a Google Drive y distribución a redes sociales (YouTube Shorts, Facebook Reels, TikTok) vía Make.com.
 
 ## Estado general
-**100% de las fases de desarrollo (Fase 1 a 22) implementadas y validadas.**
-- Total de pruebas automatizadas: **107 tests ejecutados y pasando (0 failures, 0 errors)**.
+**100% de las fases de desarrollo (Fase 1 a 24) implementadas y validadas.**
+- Total de pruebas automatizadas: **123 tests ejecutados y pasando (0 failures, 0 errors)**.
 - Compilación y empaquetado: **BUILD SUCCESS** (`mvn test` 100% verde).
-- Esquema de base de datos verificado con PostgreSQL 16 y 9 categorías iniciales cargadas.
-- Re-renderizado masivo ejecutado: **82 trivias (164 imágenes PNG) regeneradas en disco sin el texto «Plataforma de Trivias con IA»**.
-- Pipeline end-to-end con soporte síncrono (HTTP 201), asíncrono (HTTP 202) y generación de video MP4 en 9:16, 1:1 y 16:9 con narración neuronal (HTTP 200).
+- Esquema de base de datos verificado con PostgreSQL 16 y categorías iniciales cargadas.
+- Lote masivo de **60 videos (300 trivias con Edge-TTS)** compilado y sincronizado a Google Drive.
+- Pipeline end-to-end con soporte síncrono (HTTP 201), asíncrono (HTTP 202) y generación de video MP4 en 9:16, 1:1 y 16:9 con narración neuronal, intro y títulos dinámicos.
 
 ---
 
@@ -131,6 +131,53 @@ Implementación integral de la plataforma de generación y consulta de trivias c
 - `CategorySimilarityMatcher` y `CatalogService`: Auto-registro de nuevas categorías en PostgreSQL cuando el usuario ingresa un tema no existente (ej: `CINE`, `FILOSOFIA`).
 - Algoritmo de similitud difusa (fuzzy match): detecta acentos, plurales/singulares (`Historias` -> `HISTORIA`), typos Levenshtein y coincidencias de tokens, evitando duplicados accidentales pero diferenciando raíces genuinas (`GASTRONOMIA` vs `ASTRONOMIA`).
 
+### Fase 21 — Mantenimiento y Re-renderizado Limpio de Imágenes ✅
+- `TriviaMaintenanceService`: servicio transaccional para regenerar en lote las tarjetas PNG (1080x1080) en disco sin alterar IDs ni referencias de BD.
+- Endpoint `POST /api/v1/trivias/rerender`: soporta re-renderizado total (cuerpo vacío o null) o lista específica de UUIDs.
+- Controles web en la SPA:
+  * Botón masivo "🔄 Re-renderizar Tarjetas" en la pestaña "Métricas & Catálogo".
+  * Botón individual "🔄 Re-renderizar" en el modal de detalle de cada trivia en el Explorador.
+- Ejecución en vivo: **82 trivias (164 imágenes PNG) regeneradas en disco sin el texto «Plataforma de Trivias con IA»**.
+
+### Fase 22 — Soporte de Videos Horizontales 16:9 (Full HD 1920x1080) para YouTube ✅
+- Filtergraph especializado en `FFmpegCommandBuilder`:
+  * Lienzo Full HD 1920x1080 con color de fondo `#0F172A`.
+  * Tarjeta de trivia centrada (1080x1080) con relación de aspecto 1:1 nativa sin distorsión.
+  * Columna izquierda (420px): Número de pregunta (`PREGUNTA X DE Y`), badge temático y título de trivia.
+  * Columna derecha (420px): Cuenta regresiva sincronizada (`TIEMPO 5...4...3...`) e indicador destacado `RESPUESTA CORRECTA`.
+- Interfaz gráfica (SPA): Botón `📺 Horizontal 16:9 (YouTube)` en el Estudio de Video.
+- Validado y probado de extremo a extremo con video generado y comprobación ffprobe (1920x1080, 30 fps, AAC).
+
+### Fase 23 — Introducciones Dinámicas de Video (Catálogo, Personalizada e IA) ✅
+- **Arquitectura de Apertura Dinámica**: Escena inicial antes de la Pregunta 1 (`Introducción → Pregunta 1 → Respuesta 1 → ...`) diseñada para captar la atención y contextualizar la temática de la trivia en redes sociales.
+- **Modelos y DTOs (`com.trivia.api.service.video.*` y `com.trivia.api.dto.*`)**:
+  - `VideoIntroMode`: Enum (`NONE`, `TEMPLATE`, `CUSTOM`, `AI`).
+  - `VideoIntroTemplate`: Record con `id`, `template` (`...{tema}...`) y `example`.
+  - `VideoIntroTiming`: Record con `introText`, `topic`, `duration` y `audioPath`.
+  - `VideoGenerationRequest`: extendido con `introMode`, `introTemplate`, `customIntroText` e `introTopic` (100% retrocompatible con constructores previos).
+  - `VideoIntroPreviewRequest` y `VideoIntroPreviewResponse`.
+  - `TimelinePlan`: cálculo dinámico de duración acumulada y método `hasIntro()`.
+- **Servicio y Catálogo (`VideoIntroService`)**:
+  - Catálogo inicial de 7 plantillas extensibles con sustitución dinámica de `{tema}`.
+  - Inferencia inteligente del tema de introducción (`subtema` > `tipoTrivia.nombre` > `cultura general`).
+  - Sanitización estricta de entradas personalizadas (remoción de comillas envolventes, normalización de espacios, limpieza de caracteres de control, límite de 160 caracteres).
+  - Generación dinámica con Google Gemini (`generateVideoIntro`) mediante Structured Outputs (JSON Schema estricto) y fallback transparente a catálogo si la IA no está disponible o falla.
+- **Renderizado Gráfico Headless (`TriviaRendererService`)**:
+  - Método `renderIntro(topic, introText)` que genera una tarjeta PNG 1080x1080 coordinada con tipografía de alto impacto, badges de color y estética consistente con las tarjetas de trivia.
+- **Composición y Pipeline FFmpeg (`FFmpegCommandBuilder` y `TriviaVideoService`)**:
+  - Ensamblado de `intro_segment.mp4` para formatos vertical 9:16, horizontal 16:9 y cuadrado 1:1.
+  - Sincronización con efecto de sonido `whoosh.wav` y narración TTS de la voz elegida.
+  - Duración fonética adaptativa de acuerdo con el audio de voz generado o temporizado estándar de lectura humana.
+  - Concatenación directa sin pérdidas vía demuxer `concat` (`-c copy`) con los segmentos de preguntas.
+- **Puente TTS (`scripts/tts_bridge.py`)**:
+  - Procesamiento del bloque `intro` en el JSON para sintetizar `intro.mp3` con Edge-TTS y reportar su duración exacta.
+  - Decodificación `utf-8-sig` para admitir BOMs generados por PowerShell en Windows.
+- **API REST (`TriviaVideoController`)**:
+  - `GET /api/v1/videos/intro-templates` para listar el catálogo de plantillas disponibles.
+  - `POST /api/v1/videos/preview-intro` para previsualizar o generar texto con IA en tiempo real.
+- **Dashboard Web (SPA)**:
+  - Nueva sección "🎬 Introducción del Video" en `test-client.html` y `src/main/resources/static/index.html` con selectores para las tres modalidades (`Sin introducción`, `Usar plantilla`, `Escribir mi propia introducción`, `Generar automáticamente con IA`), campo de texto con contador (0/160), selector de plantilla, botón para generar con IA, selector de tema y visor interactivo de previsualización en vivo.
+
 ---
 
 ## En progreso
@@ -156,6 +203,8 @@ Ninguna tarea bloqueada. Todas las funcionalidades requeridas están implementad
 4. **Almacenamiento Local + Servidor Estático**: Separación entre `path` físico (`storage/`) y `url` pública (`/assets/**`).
 5. **Deduplicación Híbrida**: Capa de normalización de texto + SHA-256 hexadecimal exacto + Similitud Coseno de embeddings vectoriales.
 6. **Arquitectura Asíncrona**: Separación en `AsyncTriviaPipelineExecutor` para garantizar intercepción por el proxy AOP de Spring Boot sin dependencias circulares.
+7. **Segmentación y Concatenación FFmpeg**: Cada escena de introducción y pregunta se renderiza como un segmento MP4 independiente con parámetros de codificación idénticos (`libx264`, `yuv420p`, 30 fps, `aac`, 192k) y se fusiona mediante el demuxer `concat` (`-c copy`) en milisegundos sin re-renderizado.
+8. **Estabilización de Volumen en FFmpeg (`normalize=0` + `alimiter`)**: Configuración de `normalize=0` en los filtros `amix` de FFmpeg para eliminar la atenuación dinámica por conteo de entradas activas (causante de que la voz comenzara baja y aumentara al finalizar los efectos de sonido). Se integró el limitador transparente `alimiter=limit=0.95` para asegurar un nivel de voz 100% fijo, nítido y balanceado a lo largo de todo el video sin distorsión.
 
 ---
 
@@ -168,6 +217,7 @@ Ninguna tarea bloqueada. Todas las funcionalidades requeridas están implementad
 - `src/main/java/com/trivia/api/domain/*`: Entidades JPA y enums.
 - `src/main/java/com/trivia/api/repository/*`: Repositorios Spring Data.
 - `src/main/java/com/trivia/api/dto/*`: DTOs de petición y respuesta (Records).
+  - Incluye `VideoIntroPreviewRequest.java`, `VideoIntroPreviewResponse.java` y `VideoGenerationRequest.java` con soporte de intro.
 - `src/main/java/com/trivia/api/normalizer/TriviaQuestionNormalizer.java`: Normalizador de texto.
 - `src/main/java/com/trivia/api/service/QuestionHashService.java`: Servicio de hashing SHA-256.
 - `src/main/java/com/trivia/api/service/CatalogService.java`: Servicio de catálogo.
@@ -176,32 +226,44 @@ Ninguna tarea bloqueada. Todas las funcionalidades requeridas están implementad
 - `src/main/java/com/trivia/api/service/TriviaGenerationService.java`: Orquestador principal del pipeline.
 - `src/main/java/com/trivia/api/service/AsyncTriviaPipelineExecutor.java`: Ejecutor en background thread.
 - `src/main/java/com/trivia/api/service/TriviaQueryService.java`: Consultas de lectura y métricas.
-- `src/main/java/com/trivia/api/service/TriviaRendererService.java`: Renderizado AWT 1080x1080 PNG.
+- `src/main/java/com/trivia/api/service/TriviaRendererService.java`: Renderizado AWT 1080x1080 PNG (pregunta, respuesta e introducción).
 - `src/main/java/com/trivia/api/service/AssetStorageService.java`: Interfaz de storage.
-- `src/main/java/com/trivia/api/ai/TriviaAiClient.java` y `GeminiTriviaAiClient.java`: Cliente Gemini.
+- `src/main/java/com/trivia/api/ai/TriviaAiClient.java` y `GeminiTriviaAiClient.java`: Cliente Gemini (preguntas e intro de video).
 - `src/main/java/com/trivia/api/ai/EmbeddingService.java` y `EmbeddingServiceImpl.java`: Embeddings y similitud coseno.
 - `src/main/java/com/trivia/api/controller/HealthController.java`: Endpoint de salud.
 - `src/main/java/com/trivia/api/controller/CatalogController.java`: Endpoint de catálogo.
 - `src/main/java/com/trivia/api/controller/TriviaController.java`: Endpoints REST principales.
+- `src/main/java/com/trivia/api/controller/TriviaVideoController.java`: Endpoints de video (generate, download, intro-templates, preview-intro).
+- `src/main/java/com/trivia/api/service/video/VideoIntroMode.java`: Enum de modalidades de introducción.
+- `src/main/java/com/trivia/api/service/video/VideoIntroTemplate.java`: Record de plantillas de introducción.
+- `src/main/java/com/trivia/api/service/video/VideoIntroTiming.java`: Record de cronograma de introducción.
+- `src/main/java/com/trivia/api/service/video/VideoIntroService.java`: Gestión de catálogo, sanitización y generación IA de intros.
+- `src/main/java/com/trivia/api/service/video/*`: Orquestador de video, builders de FFmpeg, servicios de narración TTS y extractor de assets.
 - `src/main/java/com/trivia/api/exception/GlobalExceptionHandler.java`: Manejador ProblemDetails.
 - `src/main/java/com/trivia/api/infrastructure/storage/LocalAssetStorageService.java`: Persistencia de imágenes en disco.
 - `src/main/java/com/trivia/api/infrastructure/config/WebMvcConfig.java`: Mapeo estático `/assets/**`.
 - `src/main/java/com/trivia/api/infrastructure/config/WebCorsConfig.java`: Configuración CORS.
 - `src/main/java/com/trivia/api/infrastructure/security/ApiKeyFilter.java`: Filtro de autenticación API Key.
 - `src/main/java/com/trivia/api/infrastructure/security/RateLimitingFilter.java`: Filtro de límite de peticiones.
-- `Containerfile`: Definición de imagen Podman/Docker.
-- `compose.yaml`: Stack de orquestación multi-contenedor.
-- `.env.example`: Plantilla de variables de entorno.
-- `docs/DEPLOYMENT_GUIDE.md`: Guía de despliegue en VPS con Cloudflare Tunnel.
-- `docs/GUIA_GENERACION_VIDEOS_TTS.md`: Guía integral de generación de videos con TTS y SFX.
-- `src/main/java/com/trivia/api/controller/TriviaVideoController.java`: Endpoints de video (generate y download).
-- `src/main/java/com/trivia/api/dto/VideoGenerationRequest.java` y `VideoGenerationResponse.java`: DTOs de video.
-- `src/main/java/com/trivia/api/service/video/*`: Orquestador de video, builders de FFmpeg, servicios de narración TTS y extractor de assets.
-- `src/main/resources/video-assets/audio/*`: SFX empotrados (`whoosh.wav`, `tick.wav`, `correct.wav`, `bgm_loop.wav`).
-- `src/main/resources/video-assets/fonts/font.ttf`: Fuente TrueType embebida para renders FFmpeg.
-- `scripts/generate_full_trivia_video.py`: CLI de generación de videos independiente.
-- `scripts/tts_bridge.py`: CLI bridge para integración con `edge-tts`.
-- `scripts/generate_sfx.py`: Generador de efectos de sonido sintéticos.
+- `test-client.html` y `src/main/resources/static/index.html`: Dashboard SPA con configuración y preview de introducciones.
+- `scripts/tts_bridge.py` y `src/main/resources/scripts/tts_bridge.py`: CLI bridge para integración con `edge-tts` con soporte de intro.
+### Fase 24 — Pipeline de Distribución y Auto-Publicación Multicanal (YouTube, TikTok, Facebook Reels, Google Drive y Batch Generator) ✅
+- **Personalización de Títulos y Sanitización:**
+  - Campo `customTitle` en `VideoGenerationRequest` y `test-client.html` / `index.html` con contador dinámico.
+  - Jerarquía inteligente de resolución de título: Título personalizado > Frase de introducción > Tema optimizado.
+  - Sanitización para Windows (`/ \ : * ? " < > | ¿ ¡`) y recorte a 85 caracteres para respetar el límite de 100 caracteres de YouTube Shorts al anexar `#N #Shorts`.
+  - Numeración secuencial limpia `#1`, `#2`, `#3`... independiente por título.
+- **Sincronización Automática con Google Drive:**
+  - Script PowerShell vigilante (`sync-to-drive.ps1`) que sincroniza en tiempo real los videos de `./export_videos` a `H:\Mi unidad\VideosQuizazos`.
+  - Preservación íntegra de la cola de Google Drive (limpieza exclusiva del búfer temporal local tras 48h).
+- **Integración con Make.com:**
+  - Escenario programado Lunes a Domingo (11:00 a 18:30 cada 210 min, ~3 videos/día).
+  - Router tripartito: YouTube Shorts (`Upload a Video`), Facebook Reels (`Upload a Video`), y bot de Telegram a celular con el video y texto listo para publicar en TikTok con 1 toque.
+- **Generador Masivo (`generate_60_videos.py`):**
+  - Generación desatendida de 60 videos (300 preguntas generadas por Gemini con 4 opciones y tarjeta explicativa).
+  - 30 videos de *Historia y Mitología* ⚔️ y 30 videos de *Ciencia, Espacio y Naturaleza Extrema* 🌌.
+  - Locución neuronal en español con Edge-TTS alternando voces masculina (`JorgeNeural`) y femenina (`DaliaNeural`).
+  - Persistencia de estado en `generation_60_state.json` con tolerancia a fallos y reanudación automática.
 
 ---
 
@@ -212,8 +274,9 @@ Ninguna tarea bloqueada. Todas las funcionalidades requeridas están implementad
 - `GeminiTriviaAiClientTest`: 5 tests (deserialización estructurada, limpieza de markdown, validación API key, errores HTTP).
 - `TriviaValidationServiceTest`: 8 tests (reglas de opciones, 1 sola correcta, explicaciones).
 - `TriviaGenerationServiceTest`: 3 tests (happy path, reintentos con buffer, fallo por intentos máximos).
-- `TriviaQueryServiceTest`: 5 tests (consulta ID, random, stats, búsquedas).
-- `TriviaRendererServiceTest`: 2 tests (PNG 1080x1080 PREGUNTA y RESPUESTA sin marca forzada).
+- `TriviaQueryServiceTest`: 7 tests (consulta ID, random, stats, búsquedas, exportación).
+- `TriviaExportServiceTest`: 3 tests (exportación CSV, JSON, filtros).
+- `TriviaRendererServiceTest`: 3 tests (PNG 1080x1080 PREGUNTA, RESPUESTA y tarjeta de INTRODUCCIÓN).
 - `EmbeddingServiceTest`: 6 tests (similitud coseno, ortogonales, opuestos, serialización, fallback local).
 - `LocalAssetStorageServiceTest`: 2 tests (guardado en disco, URLs, lectura, borrado).
 - `HealthControllerTest`: 4 tests (HTTP 200, status UP, metadata).
@@ -221,32 +284,16 @@ Ninguna tarea bloqueada. Todas las funcionalidades requeridas están implementad
 - `CategorySimilarityMatcherTest`: 7 tests (coincidencias difusas de categorías).
 - `TriviaControllerTest`: 12 tests (POST síncrono 201, POST asíncrono 202, GET status 200, GET id, random, search, stats, validaciones, POST rerender).
 - `TriviaMaintenanceServiceTest`: 2 tests (re-renderizado masivo exitoso, manejo de excepciones individuales).
-- `TriviaVideoControllerTest`: 2 tests (POST /generate con MockMvc, GET /download streaming).
-- `FFmpegCommandBuilderTest`: 4 tests (filtros verticales 9:16, horizontales 16:9 para YouTube, filtros cuadrados 1:1, canal de silencio aevalsrc).
+- `TriviaVideoControllerTest`: 4 tests (POST /generate con MockMvc, GET /download streaming, GET /intro-templates, POST /preview-intro).
+- `FFmpegCommandBuilderTest`: 7 tests (filtros verticales 9:16, horizontales 16:9, cuadrados 1:1, intros en vertical/horizontal/cuadrado, canal de silencio aevalsrc).
+- `VideoIntroServiceTest`: 10 tests (plantillas, sustitución de tema, texto personalizado, sanitización, manejo de fallos IA, topic inferido).
 - `NoOpNarrationServiceTest`: 1 test (cálculo de tiempos determinista sin TTS).
 - `ApiKeyFilterTest`: 5 tests (bypass dev, GET público, rechazo 401, autorización correcta).
 - `TriviaApiApplicationTest`: 1 smoke test de carga de contexto Spring Boot.
 
-### Fase 21 — Mantenimiento y Re-renderizado Limpio de Imágenes ✅
-- `TriviaMaintenanceService`: servicio transaccional para regenerar en lote las tarjetas PNG (1080x1080) en disco sin alterar IDs ni referencias de BD.
-- Endpoint `POST /api/v1/trivias/rerender`: soporta re-renderizado total (cuerpo vacío o null) o lista específica de UUIDs.
-- Controles web en la SPA:
-  * Botón masivo "🔄 Re-renderizar Tarjetas" en la pestaña "Métricas & Catálogo".
-  * Botón individual "🔄 Re-renderizar" en el modal de detalle de cada trivia en el Explorador.
-- Ejecución en vivo: **82 trivias (164 imágenes PNG) regeneradas en disco sin el texto «Plataforma de Trivias con IA»**.
-
-### Fase 22 — Soporte de Videos Horizontales 16:9 (Full HD 1920x1080) para YouTube ✅
-- Filtergraph especializado en `FFmpegCommandBuilder`:
-  * Lienzo Full HD 1920x1080 con color de fondo `#0F172A`.
-  * Tarjeta de trivia centrada (1080x1080) con relación de aspecto 1:1 nativa sin distorsión.
-  * Columna izquierda (420px): Número de pregunta (`PREGUNTA X DE Y`), badge temático y título de trivia.
-  * Columna derecha (420px): Cuenta regresiva sincronizada (`TIEMPO 5...4...3...`) e indicador destacado `RESPUESTA CORRECTA`.
-- Interfaz gráfica (SPA): Botón `📺 Horizontal 16:9 (YouTube)` en el Estudio de Video.
-- Validado y probado de extremo a extremo con video generado y comprobación ffprobe (1920x1080, 30 fps, AAC).
-
 ## Resultados
-- **Total tests**: 107
-- **Aprobados**: 107 (100%)
+- **Total tests**: 123
+- **Aprobados**: 123 (100%)
 - **Fallos**: 0
 - **Errores**: 0
 - **Build**: SUCCESS
@@ -267,4 +314,4 @@ podman compose up -d
 podman ps
 curl http://localhost:8080/api/v1/health
 ```
-Consulte `docs/DEPLOYMENT_GUIDE.md` para el procedimiento de despliegue en VPS y `docs/GUIA_GENERACION_VIDEOS_TTS.md` para generar videos con narración TTS.
+Consulte `docs/DEPLOYMENT_GUIDE.md` para el procedimiento de despliegue en VPS y `docs/GUIA_GENERACION_VIDEOS_TTS.md` para generar videos con narración TTS e introducciones dinámicas.

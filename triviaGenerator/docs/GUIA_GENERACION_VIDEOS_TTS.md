@@ -35,9 +35,15 @@ El pipeline toma las trivias existentes en la base de datos (o desde archivos lo
 
 ## 2. Estructura y Ritmo del Video por Trivia
 
-Cada trivia dentro del video se compone de dos fases audiovisuales perfectamente cronometradas:
+El video cuenta con una estructura modular y cronometrada:
 
 ```
+[OPCIONAL] ESCENA DE INTRODUCCIÓN DINÁMICA (Tema / Subtema de la Trivia)
+• Visual: Tarjeta gráfica con tema, llamada a la acción y gancho inicial (renderizado 1080x1080)
+• Audio: Efecto 'whoosh.wav' + locución TTS neuronal (si TTS está activo)
+• Duración: Adaptativa según fonética del audio (~3.5s - 5.0s) o 4.0s fijos sin voz
+                                      │
+                                      ▼
 ┌─────────────────────────────────────────────────────────────────────────────────────────────┐
 │ FASE 1: PREGUNTA Y PENSAMIENTO (Muestra question.png)                                      │
 ├─────────────────────────────────────────────┬───────────────────────────────────────────────┤
@@ -58,8 +64,11 @@ Cada trivia dentro del video se compone de dos fases audiovisuales perfectamente
 └─────────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-* **Sin TTS**: Cada trivia dura exactamente **18.5 segundos** (7.0s lectura + 5.0s cuenta regresiva + 6.5s respuesta). Un video de 10 trivias dura **3 minutos con 5 segundos**.
-* **Con TTS**: Las duraciones son **dinámicas y adaptativas**. Se calculan cuadro por cuadro basándose en la longitud exacta de la pronunciación fonética generada por la IA de voz.
+* **Flujo Secuencial**:
+  $$\text{Introducción} \longrightarrow \text{Pregunta 1} \longrightarrow \text{Respuesta 1} \longrightarrow \dots \longrightarrow \text{Pregunta N} \longrightarrow \text{Respuesta N}$$
+* **Sin TTS**: Duraciones estándar fijas calibradas para lectura cómoda.
+* **Con TTS**: Duraciones **dinámicas y adaptativas** calculadas por fonética de la voz.
+* **Música de Fondo (BGM)**: Mezclada continuamente en loop suave sobre la duración total del video (incluyendo la introducción).
 
 ---
 
@@ -94,9 +103,13 @@ Para generar videos en tu máquina o servidor se requieren:
     "a1b2c3d4-e5f6-47a8-b9c0-d1e2f3a4b5c6"
   ],
   "format": "VERTICAL_9_16",
-  "includeBgm": true,
+  "withBgm": true,
   "withTts": true,
-  "ttsVoice": "es-MX-JorgeNeural"
+  "ttsVoice": "es-MX-JorgeNeural",
+  "introMode": "TEMPLATE",
+  "introTemplate": "tpl_que_tanto_sabes",
+  "customIntroText": null,
+  "introTopic": "Historia romana"
 }
 ```
 
@@ -104,10 +117,55 @@ Para generar videos en tu máquina o servidor se requieren:
 | Parámetro | Tipo | Requerido | Default | Descripción |
 |---|---|---|---|---|
 | `triviaIds` | `List<UUID>` | **Sí** | - | Lista de UUIDs de las trivias que formarán el video (mínimo 1). |
-| `format` | `String` | No | `VERTICAL_9_16` | `VERTICAL_9_16` (1080x1920) o `SQUARE_1_1` (1080x1080). |
-| `includeBgm` | `Boolean` | No | `true` | Incluye música de fondo en bucle suave al 12% de volumen. |
-| `withTts` | `Boolean` | No | `false` | Activa la lectura fonética de pregunta y respuesta con IA. |
+| `format` | `String` | No | `VERTICAL_9_16` | `VERTICAL_9_16` (1080x1920), `HORIZONTAL_16_9` (1920x1080) o `SQUARE_1_1` (1080x1080). |
+| `withBgm` | `Boolean` | No | `true` | Incluye música de fondo en bucle suave. |
+| `withTts` | `Boolean` | No | `false` | Activa la narración de voz con IA (Edge-TTS). |
 | `ttsVoice` | `String` | No | `es-MX-JorgeNeural` | Identificador de voz neuronal de Edge-TTS. |
+| `introMode` | `String` | No | `NONE` | Modalidad de introducción: `NONE`, `TEMPLATE`, `CUSTOM` o `AI`. |
+| `introTemplate` | `String` | No | `null` | Plantilla del catálogo (ej. `tpl_que_tanto_sabes` o texto con `{tema}`). |
+| `customIntroText` | `String` | No | `null` | Texto personalizado cuando `introMode` es `CUSTOM`. |
+| `introTopic` | `String` | No | Auto | Tema o subtema explícito (si se omite, se deduce de las trivias). |
+
+### Endpoint 2: Consultar Catálogo de Plantillas de Introducción
+* **Método**: `GET`
+* **Ruta**: `/api/v1/videos/intro-templates`
+
+Retorna la lista de plantillas disponibles con sus identificadores y ejemplos:
+```json
+[
+  {
+    "id": "tpl_pon_a_prueba",
+    "template": "Pon a prueba tus conocimientos sobre {tema}.",
+    "example": "Pon a prueba tus conocimientos sobre Historia romana."
+  },
+  {
+    "id": "tpl_que_tanto_sabes",
+    "template": "¿Qué tanto sabes de {tema}?",
+    "example": "¿Qué tanto sabes de Interstellar?"
+  }
+]
+```
+
+### Endpoint 3: Previsualizar o Generar Frase de Introducción
+* **Método**: `POST`
+* **Ruta**: `/api/v1/videos/preview-intro`
+* **Cuerpo**:
+```json
+{
+  "mode": "AI",
+  "topic": "Historia romana",
+  "triviaIds": ["c8a14b53-43b9-4a4b-8de9-a864d4bce001"],
+  "idioma": "es-MX"
+}
+```
+* **Respuesta**:
+```json
+{
+  "mode": "AI",
+  "topic": "Historia romana",
+  "introText": "¿Cuánto sabes realmente sobre el Imperio Romano?"
+}
+```
 
 #### Ejemplo con PowerShell `curl`:
 ```powershell
@@ -253,3 +311,42 @@ Se admiten todas las voces neuronales provistas por Microsoft Edge TTS sin costo
 A partir de la última actualización, la marca por defecto `"Plataforma de Trivias con IA"` ha sido eliminada del pie de página en `TriviaRendererService`.
 * Si la trivia tiene `subtema`, se muestra `"Subtema: <subtema>"`.
 * Si la trivia no tiene `subtema`, el pie de página permanece limpio, permitiendo que los videos e imágenes luzcan 100% profesionales y listos para cualquier canal o marca.
+
+---
+
+## 10. Títulos Personalizados y Numeración Secuencial
+
+Para maximizar el CTR (Click-Through Rate) en redes sociales, el servicio de video soporta personalización dinámica y sanitización de títulos:
+
+1. **Parámetro `customTitle`**:
+   Permite especificar un título de enganche directo en la petición JSON (ej. `"3 Preguntas Capciosas Imposibles"`).
+2. **Jerarquía de Selección**:
+   - Si se especifica `customTitle`, se utiliza ese título directamente.
+   - Si se omite pero se configuró una frase de introducción (plantilla o personalizada), se toma esa frase como título base.
+   - En caso contrario, se genera `"Cuanto sabes sobre {tema} - Trivia Challenge"`, optimizando y recortando temas extensos.
+3. **Sanitización y Límites**:
+   - Se eliminan caracteres no permitidos en sistemas de archivos Windows (`\ / : * ? " < > | ¿ ¡`).
+   - Se trunca a un máximo de 85 caracteres para no sobrepasar el límite estricto de 100 caracteres de YouTube Shorts al incorporar los tags de publicación (`#N #Shorts`).
+4. **Numeración Limpia**:
+   - Cada título mantiene su propia secuencia independiente (`#1`, `#2`, `#3`...).
+
+---
+
+## 11. Auto-Exportación a Google Drive y Distribución Multicanal (Make.com)
+
+El sistema incluye una cadena completa de publicación automatizada:
+
+1. **Búfer de Exportación del Contenedor**:
+   La variable de entorno `TRIVIA_VIDEO_AUTO_EXPORT_PATH=/export_videos` hace que el backend escriba una copia de cada video terminado en el volumen montado en el host `./export_videos`.
+2. **Sincronizador en Tiempo Real (`sync-to-drive.ps1`)**:
+   Monitorea la carpeta `./export_videos` con un `FileSystemWatcher` y transfiere automáticamente los archivos a tu unidad de Google Drive (`H:\Mi unidad\VideosQuizazos`).
+   * *Mantenimiento*: Limpia los archivos temporales locales con más de 48 horas de antigüedad, preservando intacta la cola de Google Drive.
+3. **Escenario en Make.com**:
+   - **Google Drive (Watch Files)**: Monitorea la carpeta `VideosQuizazos` con `Limit: 1` ordenado por tiempo de creación.
+   - **Google Drive (Download a File)**: Descarga el archivo MP4.
+   - **Router de Publicación**:
+     - **Canal 1 (YouTube)**: Módulo `YouTube: Upload a Video` con título `{{replace(4.Name; ".mp4"; "")}} #Shorts`.
+     - **Canal 2 (Facebook)**: Módulo `Facebook Pages: Upload a Video` con título `{{replace(4.Name; ".mp4"; "")}} #Reels`.
+     - **Canal 3 (TikTok)**: Módulo `Telegram Bot: Send a Video` enviando el video y texto al celular para publicación con 1 clic en TikTok.
+4. **Generador Masivo (`generate_60_videos.py`)**:
+   Script Python para generar lotes de 60 videos (300 trivias con IA y Edge-TTS) distribuidos en *Historia y Mitología* y *Ciencia, Espacio y Naturaleza Extrema*, con persistencia en `generation_60_state.json`.

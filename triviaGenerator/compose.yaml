@@ -55,10 +55,12 @@ services:
       STORAGE_PATH: /data/storage
       STORAGE_BASE_URL: ${STORAGE_BASE_URL:-/assets}
       API_KEY: ${API_KEY:-}
+      TRIVIA_VIDEO_AUTO_EXPORT_PATH: /export_videos
     ports:
       - "8080:8080"
     volumes:
       - trivia-storage-data:/data/storage
+      - ./export_videos:/export_videos:z
     healthcheck:
       test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/api/v1/health || exit 1"]
       interval: 15s

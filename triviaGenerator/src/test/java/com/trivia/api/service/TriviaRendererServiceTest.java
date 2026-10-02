@@ -80,4 +80,23 @@ class TriviaRendererServiceTest {
         assertThat(image.getWidth()).isEqualTo(1080);
         assertThat(image.getHeight()).isEqualTo(1080);
     }
+
+    @Test
+    @DisplayName("renderIntro genera un PNG válido de 1080x1080 consistente")
+    void renderIntroGeneraPngValido() throws IOException {
+        byte[] bytesPng = rendererService.renderIntro("Historia romana", "¿Cuánto sabes realmente sobre el Imperio Romano?");
+
+        assertThat(bytesPng).isNotEmpty();
+
+        // Validar cabecera mágica PNG: 89 50 4E 47 0D 0A 1A 0A
+        assertThat(bytesPng[0]).isEqualTo((byte) 0x89);
+        assertThat(bytesPng[1]).isEqualTo((byte) 'P');
+        assertThat(bytesPng[2]).isEqualTo((byte) 'N');
+        assertThat(bytesPng[3]).isEqualTo((byte) 'G');
+
+        BufferedImage image = ImageIO.read(new ByteArrayInputStream(bytesPng));
+        assertThat(image).isNotNull();
+        assertThat(image.getWidth()).isEqualTo(1080);
+        assertThat(image.getHeight()).isEqualTo(1080);
+    }
 }

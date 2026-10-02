@@ -222,4 +222,125 @@ public class GeminiTriviaAiClient implements TriviaAiClient {
             throw new AiClientException("Error deserializando la respuesta estructurada de Gemini: " + e.getMessage(), e);
         }
     }
+
+    @Override
+    public String generateVideoIntro(String tema, String idioma) {
+        if (apiKey == null || apiKey.isBlank()) {
+            throw new AiClientException("La clave de API de IA (AI_API_KEY) no está configurada.");
+        }
+
+        String prompt = buildIntroPrompt(tema, idioma);
+        String requestBodyJson = buildIntroRequestBodyJson(prompt);
+        String endpointUrl = String.format(GEMINI_API_URL_TEMPLATE, model, apiKey);
+
+        HttpRequest httpRequest = HttpRequest.newBuilder()
+                .uri(URI.create(endpointUrl))
+                .header("Content-Type", "application/json")
+                .timeout(Duration.ofSeconds(timeoutSeconds))
+                .POST(HttpRequest.BodyPublishers.ofString(requestBodyJson))
+                .build();
+
+        try {
+            log.info("Enviando solicitud a Gemini ({}) para generar introducción sobre tema '{}'", model, tema);
+
+            HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
+
+            if (response.statusCode() >= 400) {
+                log.error("Error devuelto por Gemini API al generar intro [HTTP {}]: {}", response.statusCode(), response.body());
+                throw new AiClientException("Error devuelto por Gemini API: " + response.body(), response.statusCode());
+            }
+
+            return parseGeminiIntroResponse(response.body());
+        } catch (java.net.http.HttpTimeoutException e) {
+            log.error("Tiempo de espera agotado al comunicar con Gemini para intro [{}]", model, e);
+            throw new AiClientException("Tiempo de espera agotado al comunicar con Gemini: " + e.getMessage(), e);
+        } catch (IOException e) {
+            log.error("Fallo de E/S al comunicar con Gemini API para intro", e);
+            throw new AiClientException("Error de red al comunicar con Gemini: " + e.getMessage(), e);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new AiClientException("Llamada a Gemini interrumpida: " + e.getMessage(), e);
+        }
+    }
+
+    private String buildIntroPrompt(String tema, String idioma) {
+        String lang = (idioma != null && !idioma.isBlank()) ? idioma : "es-MX";
+        return "Eres un guionista experto en videos virales cortos para redes sociales (TikTok, Reels, Shorts) y canales de trivias.\n" +
+                "Tu tarea es redactar una ÚNICA frase breve, atractiva y natural para el gancho inicial (hook / introducción) de un video de trivia.\n\n" +
+                "Instrucciones estrictas:\n" +
+                "- Tema del video: " + tema + "\n" +
+                "- Idioma: " + lang + "\n" +
+                "- Debe ser una sola frase corta (entre 6 y 14 palabras).\n" +
+                "- Debe generar curiosidad, reto o interés directo sobre el tema sin dar rodeos.\n" +
+                "- No inventes datos ficticios ni agregues hashtags o emojis.\n\n" +
+                "Ejemplos de tono y estilo:\n" +
+                "- Tema 'Historia romana': ¿Cuánto sabes realmente sobre el Imperio Romano?\n" +
+                "- Tema 'Interstellar': ¿Qué tanto recuerdas de los secretos de Interstellar?\n" +
+                "- Tema 'Cultura general': ¿Qué tan amplia es realmente tu cultura general?\n";
+    }
+
+    private String buildIntroRequestBodyJson(String promptText) {
+        ObjectNode root = objectMapper.createObjectNode();
+
+        ArrayNode contents = root.putArray("contents");
+        ObjectNode contentItem = contents.addObject();
+        contentItem.put("role", "user");
+        ArrayNode parts = contentItem.putArray("parts");
+        parts.addObject().put("text", promptText);
+
+        ObjectNode genConfig = root.putObject("generationConfig");
+        genConfig.put("responseMimeType", "application/json");
+
+        if (model != null && model.contains("3")) {
+            ObjectNode thinkingConfig = genConfig.putObject("thinkingConfig");
+            thinkingConfig.put("thinkingLevel", "MINIMAL");
+        }
+
+        ObjectNode schema = genConfig.putObject("responseSchema");
+        schema.put("type", "OBJECT");
+        ObjectNode props = schema.putObject("properties");
+        props.putObject("introText").put("type", "STRING");
+        ArrayNode req = schema.putArray("required");
+        req.add("introText");
+
+        return root.toString();
+    }
+
+    private String parseGeminiIntroResponse(String responseJson) {
+        try {
+            JsonNode root = objectMapper.readTree(responseJson);
+            JsonNode candidates = root.path("candidates");
+
+            if (candidates.isEmpty()) {
+                throw new AiClientException("Gemini no retornó candidatos de respuesta para la introducción.");
+            }
+
+            JsonNode textNode = candidates.get(0).path("content").path("parts").get(0).path("text");
+            if (textNode.isMissingNode() || textNode.asText().isBlank()) {
+                throw new AiClientException("El contenido generado por Gemini para la intro está vacío.");
+            }
+
+            String rawText = textNode.asText().trim();
+            if (rawText.startsWith("```json")) {
+                rawText = rawText.substring(7);
+            } else if (rawText.startsWith("```")) {
+                rawText = rawText.substring(3);
+            }
+            if (rawText.endsWith("```")) {
+                rawText = rawText.substring(0, rawText.length() - 3);
+            }
+            rawText = rawText.trim();
+
+            JsonNode parsed = objectMapper.readTree(rawText);
+            if (parsed.has("introText") && !parsed.get("introText").asText().isBlank()) {
+                return parsed.get("introText").asText().trim();
+            }
+            return rawText;
+        } catch (AiClientException e) {
+            throw e;
+        } catch (Exception e) {
+            log.error("Error al deserializar la respuesta de intro de Gemini: {}", responseJson, e);
+            throw new AiClientException("Error deserializando intro de Gemini: " + e.getMessage(), e);
+        }
+    }
 }

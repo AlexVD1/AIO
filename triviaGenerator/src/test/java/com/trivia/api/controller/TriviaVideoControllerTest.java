@@ -85,4 +85,52 @@ class TriviaVideoControllerTest extends AbstractControllerTest {
 
         assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
     }
+
+    @Test
+    @DisplayName("GET /api/v1/videos/intro-templates → HTTP 200 OK con lista de plantillas")
+    void getIntroTemplates_retorna200() {
+        when(triviaVideoService.getIntroTemplates()).thenReturn(List.of(
+                new com.trivia.api.service.video.VideoIntroTemplate("tpl_1", "Pon a prueba tus conocimientos sobre {tema}.", "...")
+        ));
+
+        ResponseEntity<String> resp = restTemplate.getForEntity(
+                "http://localhost:" + port + "/api/v1/videos/intro-templates",
+                String.class
+        );
+
+        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(resp.getBody()).contains("tpl_1").contains("Pon a prueba");
+    }
+
+    @Test
+    @DisplayName("POST /api/v1/videos/preview-intro → HTTP 200 OK con resultado resuelto")
+    void postPreviewIntro_retorna200() {
+        com.trivia.api.dto.VideoIntroPreviewRequest req = new com.trivia.api.dto.VideoIntroPreviewRequest(
+                com.trivia.api.service.video.VideoIntroMode.TEMPLATE,
+                "Interstellar",
+                "¿Qué tanto sabes de {tema}?",
+                null,
+                List.of(),
+                "es-MX"
+        );
+
+        when(triviaVideoService.previewIntro(any())).thenReturn(
+                new com.trivia.api.dto.VideoIntroPreviewResponse(
+                        com.trivia.api.service.video.VideoIntroMode.TEMPLATE,
+                        "Interstellar",
+                        "¿Qué tanto sabes de Interstellar?"
+                )
+        );
+
+        ResponseEntity<com.trivia.api.dto.VideoIntroPreviewResponse> resp = restTemplate.postForEntity(
+                "http://localhost:" + port + "/api/v1/videos/preview-intro",
+                req,
+                com.trivia.api.dto.VideoIntroPreviewResponse.class
+        );
+
+        assertThat(resp.getStatusCode()).isEqualTo(HttpStatus.OK);
+        assertThat(resp.getBody()).isNotNull();
+        assertThat(resp.getBody().topic()).isEqualTo("Interstellar");
+        assertThat(resp.getBody().introText()).isEqualTo("¿Qué tanto sabes de Interstellar?");
+    }
 }
