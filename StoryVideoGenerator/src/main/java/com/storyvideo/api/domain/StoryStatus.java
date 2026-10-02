@@ -1,0 +1,16 @@
+package com.storyvideo.api.domain;
+
+public enum StoryStatus {
+    CREATED,
+    GENERATING_CONCEPT,
+    GENERATING_STORY,
+    VALIDATING_STORY,
+    PLANNING_SCENES,
+    GENERATING_ASSETS,
+    BUILDING_TIMELINE,
+    RENDERING,
+    VALIDATING_VIDEO,
+    READY,
+    EXPORTED,
+    FAILED
+}

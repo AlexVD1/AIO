@@ -1,0 +1,65 @@
+name: story-video-api
+
+services:
+  postgres:
+    image: docker.io/postgres:16-alpine
+    container_name: story-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: storydb
+      POSTGRES_USER: ${DATABASE_USERNAME:-story_user}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-story_pass}
+    ports:
+      - "5433:5432"
+    volumes:
+      - story-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USERNAME:-story_user} -d storydb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+  api:
+    build:
+      context: .
+      dockerfile: Containerfile
+    image: localhost/story-video-api:latest
+    container_name: story-video-api
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    extra_hosts:
+      - "host.containers.internal:host-gateway"
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres:5432/storydb
+      DATABASE_USERNAME: ${DATABASE_USERNAME:-story_user}
+      DATABASE_PASSWORD: ${DATABASE_PASSWORD:-story_pass}
+      AI_API_KEY: ${AI_API_KEY:-}
+      AI_MODEL: ${AI_MODEL:-gemini-2.5-flash}
+      AI_TIMEOUT_SECONDS: ${AI_TIMEOUT_SECONDS:-120}
+      SD_API_URL: ${SD_API_URL:-http://host.containers.internal:7860}
+      SD_MODEL: ${SD_MODEL:-juggernautXL_v9}
+      IMAGE_PROVIDER: ${IMAGE_PROVIDER:-stable-diffusion-local}
+      STORAGE_PATH: /data/storage
+      EXPORT_PATH: /export_videos
+      API_KEY: ${API_KEY:-}
+      SERVER_PORT: 8080
+    ports:
+      - "8081:8080"
+    volumes:
+      - story-storage-data:/data/storage
+      - ./export_videos:/export_videos:z
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/api/v1/health || exit 1"]
+      interval: 15s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
+
+volumes:
+  story-postgres-data:
+    driver: local
+  story-storage-data:
+    driver: local

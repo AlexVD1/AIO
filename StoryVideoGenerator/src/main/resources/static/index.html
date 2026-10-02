@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>StoryVideoGenerator — Panel de Control</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🎬</text></svg>">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f5f3ff',
+              500: '#8b5cf6',
+              600: '#7c3aed',
+              700: '#6d28d9',
+              900: '#4c1d95',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Estilos personalizados para video 9:16 y animaciones */
+    .aspect-9-16 {
+      aspect-ratio: 9 / 16;
+    }
+    @keyframes pulse-subtle {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+    .animate-pulse-subtle {
+      animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+  </style>
+</head>
+<body class="bg-zinc-950 text-zinc-100 min-h-screen flex flex-col font-sans selection:bg-brand-600 selection:text-white">
+
+  <!-- Header / Navbar -->
+  <header class="border-b border-zinc-800 bg-zinc-900/80 backdrop-blur sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <span class="text-3xl">🎬</span>
+        <div>
+          <h1 class="text-lg font-bold bg-gradient-to-r from-brand-500 to-purple-400 bg-clip-text text-transparent">
+            StoryVideoGenerator
+          </h1>
+          <p class="text-xs text-zinc-400">Videos Verticales Autónomos con GPU Local (RTX 5070)</p>
+        </div>
+      </div>
+
+      <!-- Estado del sistema (Pills) -->
+      <div class="flex items-center space-x-3 text-xs">
+        <div id="status-api" class="flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-emerald-950/70 border border-emerald-800 text-emerald-400">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+          <span>API: Online</span>
+        </div>
+        <div id="status-disk" class="hidden sm:flex items-center space-x-1.5 px-2.5 py-1 rounded-full bg-zinc-800/80 border border-zinc-700 text-zinc-300">
+          <span>💾 Disco: <span id="disk-space-value">--</span></span>
+        </div>
+        <a href="/swagger-ui.html" target="_blank" class="px-2.5 py-1 rounded-md bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-300 transition">
+          Swagger Docs ↗
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Pestañas de Navegación -->
+  <nav class="border-b border-zinc-800 bg-zinc-900/40">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-8">
+      <button onclick="switchTab('tab-pipeline')" id="btn-tab-pipeline" class="tab-btn py-3 border-b-2 border-brand-500 text-brand-400 font-medium text-sm flex items-center space-x-2">
+        <span>⚡ Crear Video (Pipeline)</span>
+      </button>
+      <button onclick="switchTab('tab-batch')" id="btn-tab-batch" class="tab-btn py-3 border-b-2 border-transparent text-zinc-400 hover:text-zinc-200 font-medium text-sm flex items-center space-x-2">
+        <span>📦 Lotes Masivos (Batch)</span>
+      </button>
+      <button onclick="switchTab('tab-gallery')" id="btn-tab-gallery" class="tab-btn py-3 border-b-2 border-transparent text-zinc-400 hover:text-zinc-200 font-medium text-sm flex items-center space-x-2">
+        <span>📽️ Historial & Galería</span>
+      </button>
+      <button onclick="switchTab('tab-system')" id="btn-tab-system" class="tab-btn py-3 border-b-2 border-transparent text-zinc-400 hover:text-zinc-200 font-medium text-sm flex items-center space-x-2">
+        <span>⚙️ Sistema & Métricas</span>
+      </button>
+    </div>
+  </nav>
+
+  <!-- Contenido Principal -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+    <!-- ============================================================ -->
+    <!-- TAB 1: CREAR VIDEO (PIPELINE) -->
+    <!-- ============================================================ -->
+    <div id="tab-pipeline" class="tab-content block">
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        <!-- Formulario de Configuración -->
+        <div class="lg:col-span-6 bg-zinc-900/90 border border-zinc-800 rounded-xl p-6 shadow-xl">
+          <div class="flex items-center justify-between border-b border-zinc-800 pb-4 mb-5">
+            <div>
+              <h2 class="text-lg font-semibold text-white">Configurar Nueva Historia</h2>
+              <p class="text-xs text-zinc-400">Genera guion, imágenes SDXL, locución neural y video 1080×1920 con 1 clic</p>
+            </div>
+            <button type="button" onclick="loadRandomPreset()" class="text-xs text-brand-400 hover:text-brand-300 bg-brand-950/60 border border-brand-800 px-2.5 py-1 rounded">
+              🎲 Cargar Idea Aleatoria
+            </button>
+          </div>
+
+          <form id="pipeline-form" onsubmit="submitPipeline(event)" class="space-y-4">
+            
+            <!-- Género y Tono -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-medium text-zinc-300 mb-1">Género Narrativo</label>
+                <select id="p-genre" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+                  <option value="HORROR" selected>👻 Terror / Horror</option>
+                  <option value="MYSTERY">🔍 Misterio</option>
+                  <option value="SCI_FI">🚀 Ciencia Ficción</option>
+                  <option value="DYSTOPIA">🌆 Distopía</option>
+                  <option value="PSYCHOLOGICAL">🧠 Terror Psicológico</option>
+                  <option value="URBAN_LEGEND">🏙️ Leyenda Urbana</option>
+                  <option value="STRANGE_EVENT">🌀 Evento Extraño</option>
+                  <option value="SUPERNATURAL">👁️ Sobrenatural</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-zinc-300 mb-1">Tono de la Narración</label>
+                <select id="p-tone" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+                  <option value="DARK" selected>Oscuro y Tenebroso</option>
+                  <option value="SUSPENSE">Suspenso Constante</option>
+                  <option value="OMINOUS">Ominoso y Amenazante</option>
+                  <option value="EERIE">Inquietante (Eerie)</option>
+                  <option value="MELANCHOLIC">Melancólico</option>
+                  <option value="EPIC">Épico / Dramático</option>
+                  <option value="UNSETTLING">Desconcertante</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Tema o Premisa -->
+            <div>
+              <label class="block text-xs font-medium text-zinc-300 mb-1">
+                Idea Central o Tema <span class="text-zinc-500">(Opcional: si lo dejas vacío, la IA propondrá una premisa original)</span>
+              </label>
+              <textarea id="p-theme" rows="3" placeholder="Ej: Una llamada telefónica a las 3:00 AM desde un número que pertenece a alguien que desapareció hace diez años..." class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white placeholder-zinc-500 focus:outline-none focus:border-brand-500"></textarea>
+            </div>
+
+            <!-- Estilo Visual & Locución -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-medium text-zinc-300 mb-1">Estilo Visual (GPU SDXL)</label>
+                <select id="p-visual-style" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+                  <option value="Cinematic Dark" selected>🎬 Cinematic Dark (35mm)</option>
+                  <option value="Hyperrealistic Horror">🌑 Hyperrealistic Horror</option>
+                  <option value="Vintage Found Footage">📼 Found Footage VHS</option>
+                  <option value="Cyberpunk Noir">⚡ Cyberpunk Noir</option>
+                  <option value="Retro 80s Anime">📼 Retro 80s Dark Anime</option>
+                  <option value="Oil Painting Macabre">🎨 Pintura al Óleo Macabra</option>
+                  <option value="Graphic Novel Grim">📖 Novela Gráfica Oscura</option>
+                  <option value="Liminal Spaces">🚪 Espacios Liminales</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-zinc-300 mb-1">Voz Neuronal (Edge-TTS)</label>
+                <select id="p-voice" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-brand-500">
+                  <option value="es-MX-JorgeNeural" selected>🇲🇽 Jorge (Grave, ideal misterio)</option>
+                  <option value="es-MX-DaliaNeural">🇲🇽 Dalia (Femenina, envolvente)</option>
+                  <option value="es-ES-AlvaroNeural">🇪🇸 Álvaro (Narrador documental)</option>
+                  <option value="es-ES-ElviraNeural">🇪🇸 Elvira (Expresiva)</option>
+                  <option value="es-US-AlonsoNeural">🇺🇸 Alonso (Español neutro)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Duración y Escenas -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-medium text-zinc-300 mb-1">
+                  Duración Objetivo: <span id="dur-label" class="text-brand-400 font-bold">60s</span>
+                </label>
+                <input type="range" id="p-duration" min="30" max="120" step="15" value="60" oninput="document.getElementById('dur-label').innerText = this.value + 's'" class="w-full accent-brand-500">
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-zinc-300 mb-1">
+                  Número de Escenas: <span id="scenes-label" class="text-brand-400 font-bold">4 escenas</span>
+                </label>
+                <input type="range" id="p-scenes" min="3" max="8" step="1" value="4" oninput="document.getElementById('scenes-label').innerText = this.value + ' escenas'" class="w-full accent-brand-500">
+              </div>
+            </div>
+
+            <button type="submit" id="btn-submit-pipeline" class="w-full py-3.5 px-4 bg-gradient-to-r from-brand-600 to-purple-600 hover:from-brand-500 hover:to-purple-500 text-white font-semibold rounded-lg shadow-lg hover:shadow-brand-500/25 transition duration-150 flex items-center justify-center space-x-2">
+              <span>🚀 Iniciar Pipeline y Generar Video</span>
+            </button>
+          </form>
+        </div>
+
+        <!-- Monitor en Vivo & Reproductor Vertical -->
+        <div class="lg:col-span-6 space-y-6">
+          
+          <!-- Tarjeta de Progreso en Vivo -->
+          <div id="pipeline-monitor" class="bg-zinc-900/90 border border-zinc-800 rounded-xl p-6 shadow-xl hidden">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-semibold text-white flex items-center space-x-2">
+                <span id="spinner-icon" class="animate-spin text-brand-400">⏳</span>
+                <span>Procesando Video</span>
+              </h3>
+              <span id="progress-percent" class="text-sm font-bold text-brand-400">0%</span>
+            </div>
+
+            <!-- Barra de Progreso -->
+            <div class="w-full bg-zinc-800 rounded-full h-3 mb-4 overflow-hidden border border-zinc-700">
+              <div id="progress-bar" class="bg-gradient-to-r from-brand-600 to-purple-500 h-full w-0 transition-all duration-500"></div>
+            </div>
+
+            <!-- Etapa Actual -->
+            <div class="bg-zinc-950/70 border border-zinc-800 rounded-lg p-3 text-xs space-y-1 mb-4">
+              <div class="flex justify-between text-zinc-400">
+                <span>Etapa actual:</span>
+                <span id="stage-name" class="font-semibold text-brand-300">GENERATING_STORY</span>
+              </div>
+              <p id="stage-message" class="text-zinc-300 font-mono">Iniciando generación...</p>
+            </div>
+
+            <!-- Indicadores de Pasos -->
+            <div class="grid grid-cols-5 gap-1 text-[10px] text-center font-medium">
+              <div id="step-story" class="py-1 rounded bg-zinc-800 text-zinc-500 border border-zinc-700">1. Historia</div>
+              <div id="step-images" class="py-1 rounded bg-zinc-800 text-zinc-500 border border-zinc-700">2. Imágenes</div>
+              <div id="step-audio" class="py-1 rounded bg-zinc-800 text-zinc-500 border border-zinc-700">3. Locución</div>
+              <div id="step-render" class="py-1 rounded bg-zinc-800 text-zinc-500 border border-zinc-700">4. Render</div>
+              <div id="step-export" class="py-1 rounded bg-zinc-800 text-zinc-500 border border-zinc-700">5. Export</div>
+            </div>
+          </div>
+
+          <!-- Reproductor de Video Vertical (9:16) y Resultados -->
+          <div id="video-preview-card" class="bg-zinc-900/90 border border-zinc-800 rounded-xl p-6 shadow-xl hidden">
+            <h3 class="font-semibold text-white mb-4 flex items-center space-x-2 text-emerald-400">
+              <span>✨ Video Generado Exitosamente</span>
+            </h3>
+
+            <div class="flex flex-col sm:flex-row gap-6 items-center sm:items-start">
+              <!-- Marco de teléfono 9:16 -->
+              <div class="w-64 max-w-full aspect-9-16 bg-black rounded-2xl overflow-hidden border-4 border-zinc-800 shadow-2xl relative flex items-center justify-center shrink-0">
+                <video id="player-video" controls class="w-full h-full object-cover">
+                  Tu navegador no soporta reproducción de video HTML5.
+                </video>
+              </div>
+
+              <!-- Detalles y Acciones -->
+              <div class="flex-1 space-y-4 w-full">
+                <div>
+                  <h4 id="preview-title" class="text-base font-bold text-white">Título de la Historia</h4>
+                  <p id="preview-synopsis" class="text-xs text-zinc-400 mt-1 line-clamp-3">Sinopsis...</p>
+                </div>
+
+                <!-- Hashtags generados -->
+                <div class="bg-zinc-950/80 border border-zinc-800 rounded-lg p-3">
+                  <div class="flex justify-between items-center mb-1.5">
+                    <span class="text-[11px] font-semibold text-zinc-400">Hashtags para TikTok / Shorts:</span>
+                    <button type="button" onclick="copyHashtags()" class="text-[11px] text-brand-400 hover:text-brand-300">
+                      📋 Copiar
+                    </button>
+                  </div>
+                  <p id="preview-hashtags" class="text-xs text-purple-300 font-mono break-words">#horror #storytime #fyp</p>
+                </div>
+
+                <!-- Botones de Acción -->
+                <div class="space-y-2">
+                  <a id="btn-download-mp4" href="#" download class="w-full py-2.5 px-4 bg-emerald-600 hover:bg-emerald-500 text-white font-medium text-xs rounded-lg transition flex items-center justify-center space-x-2">
+                    <span>⬇️ Descargar MP4 Final (1080×1920)</span>
+                  </a>
+                  <button type="button" onclick="viewMetadataJson()" class="w-full py-2 px-4 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs rounded-lg transition border border-zinc-700">
+                    📄 Ver metadata.json para Make.com
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Mensaje Placeholder inicial -->
+          <div id="empty-preview" class="border-2 border-dashed border-zinc-800 rounded-xl p-12 text-center text-zinc-500">
+            <span class="text-4xl block mb-2">📱</span>
+            <p class="text-sm font-medium">Aquí aparecerá el reproductor y avance del video cuando inicies el pipeline.</p>
+            <p class="text-xs mt-1 text-zinc-600">Resolución final garantizada: 1080×1920 a 30 FPS con subtítulos dinámicos.</p>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- TAB 2: PROCESAMIENTO POR LOTES (BATCH) -->
+    <!-- ============================================================ -->
+    <div id="tab-batch" class="tab-content hidden">
+      <div class="max-w-4xl mx-auto space-y-8">
+        
+        <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-6 shadow-xl">
+          <div class="border-b border-zinc-800 pb-4 mb-6">
+            <h2 class="text-lg font-semibold text-white">Generación Masiva por Lotes</h2>
+            <p class="text-xs text-zinc-400">Programa la producción desatendida de múltiples videos distribuidos por género</p>
+          </div>
+
+          <form onsubmit="submitBatch(event)" class="space-y-6">
+            <div>
+              <label class="block text-xs font-semibold text-zinc-300 uppercase tracking-wider mb-3">Distribución de Historias por Género</label>
+              
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                <div class="bg-zinc-800/60 p-3 rounded-lg border border-zinc-700/60 text-center">
+                  <span class="text-xl block mb-1">👻</span>
+                  <label class="block text-xs font-medium text-zinc-300 mb-1">Terror (Horror)</label>
+                  <input type="number" id="batch-horror" min="0" max="20" value="2" class="w-full bg-zinc-900 border border-zinc-700 rounded px-2 py-1 text-center text-white text-sm">
+                </div>
+
+                <div class="bg-zinc-800/60 p-3 rounded-lg border border-zinc-700/60 text-center">
+                  <span class="text-xl block mb-1">🔍</span>
+                  <label class="block text-xs font-medium text-zinc-300 mb-1">Misterio</label>
+                  <input type="number" id="batch-mystery" min="0" max="20" value="1" class="w-full bg-zinc-900 border border-zinc-700 rounded px-2 py-1 text-center text-white text-sm">
+                </div>
+
+                <div class="bg-zinc-800/60 p-3 rounded-lg border border-zinc-700/60 text-center">
+                  <span class="text-xl block mb-1">🚀</span>
+                  <label class="block text-xs font-medium text-zinc-300 mb-1">Ciencia Ficción</label>
+                  <input type="number" id="batch-scifi" min="0" max="20" value="1" class="w-full bg-zinc-900 border border-zinc-700 rounded px-2 py-1 text-center text-white text-sm">
+                </div>
+
+                <div class="bg-zinc-800/60 p-3 rounded-lg border border-zinc-700/60 text-center">
+                  <span class="text-xl block mb-1">🧠</span>
+                  <label class="block text-xs font-medium text-zinc-300 mb-1">Psicológico</label>
+                  <input type="number" id="batch-psych" min="0" max="20" value="1" class="w-full bg-zinc-900 border border-zinc-700 rounded px-2 py-1 text-center text-white text-sm">
+                </div>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label class="block text-xs font-medium text-zinc-300 mb-1">Duración por Video</label>
+                <select id="batch-duration" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white">
+                  <option value="45">45 segundos</option>
+                  <option value="60" selected>60 segundos</option>
+                  <option value="90">90 segundos</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-zinc-300 mb-1">Escenas por Historia</label>
+                <select id="batch-scenes" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white">
+                  <option value="4" selected>4 escenas</option>
+                  <option value="5">5 escenas</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-zinc-300 mb-1">Concurrencia (VRAM Safety)</label>
+                <select id="batch-concurrency" class="w-full bg-zinc-800 border border-zinc-700 rounded-lg px-3 py-2 text-sm text-white">
+                  <option value="1" selected>1 simultánea (Recomendado GPU)</option>
+                  <option value="2">2 simultáneas</option>
+                </select>
+              </div>
+            </div>
+
+            <button type="submit" class="w-full py-3.5 px-4 bg-purple-600 hover:bg-purple-500 text-white font-semibold rounded-lg shadow-lg transition">
+              📦 Iniciar Procesamiento de Lote
+            </button>
+          </form>
+        </div>
+
+        <!-- Monitor de Lote Activo -->
+        <div id="batch-monitor-card" class="bg-zinc-900 border border-zinc-800 rounded-xl p-6 shadow-xl hidden">
+          <div class="flex justify-between items-center mb-4">
+            <div>
+              <h3 class="font-semibold text-white">Estado del Lote Activo</h3>
+              <p id="batch-id-label" class="text-xs text-zinc-500 font-mono">ID: --</p>
+            </div>
+            <span id="batch-status-badge" class="px-2.5 py-1 text-xs rounded-full font-bold bg-amber-950/70 border border-amber-800 text-amber-400">
+              PROCESSING
+            </span>
+          </div>
+
+          <div class="w-full bg-zinc-800 rounded-full h-3 mb-4 overflow-hidden border border-zinc-700">
+            <div id="batch-progress-bar" class="bg-gradient-to-r from-purple-600 to-indigo-500 h-full w-0 transition-all duration-500"></div>
+          </div>
+
+          <div class="grid grid-cols-3 gap-4 text-center mb-6">
+            <div class="bg-zinc-950/80 p-3 rounded-lg border border-zinc-800">
+              <span class="text-xs text-zinc-400 block">Total Solicitadas</span>
+              <span id="batch-total" class="text-lg font-bold text-white">0</span>
+            </div>
+            <div class="bg-zinc-950/80 p-3 rounded-lg border border-zinc-800">
+              <span class="text-xs text-emerald-400 block">Completadas</span>
+              <span id="batch-completed" class="text-lg font-bold text-emerald-400">0</span>
+            </div>
+            <div class="bg-zinc-950/80 p-3 rounded-lg border border-zinc-800">
+              <span class="text-xs text-rose-400 block">Fallidas</span>
+              <span id="batch-failed" class="text-lg font-bold text-rose-400">0</span>
+            </div>
+          </div>
+
+          <!-- Botón de reintento de fallidas si aplica -->
+          <div id="batch-retry-section" class="hidden">
+            <button onclick="retryBatchFailed()" class="w-full py-2 bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold rounded-lg transition">
+              🔄 Reintentar Historias Fallidas del Lote
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- TAB 3: HISTORIAL & GALERÍA -->
+    <!-- ============================================================ -->
+    <div id="tab-gallery" class="tab-content hidden">
+      <div class="space-y-6">
+        <div class="flex justify-between items-center">
+          <div>
+            <h2 class="text-lg font-semibold text-white">Historial de Videos</h2>
+            <p class="text-xs text-zinc-400">Explora, previsualiza y descarga los videos generados</p>
+          </div>
+          <button onclick="loadStoriesGallery()" class="text-xs bg-zinc-800 hover:bg-zinc-700 px-3 py-1.5 rounded-lg border border-zinc-700 text-zinc-300">
+            🔄 Actualizar
+          </button>
+        </div>
+
+        <div id="gallery-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div class="col-span-full text-center py-12 text-zinc-500">
+            Cargando historial de historias...
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- TAB 4: SISTEMA & MÉTRICAS -->
+    <!-- ============================================================ -->
+    <div id="tab-system" class="tab-content hidden">
+      <div class="max-w-4xl mx-auto space-y-6">
+        <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-6 shadow-xl">
+          <h2 class="text-lg font-semibold text-white mb-4">Métricas del Sistema</h2>
+          
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+            <div class="bg-zinc-950 p-4 rounded-lg border border-zinc-800">
+              <span class="text-xs text-zinc-400">Historias en Base de Datos</span>
+              <p id="stat-stories" class="text-2xl font-bold text-brand-400 mt-1">--</p>
+            </div>
+            <div class="bg-zinc-950 p-4 rounded-lg border border-zinc-800">
+              <span class="text-xs text-zinc-400">Lotes Procesados</span>
+              <p id="stat-batches" class="text-2xl font-bold text-purple-400 mt-1">--</p>
+            </div>
+            <div class="bg-zinc-950 p-4 rounded-lg border border-zinc-800">
+              <span class="text-xs text-zinc-400">Espacio Libre en Disco</span>
+              <p id="stat-disk" class="text-2xl font-bold text-emerald-400 mt-1">-- MB</p>
+            </div>
+          </div>
+
+          <div class="border-t border-zinc-800 pt-4 flex justify-between items-center text-xs text-zinc-400">
+            <span>Directorio de exportación: <code class="text-zinc-300 font-mono">./export_videos/</code></span>
+            <span>Rutina nocturna de limpieza: <strong class="text-zinc-300">03:00 AM (7 días retención)</strong></span>
+          </div>
+        </div>
+
+        <!-- Endpoints y Swagger -->
+        <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-6 shadow-xl text-xs space-y-3">
+          <h3 class="font-semibold text-white text-sm">Documentación y Swagger</h3>
+          <p class="text-zinc-400">
+            El backend ofrece una interfaz OpenAPI 3 completa para pruebas interactivas de cada endpoint de render, narración y control de calidad.
+          </p>
+          <div class="flex space-x-3">
+            <a href="/swagger-ui.html" target="_blank" class="px-3 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded font-medium transition">
+              Abrir Swagger UI
+            </a>
+            <a href="/v3/api-docs" target="_blank" class="px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-300 rounded font-medium border border-zinc-700 transition">
+              Ver OpenAPI JSON
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Modal de Metadata JSON -->
+  <div id="modal-metadata" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-zinc-900 border border-zinc-800 rounded-xl max-w-2xl w-full max-h-[80vh] flex flex-col shadow-2xl">
+      <div class="p-4 border-b border-zinc-800 flex justify-between items-center">
+        <h3 class="font-semibold text-white text-sm">Metadatos de Exportación (Make.com)</h3>
+        <button onclick="closeMetadataModal()" class="text-zinc-400 hover:text-white text-lg">&times;</button>
+      </div>
+      <div class="p-4 overflow-y-auto font-mono text-xs text-zinc-300 bg-zinc-950 flex-1">
+        <pre id="modal-json-content">{}</pre>
+      </div>
+      <div class="p-3 border-t border-zinc-800 flex justify-end">
+        <button onclick="closeMetadataModal()" class="px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-white text-xs rounded">
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- JavaScript del Panel -->
+  <script>
+    let currentPollingInterval = null;
+    let currentStoryId = null;
+    let currentBatchId = null;
+
+    // Presets de ideas aleatorias
+    const IDEA_PRESETS = [
+      {
+        genre: "HORROR",
+        tone: "DARK",
+        theme: "Una llamada telefónica a las 3:15 AM desde un número que perteneció a alguien que desapareció hace 10 años",
+        style: "Cinematic Dark"
+      },
+      {
+        genre: "MYSTERY",
+        tone: "SUSPENSE",
+        theme: "En un edificio antiguo descubren un ascensor secreto que solo desciende a un piso que no existe en los planos",
+        style: "Vintage Found Footage"
+      },
+      {
+        genre: "SCI_FI",
+        tone: "OMINOUS",
+        theme: "Un satélite espacial capta una señal de radio que repite los nombres de los astronautas a bordo",
+        style: "Cyberpunk Noir"
+      },
+      {
+        genre: "PSYCHOLOGICAL",
+        tone: "UNSETTLING",
+        theme: "Un hombre despierta y nota que todas las fotografías familiares en su casa tienen un rostro desconocido",
+        style: "Hyperrealistic Horror"
+      },
+      {
+        genre: "URBAN_LEGEND",
+        tone: "EERIE",
+        theme: "Una estación de metro abandonada donde los pasajeros del último tren aseguran ver figuras inmóviles en las vías",
+        style: "Liminal Spaces"
+      }
+    ];
+
+    function loadRandomPreset() {
+      const preset = IDEA_PRESETS[Math.floor(Math.random() * IDEA_PRESETS.length)];
+      document.getElementById('p-genre').value = preset.genre;
+      document.getElementById('p-tone').value = preset.tone;
+      document.getElementById('p-theme').value = preset.theme;
+      document.getElementById('p-visual-style').value = preset.style;
+    }
+
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(el => {
+        el.classList.remove('border-brand-500', 'text-brand-400');
+        el.classList.add('border-transparent', 'text-zinc-400');
+      });
+
+      document.getElementById(tabId).classList.remove('hidden');
+      const activeBtn = document.getElementById('btn-' + tabId);
+      activeBtn.classList.remove('border-transparent', 'text-zinc-400');
+      activeBtn.classList.add('border-brand-500', 'text-brand-400');
+
+      if (tabId === 'tab-gallery') {
+        loadStoriesGallery();
+      } else if (tabId === 'tab-system') {
+        loadStats();
+      }
+    }
+
+    // Iniciar Pipeline Todo en Uno
+    async function submitPipeline(event) {
+      event.preventDefault();
+      
+      const payload = {
+        genre: document.getElementById('p-genre').value,
+        tone: document.getElementById('p-tone').value,
+        theme: document.getElementById('p-theme').value || null,
+        targetDurationSeconds: parseInt(document.getElementById('p-duration').value, 10),
+        language: "es-MX",
+        sceneCount: parseInt(document.getElementById('p-scenes').value, 10),
+        visualStyleName: document.getElementById('p-visual-style').value,
+        ttsVoice: document.getElementById('p-voice').value
+      };
+
+      const submitBtn = document.getElementById('btn-submit-pipeline');
+      submitBtn.disabled = true;
+      submitBtn.classList.add('opacity-50');
+
+      try {
+        const res = await fetch('/api/v1/pipeline/execute', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          throw new Error('Error al iniciar pipeline: ' + res.statusText);
+        }
+
+        const data = await res.json();
+        currentStoryId = data.storyId;
+
+        // Mostrar monitor
+        document.getElementById('empty-preview').classList.add('hidden');
+        document.getElementById('video-preview-card').classList.add('hidden');
+        document.getElementById('pipeline-monitor').classList.remove('hidden');
+
+        startPipelinePolling(currentStoryId);
+
+      } catch (err) {
+        alert('Error: ' + err.message);
+        submitBtn.disabled = false;
+        submitBtn.classList.remove('opacity-50');
+      }
+    }
+
+    function startPipelinePolling(trackingId) {
+      if (currentPollingInterval) clearInterval(currentPollingInterval);
+
+      currentPollingInterval = setInterval(async () => {
+        try {
+          const res = await fetch('/api/v1/pipeline/status/' + trackingId);
+          if (!res.ok) return;
+
+          const status = await res.json();
+          updatePipelineUI(status);
+
+          if (status.status === 'COMPLETED' || status.status === 'FAILED') {
+            clearInterval(currentPollingInterval);
+            document.getElementById('btn-submit-pipeline').disabled = false;
+            document.getElementById('btn-submit-pipeline').classList.remove('opacity-50');
+
+            if (status.status === 'COMPLETED') {
+              showCompletedVideo(status);
+            }
+          }
+        } catch (e) {
+          console.warn('Error polling status:', e);
+        }
+      }, 2000);
+    }
+
+    function updatePipelineUI(status) {
+      const pct = status.progressPercent || 0;
+      document.getElementById('progress-bar').style.width = pct + '%';
+      document.getElementById('progress-percent').innerText = pct + '%';
+      document.getElementById('stage-name').innerText = status.currentStage || 'PROCESSING';
+      document.getElementById('stage-message').innerText = status.message || '';
+
+      const stage = status.currentStage;
+      highlightStep('step-story', stage === 'GENERATING_STORY' || pct >= 20);
+      highlightStep('step-images', stage === 'GENERATING_IMAGES' || pct >= 40);
+      highlightStep('step-audio', stage === 'GENERATING_AUDIO' || pct >= 65);
+      highlightStep('step-render', stage === 'RENDERING_VIDEO' || pct >= 85);
+      highlightStep('step-export', stage === 'EXPORTING' || stage === 'COMPLETED' || pct >= 95);
+    }
+
+    function highlightStep(stepId, isActive) {
+      const el = document.getElementById(stepId);
+      if (isActive) {
+        el.classList.remove('bg-zinc-800', 'text-zinc-500');
+        el.classList.add('bg-brand-900/60', 'text-brand-300', 'border-brand-600');
+      } else {
+        el.classList.add('bg-zinc-800', 'text-zinc-500');
+        el.classList.remove('bg-brand-900/60', 'text-brand-300', 'border-brand-600');
+      }
+    }
+
+    async function showCompletedVideo(status) {
+      const storyId = status.storyId;
+      document.getElementById('pipeline-monitor').classList.add('hidden');
+      document.getElementById('video-preview-card').classList.remove('hidden');
+
+      // Cargar video en reproductor
+      const player = document.getElementById('player-video');
+      player.src = status.videoUrl || ('/api/v1/stories/' + storyId + '/video/download');
+      player.load();
+
+      // Botón de descarga
+      document.getElementById('btn-download-mp4').href = '/api/v1/stories/' + storyId + '/video/download';
+
+      // Obtener metadata
+      try {
+        const metaRes = await fetch('/api/v1/stories/' + storyId + '/video/metadata');
+        if (metaRes.ok) {
+          const meta = await metaRes.json();
+          document.getElementById('preview-title').innerText = meta.title || 'Historia Generada';
+          document.getElementById('preview-synopsis').innerText = meta.description || '';
+          document.getElementById('preview-hashtags').innerText = (meta.hashtags || []).join(' ');
+        }
+      } catch (e) {
+        console.warn('Error fetching metadata:', e);
+      }
+    }
+
+    function copyHashtags() {
+      const text = document.getElementById('preview-hashtags').innerText;
+      navigator.clipboard.writeText(text);
+      alert('¡Hashtags copiados al portapapeles!');
+    }
+
+    async function viewMetadataJson() {
+      if (!currentStoryId) return;
+      try {
+        const res = await fetch('/api/v1/stories/' + currentStoryId + '/video/metadata');
+        if (res.ok) {
+          const json = await res.json();
+          document.getElementById('modal-json-content').innerText = JSON.stringify(json, null, 2);
+          document.getElementById('modal-metadata').classList.remove('hidden');
+        }
+      } catch (e) {
+        alert('No se pudo cargar la metadata: ' + e.message);
+      }
+    }
+
+    function closeMetadataModal() {
+      document.getElementById('modal-metadata').classList.add('hidden');
+    }
+
+    // Iniciar Lote
+    async function submitBatch(event) {
+      event.preventDefault();
+      const dist = {};
+      const horror = parseInt(document.getElementById('batch-horror').value || '0', 10);
+      const mystery = parseInt(document.getElementById('batch-mystery').value || '0', 10);
+      const scifi = parseInt(document.getElementById('batch-scifi').value || '0', 10);
+      const psych = parseInt(document.getElementById('batch-psych').value || '0', 10);
+
+      if (horror > 0) dist.HORROR = horror;
+      if (mystery > 0) dist.MYSTERY = mystery;
+      if (scifi > 0) dist.SCI_FI = scifi;
+      if (psych > 0) dist.PSYCHOLOGICAL = psych;
+
+      if (Object.keys(dist).length === 0) {
+        alert('Debes solicitar al menos 1 historia en algún género.');
+        return;
+      }
+
+      const payload = {
+        distribution: dist,
+        tone: "DARK",
+        language: "es-MX",
+        targetDurationSeconds: parseInt(document.getElementById('batch-duration').value, 10),
+        sceneCount: parseInt(document.getElementById('batch-scenes').value, 10),
+        maxConcurrency: parseInt(document.getElementById('batch-concurrency').value, 10)
+      };
+
+      try {
+        const res = await fetch('/api/v1/stories/batch', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) throw new Error('Error al crear lote: ' + res.statusText);
+        const data = await res.json();
+        currentBatchId = data.batchId;
+
+        document.getElementById('batch-monitor-card').classList.remove('hidden');
+        document.getElementById('batch-id-label').innerText = 'ID: ' + currentBatchId;
+
+        startBatchPolling(currentBatchId);
+
+      } catch (e) {
+        alert('Error: ' + e.message);
+      }
+    }
+
+    function startBatchPolling(batchId) {
+      const interval = setInterval(async () => {
+        try {
+          const res = await fetch('/api/v1/batches/' + batchId + '/status');
+          if (!res.ok) return;
+          const status = await res.json();
+
+          document.getElementById('batch-progress-bar').style.width = status.progressPercent + '%';
+          document.getElementById('batch-status-badge').innerText = status.status;
+          document.getElementById('batch-total').innerText = status.totalRequested;
+          document.getElementById('batch-completed').innerText = status.totalCompleted;
+          document.getElementById('batch-failed').innerText = status.totalFailed;
+
+          if (status.status === 'COMPLETED' || status.status === 'PARTIALLY_COMPLETED' || status.status === 'FAILED') {
+            clearInterval(interval);
+            if (status.totalFailed > 0) {
+              document.getElementById('batch-retry-section').classList.remove('hidden');
+            }
+          }
+        } catch (e) {
+          console.warn('Error polling batch:', e);
+        }
+      }, 3000);
+    }
+
+    async function retryBatchFailed() {
+      if (!currentBatchId) return;
+      try {
+        const res = await fetch('/api/v1/batches/' + currentBatchId + '/retry-failed', { method: 'POST' });
+        if (res.ok) {
+          alert('Reintento iniciado.');
+          document.getElementById('batch-retry-section').classList.add('hidden');
+          startBatchPolling(currentBatchId);
+        }
+      } catch (e) {
+        alert('Error: ' + e.message);
+      }
+    }
+
+    // Galería
+    async function loadStoriesGallery() {
+      const container = document.getElementById('gallery-container');
+      container.innerHTML = '<div class="col-span-full text-center py-12 text-zinc-500">Cargando historias...</div>';
+
+      try {
+        const res = await fetch('/api/v1/stories?size=15&sort=createdAt,desc');
+        if (!res.ok) throw new Error('No se pudo obtener historias');
+        const page = await res.json();
+        const stories = page.content || [];
+
+        if (stories.length === 0) {
+          container.innerHTML = '<div class="col-span-full text-center py-12 text-zinc-500">No hay historias generadas aún. ¡Crea una en la pestaña Pipeline!</div>';
+          return;
+        }
+
+        container.innerHTML = stories.map(s => `
+          <div class="bg-zinc-900 border border-zinc-800 rounded-xl p-5 shadow-lg flex flex-col justify-between space-y-4">
+            <div>
+              <div class="flex justify-between items-start mb-2">
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase ${getBadgeColor(s.genre)}">${s.genre}</span>
+                <span class="text-[11px] font-mono text-zinc-500">${(s.status || 'CREATED')}</span>
+              </div>
+              <h3 class="font-bold text-white text-sm line-clamp-1">${s.title}</h3>
+              <p class="text-xs text-zinc-400 mt-1 line-clamp-2">${s.synopsis || s.premise || ''}</p>
+            </div>
+
+            <div class="border-t border-zinc-800/80 pt-3 flex items-center justify-between text-xs">
+              <span class="text-zinc-500">${s.targetDurationSeconds}s · ${(s.scenes || []).length} escenas</span>
+              <div class="flex space-x-2">
+                ${(s.status === 'EXPORTED' || s.status === 'READY') ? `
+                  <a href="/api/v1/stories/${s.id}/video/download" download class="px-2.5 py-1 bg-emerald-600/80 hover:bg-emerald-500 text-white rounded font-medium">
+                    ⬇️ MP4
+                  </a>
+                ` : `
+                  <span class="text-zinc-500 text-[10px]">No renderizado</span>
+                `}
+              </div>
+            </div>
+          </div>
+        `).join('');
+
+      } catch (e) {
+        container.innerHTML = `<div class="col-span-full text-center py-12 text-rose-400">Error: ${e.message}</div>`;
+      }
+    }
+
+    function getBadgeColor(genre) {
+      switch (genre) {
+        case 'HORROR': return 'bg-rose-950 text-rose-300 border border-rose-800';
+        case 'MYSTERY': return 'bg-amber-950 text-amber-300 border border-amber-800';
+        case 'SCI_FI': return 'bg-cyan-950 text-cyan-300 border border-cyan-800';
+        default: return 'bg-purple-950 text-purple-300 border border-purple-800';
+      }
+    }
+
+    // Métricas del Sistema
+    async function loadStats() {
+      try {
+        const res = await fetch('/api/v1/stats');
+        if (res.ok) {
+          const stats = await res.json();
+          document.getElementById('stat-stories').innerText = stats.totalStories || '0';
+          document.getElementById('stat-batches').innerText = stats.totalBatches || '0';
+          document.getElementById('stat-disk').innerText = (stats.usableDiskSpaceMb || '0') + ' MB';
+          document.getElementById('disk-space-value').innerText = Math.round((stats.usableDiskSpaceMb || 0) / 1024) + ' GB';
+        }
+      } catch (e) {
+        console.warn('Error fetching stats:', e);
+      }
+    }
+
+    // Cargar estadísticas y verificar salud al arrancar
+    window.addEventListener('DOMContentLoaded', () => {
+      loadStats();
+    });
+  </script>
+</body>
+</html>

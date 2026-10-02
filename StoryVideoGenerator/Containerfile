@@ -1,0 +1,33 @@
+FROM docker.io/eclipse-temurin:21-jre-alpine
+
+LABEL maintainer="AlexVD1"
+LABEL description="API REST de generación automatizada de videos verticales narrativos (StoryVideoGenerator)"
+
+# Instalar FFmpeg, Python 3, fuentes para render y Edge-TTS
+RUN apk add --no-cache ffmpeg python3 py3-pip fontconfig ttf-dejavu && \
+    pip install --no-cache-dir --break-system-packages edge-tts
+
+# Crear usuario y grupo sin privilegios
+RUN addgroup -S storyapp && adduser -S storyapp -G storyapp
+
+WORKDIR /app
+
+# Crear directorios de datos y exportación con permisos
+RUN mkdir -p /data/storage /export_videos /app/scripts && \
+    chown -R storyapp:storyapp /app /data/storage /export_videos
+
+COPY target/story-video-api-*.jar /app/app.jar
+COPY scripts/ /app/scripts/
+RUN chown -R storyapp:storyapp /app
+
+ENV JAVA_OPTS="-Djava.awt.headless=true -Dfile.encoding=UTF-8 -XX:+UseG1GC -XX:MaxRAMPercentage=75.0"
+ENV STORAGE_PATH="/data/storage"
+ENV SERVER_PORT="8080"
+
+USER storyapp
+EXPOSE 8080
+
+HEALTHCHECK --interval=15s --timeout=5s --start-period=30s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/api/v1/health || exit 1
+
+ENTRYPOINT ["sh", "-c", "exec java $JAVA_OPTS -jar /app/app.jar"]

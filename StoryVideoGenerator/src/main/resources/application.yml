@@ -1,0 +1,116 @@
+# ============================================================
+# story-video-api — Configuración Principal
+# ============================================================
+
+server:
+  port: ${SERVER_PORT:${PORT:8081}}
+  compression:
+    enabled: true
+    mime-types: application/json,text/plain
+    min-response-size: 1024
+
+spring:
+  application:
+    name: story-video-api
+
+  # --- Base de Datos PostgreSQL (HikariCP) ---
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://172.23.240.83:5433/storydb}
+    username: ${DATABASE_USERNAME:story_user}
+    password: ${DATABASE_PASSWORD:CAMBIAR_POR_PASSWORD_SEGURO}
+    hikari:
+      maximum-pool-size: 10
+      minimum-idle: 2
+      connection-timeout: 30000
+      idle-timeout: 600000
+      max-lifetime: 1800000
+
+  # --- JPA / Hibernate ---
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  # --- Flyway Migrations ---
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    validate-on-migrate: true
+
+  # --- Jackson JSON ---
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+
+# --- Actuator ---
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+
+# --- Swagger / OpenAPI 3 ---
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    operations-sorter: alpha
+    tags-sorter: alpha
+
+# --- Configuración del Dominio StoryVideo ---
+story:
+  ai:
+    api-key: ${AI_API_KEY:}
+    model: ${AI_MODEL:gemini-2.5-flash}
+    timeout-seconds: ${AI_TIMEOUT_SECONDS:120}
+  image:
+    provider: ${IMAGE_PROVIDER:stable-diffusion-local}
+    sd-api-url: ${SD_API_URL:http://localhost:7860}
+    sd-model: ${SD_MODEL:juggernautXL_ragnarok}
+    steps: ${SD_STEPS:25}
+    cfg-scale: ${SD_CFG_SCALE:7.0}
+    width: ${SD_WIDTH:768}
+    height: ${SD_HEIGHT:1344}
+    timeout-seconds: ${SD_TIMEOUT_SECONDS:120}
+  storage:
+    path: ${STORAGE_PATH:./storage}
+    base-url: ${STORAGE_BASE_URL:http://localhost:8081/assets}
+  export:
+    path: ${EXPORT_PATH:./export_videos}
+  video:
+    ffmpeg-path: ${FFMPEG_PATH:ffmpeg}
+    ffprobe-path: ${FFPROBE_PATH:ffprobe}
+    python-path: ${PYTHON_PATH:python}
+    bgm-volume: ${STORY_VIDEO_BGM_VOLUME:0.12}
+    width: ${VIDEO_WIDTH:1080}
+    height: ${VIDEO_HEIGHT:1920}
+    fps: ${VIDEO_FPS:30}
+    crf: ${VIDEO_CRF:22}
+    preset: ${VIDEO_PRESET:medium}
+    render-timeout-seconds: ${RENDER_TIMEOUT_SECONDS:600}
+  security:
+    api-key: ${API_KEY:}
+
+# --- Logging ---
+logging:
+  level:
+    com.storyvideo.api: ${LOG_LEVEL:INFO}
+    org.springframework.web: WARN
+    org.hibernate: WARN
+    org.flywaydb: INFO
+  pattern:
+    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
