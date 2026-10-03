@@ -3,6 +3,10 @@
 ## 1. Filosofía de Desacoplamiento
 
 El sistema **StoryVideoGenerator** está diseñado bajo el principio de **desacoplamiento total**:
+
+> [!TIP]
+> Para la guía paso a paso completa con capturas conceptuales, emparejamiento de `.mp4` + `_metadata.json` en Google Drive y Blueprint importable, consulta: [**GUIA_CONFIGURACION_MAKE_DRIVE.md**](file:///c:/Users/villa/GIT%20DESKTOP/AIO/StoryVideoGenerator/docs/GUIA_CONFIGURACION_MAKE_DRIVE.md).
+
 - **StoryVideoGenerator** se encarga exclusivamente de:
   - Generación de historias, personajes y escenas (IA).
   - Generación de imágenes 100% locales en GPU (Stable Diffusion WebUI Forge).

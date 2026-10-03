@@ -30,20 +30,24 @@ public class ExportService {
     private static final Logger log = LoggerFactory.getLogger(ExportService.class);
 
     private final Path exportBasePath;
+    private final Path driveBasePath;
     private final StoryRepository storyRepository;
     private final VideoProjectRepository videoProjectRepository;
     private final VideoRenderRepository videoRenderRepository;
     private final AssetStorageService assetStorageService;
     private final ObjectMapper objectMapper;
 
+    @org.springframework.beans.factory.annotation.Autowired
     public ExportService(
             @Value("${story.export.path:./export_videos}") String exportPath,
+            @Value("${story.export.drive-path:H:\\Mi unidad\\VideosStories}") String drivePath,
             StoryRepository storyRepository,
             VideoProjectRepository videoProjectRepository,
             VideoRenderRepository videoRenderRepository,
             AssetStorageService assetStorageService,
             ObjectMapper objectMapper) {
         this.exportBasePath = Paths.get(exportPath).toAbsolutePath().normalize();
+        this.driveBasePath = (drivePath != null && !drivePath.isBlank()) ? Paths.get(drivePath).toAbsolutePath().normalize() : null;
         this.storyRepository = storyRepository;
         this.videoProjectRepository = videoProjectRepository;
         this.videoRenderRepository = videoRenderRepository;
@@ -52,12 +56,35 @@ public class ExportService {
         init();
     }
 
+    public ExportService(
+            String exportPath,
+            StoryRepository storyRepository,
+            VideoProjectRepository videoProjectRepository,
+            VideoRenderRepository videoRenderRepository,
+            AssetStorageService assetStorageService,
+            ObjectMapper objectMapper) {
+        this(exportPath, null, storyRepository, videoProjectRepository, videoRenderRepository, assetStorageService, objectMapper);
+    }
+
     private void init() {
         try {
             Files.createDirectories(exportBasePath);
-            log.info("Directorio de exportación inicializado en: {}", exportBasePath);
+            log.info("Directorio de exportación local inicializado en: {}", exportBasePath);
         } catch (IOException e) {
             log.warn("No se pudo crear directorio de exportación en {}: {}", exportBasePath, e.getMessage());
+        }
+
+        if (driveBasePath != null) {
+            try {
+                if (Files.exists(driveBasePath) || Files.exists(driveBasePath.getRoot())) {
+                    Files.createDirectories(driveBasePath);
+                    log.info("Directorio de sincronización con Google Drive activo en: {}", driveBasePath);
+                } else {
+                    log.info("Ruta de Google Drive configurada pero unidad no conectada actualmente: {}", driveBasePath);
+                }
+            } catch (Exception e) {
+                log.warn("No se pudo inicializar carpeta Google Drive en {}: {}", driveBasePath, e.getMessage());
+            }
         }
     }
 
@@ -135,6 +162,22 @@ public class ExportService {
 
             // 3. Escribir metadata.json
             objectMapper.writerWithDefaultPrettyPrinter().writeValue(targetMetadataPath.toFile(), metadata);
+
+            // 3.1 Sincronización automática directa con Google Drive si la unidad está conectada
+            if (driveBasePath != null) {
+                try {
+                    if (Files.exists(driveBasePath) || Files.exists(driveBasePath.getRoot())) {
+                        Files.createDirectories(driveBasePath);
+                        Path driveVideoPath = driveBasePath.resolve(videoFileName);
+                        Path driveMetadataPath = driveBasePath.resolve(metadataFileName);
+                        Files.copy(targetVideoPath, driveVideoPath, StandardCopyOption.REPLACE_EXISTING);
+                        Files.copy(targetMetadataPath, driveMetadataPath, StandardCopyOption.REPLACE_EXISTING);
+                        log.info("Archivo de video y metadata sincronizados con Google Drive en: {}", driveVideoPath);
+                    }
+                } catch (Exception e) {
+                    log.warn("No se pudo copiar a Google Drive en {}: {}", driveBasePath, e.getMessage());
+                }
+            }
 
             // 4. Actualizar estado de la historia
             story.setStatus(StoryStatus.EXPORTED);

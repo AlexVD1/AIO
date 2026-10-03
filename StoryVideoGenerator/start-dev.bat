@@ -34,7 +34,7 @@ if exist ".env" (
 if not defined AI_MODEL set AI_MODEL=gemini-2.5-flash
 
 REM 3. Iniciar Stable Diffusion Forge si no esta activo
-echo [3/4] Verificando Stable Diffusion Forge en C:\SD_Forge...
+echo [3/5] Verificando Stable Diffusion Forge en C:\SD_Forge...
 curl.exe -s -o NUL -w "%%{http_code}" http://localhost:7860/ >nul 2>&1
 if %errorlevel% neq 0 (
     if exist "C:\SD_Forge\run.bat" (
@@ -47,8 +47,15 @@ if %errorlevel% neq 0 (
     echo        Stable Diffusion ya esta respondiendo en puerto 7860.
 )
 
-REM 4. Abrir navegador e iniciar Spring Boot
-echo [4/4] Iniciando Backend y Dashboard Web...
+REM 4. Iniciar Sincronizador con Google Drive en segundo plano
+echo [4/5] Iniciando Sincronizador con Google Drive (H:\Mi unidad\VideosStories)...
+if exist "%~dp0sync-to-drive.ps1" (
+    start "StoryVideo — Sync Google Drive" powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0sync-to-drive.ps1"
+    echo        Sincronizador activo hacia Google Drive.
+)
+
+REM 5. Abrir navegador e iniciar Spring Boot
+echo [5/5] Iniciando Backend y Dashboard Web...
 echo ==========================================================
 echo  Dashboard: http://localhost:8081/
 echo  Health:    http://localhost:8081/api/v1/health

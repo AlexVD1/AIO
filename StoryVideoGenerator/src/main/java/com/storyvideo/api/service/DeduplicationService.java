@@ -78,12 +78,12 @@ public class DeduplicationService {
                 );
             }
 
-            // B. Similitud coseno en premisa (> 0.85)
+            // B. Similitud coseno en premisa (> 0.92)
             if (fp.getPremiseEmbedding() != null) {
                 double[] fpPremiseVector = parseVector(fp.getPremiseEmbedding());
                 if (fpPremiseVector != null) {
                     double premiseSim = cosineSimilarity(currentPremiseVector, fpPremiseVector);
-                    if (premiseSim > 0.85) {
+                    if (premiseSim > 0.92) {
                         return DeduplicationCheckResult.duplicate(
                                 String.format("Premisa semánticamente duplicada con historia previa '%s' (similitud: %.2f)", fp.getTitleNormalized(), premiseSim),
                                 fp.getTitleNormalized()
@@ -92,12 +92,12 @@ public class DeduplicationService {
                 }
             }
 
-            // C. Similitud en giro narrativo / twist (> 0.82)
+            // C. Similitud en giro narrativo / twist (> 0.89)
             if (currentTwistVector != null && fp.getTwistEmbedding() != null) {
                 double[] fpTwistVector = parseVector(fp.getTwistEmbedding());
                 if (fpTwistVector != null) {
                     double twistSim = cosineSimilarity(currentTwistVector, fpTwistVector);
-                    if (twistSim > 0.82) {
+                    if (twistSim > 0.89) {
                         return DeduplicationCheckResult.duplicate(
                                 String.format("El giro narrativo es prácticamente idéntico al de '%s' (similitud: %.2f)", fp.getTitleNormalized(), twistSim),
                                 fp.getTitleNormalized()
@@ -106,15 +106,17 @@ public class DeduplicationService {
                 }
             }
 
-            // D. Overlap excesivo de nombres de personajes (> 60% de intercesión)
-            if (!currentCharacters.isEmpty() && fp.getCharacterNamesJson() != null) {
+            // D. Overlap excesivo de nombres de personajes (> 75% de intersección y mínimo 2 personajes)
+            if (currentCharacters.size() >= 2 && fp.getCharacterNamesJson() != null) {
                 Set<String> fpChars = parseCharacters(fp.getCharacterNamesJson());
-                double jaccard = calculateJaccardSimilarity(currentCharacters, fpChars);
-                if (jaccard > 0.60) {
-                    return DeduplicationCheckResult.duplicate(
-                            String.format("Conjunto de personajes excesivamente similar a '%s' (coincidencia: %.2f)", fp.getTitleNormalized(), jaccard),
-                            fp.getTitleNormalized()
-                    );
+                if (fpChars.size() >= 2) {
+                    double jaccard = calculateJaccardSimilarity(currentCharacters, fpChars);
+                    if (jaccard > 0.75) {
+                        return DeduplicationCheckResult.duplicate(
+                                String.format("Conjunto de personajes excesivamente similar a '%s' (coincidencia: %.2f)", fp.getTitleNormalized(), jaccard),
+                                fp.getTitleNormalized()
+                        );
+                    }
                 }
             }
         }

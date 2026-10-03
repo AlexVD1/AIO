@@ -41,6 +41,10 @@ temp/
 .env.*
 !.env.example
 *.log
+*.tmp
+*.temp
+*_progress.json
+.synced_history.txt
 __pycache__/
 *.pyc
 

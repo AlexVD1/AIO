@@ -48,8 +48,8 @@ public class GeminiStoryAiClient implements StoryAiClient {
     @Autowired
     public GeminiStoryAiClient(
             @Value("${story.ai.api-key:}") String apiKey,
-            @Value("${story.ai.model:gemini-2.5-flash}") String model,
-            @Value("${story.ai.timeout-seconds:120}") int timeoutSeconds,
+            @Value("${story.ai.model:gemini-3.5-flash-lite}") String model,
+            @Value("${story.ai.timeout-seconds:60}") int timeoutSeconds,
             ObjectMapper objectMapper) {
         this(apiKey, model, timeoutSeconds, objectMapper,
                 HttpClient.newBuilder()
@@ -116,7 +116,7 @@ public class GeminiStoryAiClient implements StoryAiClient {
                 .build();
 
         HttpResponse<String> response = null;
-        int maxAttempts = 3;
+        int maxAttempts = 5;
         for (int attempt = 1; attempt <= maxAttempts; attempt++) {
             try {
                 log.info("Enviando solicitud de generación de historia a Gemini ({}, intento {}/{}) para género: {}",
@@ -128,8 +128,10 @@ public class GeminiStoryAiClient implements StoryAiClient {
                 }
 
                 if ((response.statusCode() == 503 || response.statusCode() == 429) && attempt < maxAttempts) {
-                    log.warn("Gemini API respondió {} en intento {}. Reintentando en 3s...", response.statusCode(), attempt);
-                    Thread.sleep(3000);
+                    long sleepMs = (response.statusCode() == 429) ? (attempt * 15000L) : 3000L;
+                    log.warn("Gemini API respondió {} en intento {}. Esperando {}s para respetar rate limit...",
+                            response.statusCode(), attempt, sleepMs / 1000);
+                    Thread.sleep(sleepMs);
                     continue;
                 }
 
@@ -164,14 +166,20 @@ public class GeminiStoryAiClient implements StoryAiClient {
         }
         sb.append("- Idioma de la narración: ").append(request.language()).append("\n");
         sb.append("- Duración estimada total: ").append(request.targetDurationSeconds()).append(" segundos.\n");
-        sb.append("- Número exacto de escenas requeridas: ").append(request.sceneCount() > 0 ? request.sceneCount() : 5).append(" escenas.\n\n");
+        sb.append("- Número exacto de escenas requeridas: ").append(request.sceneCount() > 0 ? request.sceneCount() : 5).append(" escenas.\n");
+        sb.append("- Longitud de locución por escena: Cada escena DEBE contener una narración ('narrationText') sustanciosa y desarrollada de aproximadamente 25 a 35 palabras, de modo que la duración total hablada del video se sitúe consistentemente entre 65 y 85 segundos.\n\n");
 
         sb.append("ESTRUCTURA OBLIGATORIA DEL HOOK (Primeros 3 segundos):\n");
         sb.append("- La primera frase ('hook') debe generar intriga instantánea, una pregunta perturbadora o un hecho insólito.\n");
         sb.append("- La Escena 1 debe tener sceneType 'HOOK', con una locución que atrape de inmediato.\n\n");
 
         sb.append("DIRECTRICES PARA GENERACIÓN VISUAL (Stable Diffusion SDXL):\n");
-        sb.append("- En cada escena, 'visualPrompt' DEBE estar escrito en inglés, describiendo la toma visualmente con lenguaje cinematográfico fotográfico (ej. 'cinematic wide angle shot of abandoned hospital corridor, flickering dim neon lights, volumetric shadows, 35mm film photography, 8k').\n");
+        if (request.visualStyleGuidance() != null && !request.visualStyleGuidance().isBlank()) {
+            sb.append("- Estilo artístico asignado: ").append(request.visualStyleGuidance()).append("\n");
+            sb.append("- En cada escena, 'visualPrompt' DEBE estar escrito en inglés y describir la escena adaptada estrictamente a este estilo artístico (ej. si es 2D illustration, comic book, cartoon, low-poly, cel shading, etc.). PROHIBIDO usar 'photorealistic', '35mm photograph' o lenguaje hiperrealista a menos que el estilo lo pida.\n");
+        } else {
+            sb.append("- En cada escena, 'visualPrompt' DEBE estar escrito en inglés, describiendo la toma visualmente con lenguaje evocador y artístico.\n");
+        }
         sb.append("- No uses texto ni marcas de agua en visualPrompt.\n\n");
 
         if (request.recentPremisesToAvoid() != null && !request.recentPremisesToAvoid().isEmpty()) {
@@ -246,6 +254,13 @@ public class GeminiStoryAiClient implements StoryAiClient {
         sceneProps.putObject("transitionIn").put("type", "STRING");
         sceneProps.putObject("transitionOut").put("type", "STRING");
 
+        ArrayNode sceneRequired = sceneItem.putArray("required");
+        sceneRequired.add("sequenceNumber");
+        sceneRequired.add("sceneType");
+        sceneRequired.add("narrationText");
+        sceneRequired.add("visualPrompt");
+        sceneRequired.add("visualDescription");
+
         ArrayNode required = schema.putArray("required");
         required.add("title");
         required.add("hook");
@@ -303,9 +318,30 @@ public class GeminiStoryAiClient implements StoryAiClient {
                     int sequenceNumber = s.path("sequenceNumber").asInt(seq);
                     SceneType sceneType = parseEnum(s.path("sceneType").asText("DEVELOPMENT"), SceneType.class, SceneType.DEVELOPMENT);
                     String narrationText = s.path("narrationText").asText("");
-                    String narrationEmotion = s.path("narrationEmotion").asText("NEUTRAL");
-                    String visualDescription = s.path("visualDescription").asText("");
+                    if (narrationText.isBlank()) narrationText = s.path("narration").asText("");
+                    if (narrationText.isBlank()) narrationText = s.path("voiceover").asText("");
+                    if (narrationText.isBlank()) narrationText = s.path("script").asText("");
+                    if (narrationText.isBlank()) narrationText = s.path("text").asText("");
+                    if (narrationText.isBlank()) narrationText = s.path("dialogue").asText("");
+                    if (narrationText.isBlank()) narrationText = s.path("speech").asText("");
+                    if (narrationText.isBlank()) narrationText = s.path("visualDescription").asText("");
+
                     String visualPrompt = s.path("visualPrompt").asText("");
+                    if (visualPrompt.isBlank()) visualPrompt = s.path("prompt").asText("");
+                    if (visualPrompt.isBlank()) visualPrompt = s.path("imagePrompt").asText("");
+                    if (visualPrompt.isBlank()) visualPrompt = s.path("visualDescription").asText("");
+
+                    String visualDescription = s.path("visualDescription").asText("");
+                    if (visualDescription.isBlank()) visualDescription = visualPrompt;
+
+                    if (narrationText.isBlank()) {
+                        narrationText = "En este punto clave del relato, los acontecimientos toman una direccion inesperada que desafia lo evidente.";
+                    }
+                    if (visualPrompt.isBlank() || visualPrompt.trim().length() < 10) {
+                        visualPrompt = "Cinematic shot with dramatic lighting, artistic details, highly evocative atmosphere, 8k resolution";
+                    }
+
+                    String narrationEmotion = s.path("narrationEmotion").asText("NEUTRAL");
                     CameraMovement cam = parseEnum(s.path("cameraMovement").asText("KEN_BURNS"), CameraMovement.class, CameraMovement.KEN_BURNS);
                     String musicIntensity = s.path("musicIntensity").asText("MEDIUM");
                     String ambientSound = s.path("ambientSound").asText(null);

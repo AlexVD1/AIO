@@ -75,8 +75,8 @@ springdoc:
 story:
   ai:
     api-key: ${AI_API_KEY:}
-    model: ${AI_MODEL:gemini-2.5-flash}
-    timeout-seconds: ${AI_TIMEOUT_SECONDS:120}
+    model: ${AI_MODEL:gemini-3.5-flash-lite}
+    timeout-seconds: ${AI_TIMEOUT_SECONDS:60}
   image:
     provider: ${IMAGE_PROVIDER:stable-diffusion-local}
     sd-api-url: ${SD_API_URL:http://localhost:7860}
@@ -91,6 +91,7 @@ story:
     base-url: ${STORAGE_BASE_URL:http://localhost:8081/assets}
   export:
     path: ${EXPORT_PATH:./export_videos}
+    drive-path: ${DRIVE_EXPORT_PATH:H:\Mi unidad\VideosStories}
   video:
     ffmpeg-path: ${FFMPEG_PATH:ffmpeg}
     ffprobe-path: ${FFPROBE_PATH:ffprobe}

@@ -1,0 +1,2 @@
+ALTER TABLE story_character ALTER COLUMN role TYPE VARCHAR(255);
+ALTER TABLE story_character ALTER COLUMN name TYPE VARCHAR(255);

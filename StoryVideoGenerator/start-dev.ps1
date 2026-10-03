@@ -55,7 +55,7 @@ if (Test-Path ".env") {
 if (-not $env:AI_MODEL) { $env:AI_MODEL = "gemini-2.5-flash" }
 
 # 3. Iniciar Stable Diffusion Forge si no está corriendo
-Write-Host "[3/4] Verificando Stable Diffusion Forge en C:\SD_Forge..." -ForegroundColor Yellow
+Write-Host "[3/5] Verificando Stable Diffusion Forge en C:\SD_Forge..." -ForegroundColor Yellow
 $sdRunning = $false
 try {
     $response = Invoke-WebRequest -Uri "http://localhost:7860/" -UseBasicParsing -TimeoutSec 2 -ErrorAction SilentlyContinue
@@ -73,8 +73,15 @@ if (-not $sdRunning) {
     Write-Host "       Stable Diffusion ya esta respondiendo en puerto 7860." -ForegroundColor Green
 }
 
-# 4. Abrir navegador e iniciar Spring Boot
-Write-Host "[4/4] Iniciando Servidor Web y Dashboard..." -ForegroundColor Yellow
+# 4. Iniciar Sincronizador con Google Drive en segundo plano
+Write-Host "[4/5] Iniciando Sincronizador con Google Drive..." -ForegroundColor Yellow
+if (Test-Path "$PSScriptRoot\sync-to-drive.ps1") {
+    Start-Process powershell.exe -ArgumentList "-NoProfile -ExecutionPolicy Bypass -File `"$PSScriptRoot\sync-to-drive.ps1`"" -WindowStyle Minimized
+    Write-Host "       Sincronizador activo hacia H:\Mi unidad\VideosStories" -ForegroundColor Green
+}
+
+# 5. Abrir navegador e iniciar Spring Boot
+Write-Host "[5/5] Iniciando Servidor Web y Dashboard..." -ForegroundColor Yellow
 Write-Host "==========================================================" -ForegroundColor Cyan
 Write-Host "  Dashboard: http://localhost:8081/" -ForegroundColor Green
 Write-Host "  API Health: http://localhost:8081/api/v1/health" -ForegroundColor Green

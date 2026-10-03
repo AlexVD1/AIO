@@ -78,7 +78,7 @@ public class StoryGenerationService {
                 requestDto.resolvedLanguage(),
                 requestDto.resolvedSceneCount(),
                 recentPremises,
-                visualStyle != null ? visualStyle.getQualityModifiers() : null
+                visualStyle != null ? (visualStyle.getName() + " (" + visualStyle.getArtStyle() + ")") : null
         );
 
         // 4. Invocar IA

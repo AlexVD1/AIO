@@ -21,7 +21,7 @@ public class StoryCharacter {
     @JoinColumn(name = "story_id", nullable = false)
     private Story story;
 
-    @Column(name = "name", nullable = false, length = 100)
+    @Column(name = "name", nullable = false, length = 255)
     private String name;
 
     @Column(name = "physical_description", columnDefinition = "TEXT", nullable = false)
@@ -30,7 +30,7 @@ public class StoryCharacter {
     @Column(name = "distinctive_features", columnDefinition = "TEXT")
     private String distinctiveFeatures;
 
-    @Column(name = "role", nullable = false, length = 50)
+    @Column(name = "role", nullable = false, length = 255)
     private String role = "PROTAGONIST";
 
     @Column(name = "prompt_fragment", columnDefinition = "TEXT")
@@ -43,10 +43,14 @@ public class StoryCharacter {
     protected StoryCharacter() {}
 
     public StoryCharacter(String name, String physicalDescription, String distinctiveFeatures, String role, String promptFragment) {
-        this.name = name;
-        this.physicalDescription = physicalDescription;
+        this.name = (name != null && name.length() > 250) ? name.substring(0, 250) : (name != null ? name : "Personaje");
+        this.physicalDescription = physicalDescription != null ? physicalDescription : "";
         this.distinctiveFeatures = distinctiveFeatures;
-        this.role = (role != null && !role.isBlank()) ? role : "PROTAGONIST";
+        if (role != null && !role.isBlank()) {
+            this.role = role.length() > 250 ? role.substring(0, 250) : role;
+        } else {
+            this.role = "PROTAGONIST";
+        }
         this.promptFragment = promptFragment;
     }
 

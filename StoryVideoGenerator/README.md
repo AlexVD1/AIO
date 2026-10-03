@@ -120,4 +120,5 @@ mvn test
 ## 📚 Documentación Adicional
 
 - [**Manual de Operación Completo**](file:///c:/Users/villa/GIT%20DESKTOP/AIO/StoryVideoGenerator/docs/MANUAL_DE_OPERACION.md): Guía detallada para poner en marcha el sistema con tu GPU y generar videos.
+- [**Guía de Configuración en Make.com con Google Drive**](file:///c:/Users/villa/GIT%20DESKTOP/AIO/StoryVideoGenerator/docs/GUIA_CONFIGURACION_MAKE_DRIVE.md): Emparejamiento automático de MP4 + JSON, filtros y Blueprint importable en Make.com.
 - [**Guía de Integración con Make.com**](file:///c:/Users/villa/GIT%20DESKTOP/AIO/StoryVideoGenerator/docs/MAKE_INTEGRATION.md): Arquitectura de publicación desacoplada en redes sociales.

@@ -22,12 +22,17 @@ if sys.platform == "win32":
 
 try:
     import edge_tts
+    import edge_tts.communicate
+    import ssl
+    edge_tts.communicate._SSL_CTX = ssl._create_unverified_context()
 except ImportError:
     print(json.dumps({
         "success": False,
         "error": "El paquete 'edge-tts' no está instalado. Ejecuta: pip install edge-tts"
     }))
     sys.exit(1)
+except Exception:
+    pass
 
 
 def clean_narration_text(text: str) -> str:
@@ -100,6 +105,9 @@ def main():
 
     try:
         asyncio.run(synthesize_speech(text, voice, output_path, rate, pitch))
+        if not os.path.exists(output_path) or os.path.getsize(output_path) < 1000:
+            actual_size = os.path.getsize(output_path) if os.path.exists(output_path) else 0
+            raise RuntimeError(f"Audio generado corrupto o incompleto ({actual_size} bytes)")
         duration = get_audio_duration_seconds(output_path)
 
         response = {
@@ -111,6 +119,11 @@ def main():
         print(json.dumps(response))
 
     except Exception as e:
+        if output_path and os.path.exists(output_path) and os.path.getsize(output_path) < 1000:
+            try:
+                os.remove(output_path)
+            except Exception:
+                pass
         print(json.dumps({
             "success": False,
             "error": f"Fallo durante síntesis TTS: {str(e)}"

@@ -300,6 +300,9 @@ Cada video produce dos archivos:
 1. `[Nombre_Historia].mp4`: Video vertical 9:16 (1080×1920) renderizado en H.264 / AAC a 30 FPS con subtítulos de alta visibilidad amarillos y audio balanceado.
 2. `[Nombre_Historia]_metadata.json`: Metadatos completos con título, descripción, duración, hashtags (#horror, #storytime, #fyp, etc.) para que Make.com los tome y los publique automáticamente.
 
+> [!NOTE]
+> **Sincronización a Google Drive:** Ambos archivos son transferidos automáticamente a `H:\Mi unidad\VideosStories\` tanto por el backend (`ExportService`) como por el vigilante en segundo plano (`sync-to-drive.ps1`). Para configurar la lectura y publicación en Make.com, consulta la [**Guía de Configuración en Make.com con Google Drive**](file:///c:/Users/villa/GIT%20DESKTOP/AIO/StoryVideoGenerator/docs/GUIA_CONFIGURACION_MAKE_DRIVE.md).
+
 También puedes descargar el video directamente por HTTP:
 ```
 GET http://localhost:8081/api/v1/stories/{id}/video/download
