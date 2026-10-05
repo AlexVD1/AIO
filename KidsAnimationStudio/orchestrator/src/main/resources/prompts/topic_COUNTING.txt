@@ -1,0 +1,7 @@
+TEMA EDUCATIVO: CONTEO Y NÚMEROS (COUNTING)
+Objetivo de aprendizaje: Enseñar a contar objetos concretos paso a paso (ej. del 1 al 5 o del 1 al 10).
+Instrucciones específicas:
+- Utiliza objetos visibles, atractivos y coloridos (manzanas, estrellas, flores, mariposas).
+- Cada ejemplo presenta un número adicional de forma acumulativa o secuencial ("¡Una manzana!", "¡Dos manzanas!").
+- En cada plano donde se cuente o se muestre un número, define un overlay de tipo "BIG_NUMBER" o "COUNTER" con la propiedad "appearAtWord" sincronizada con el momento exacto en que se pronuncia el número.
+- En la escena de CHALLENGE, muestra una cantidad de objetos y haz una pregunta interactiva con pauseAfterMs=2500 antes de revelar la respuesta con un efecto de sonido "chime" o "cheer".

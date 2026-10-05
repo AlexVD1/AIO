@@ -1,0 +1,7 @@
+TEMA EDUCATIVO: FORMAS GEOMÉTRICAS BÁSICAS (SHAPES)
+Objetivo de aprendizaje: Identificar formas elementales (círculo, cuadrado, triángulo, estrella).
+Instrucciones específicas:
+- Describe las propiedades de manera sensorial ("El círculo es redondo y rueda", "El triángulo tiene tres puntas").
+- Busca la forma en objetos del entorno (la pelota redonda, la ventana cuadrada, el tejado triangular).
+- Configura overlays de tipo "SHAPE" indicando el valor de la forma ("CIRCLE", "SQUARE", "TRIANGLE", "STAR").
+- En el reto interactivo, invita a trazar la forma con el dedo en el aire y haz una pausa de 2000 ms.

@@ -1,0 +1,166 @@
+﻿{
+    "1":  {
+              "class_type":  "CheckpointLoaderSimple",
+              "inputs":  {
+                             "ckpt_name":  "ltxv-2b-0.9.8-distilled.safetensors"
+                         },
+              "_meta":  {
+                            "title":  "LOAD_CHECKPOINT"
+                        }
+          },
+    "2":  {
+              "class_type":  "CLIPLoader",
+              "inputs":  {
+                             "clip_name":  "t5xxl_fp8_e4m3fn_scaled.safetensors",
+                             "type":  "ltxv"
+                         },
+              "_meta":  {
+                            "title":  "LOAD_TEXT_ENCODER"
+                        }
+          },
+    "3":  {
+              "class_type":  "LoadImage",
+              "inputs":  {
+                             "image":  "keyframe_input.png"
+                         },
+              "_meta":  {
+                            "title":  "INPUT_IMAGE"
+                        }
+          },
+    "4":  {
+              "class_type":  "CLIPTextEncode",
+              "inputs":  {
+                             "clip":  [
+                                          "2",
+                                          0
+                                      ],
+                             "text":  "flat 2D cartoon animation, subtle gentle motion, stable character, smooth slow camera"
+                         },
+              "_meta":  {
+                            "title":  "INPUT_POSITIVE"
+                        }
+          },
+    "5":  {
+              "class_type":  "CLIPTextEncode",
+              "inputs":  {
+                             "clip":  [
+                                          "2",
+                                          0
+                                      ],
+                             "text":  "morphing, melting, deforming body, extra limbs, fused limbs, flickering, jitter, distorted face, creepy, horror, blurry, low quality"
+                         },
+              "_meta":  {
+                            "title":  "INPUT_NEGATIVE"
+                        }
+          },
+    "6":  {
+              "class_type":  "LTXVImgToVideo",
+              "inputs":  {
+                             "positive":  [
+                                              "4",
+                                              0
+                                          ],
+                             "negative":  [
+                                              "5",
+                                              0
+                                          ],
+                             "vae":  [
+                                         "1",
+                                         2
+                                     ],
+                             "image":  [
+                                           "3",
+                                           0
+                                       ],
+                             "width":  1024,
+                             "height":  576,
+                             "length":  73,
+                             "batch_size":  1,
+                             "strength":  1.0
+                         },
+              "_meta":  {
+                            "title":  "LTXV_IMG_TO_VIDEO"
+                        }
+          },
+    "7":  {
+              "class_type":  "KSampler",
+              "inputs":  {
+                             "model":  [
+                                           "1",
+                                           0
+                                       ],
+                             "positive":  [
+                                              "10",
+                                              0
+                                          ],
+                             "negative":  [
+                                              "10",
+                                              1
+                                          ],
+                             "latent_image":  [
+                                                  "6",
+                                                  2
+                                              ],
+                             "seed":  42,
+                             "steps":  8,
+                             "cfg":  1,
+                             "sampler_name":  "euler",
+                             "scheduler":  "simple",
+                             "denoise":  1.0
+                         },
+              "_meta":  {
+                            "title":  "KSAMPLER"
+                        }
+          },
+    "8":  {
+              "class_type":  "VAEDecode",
+              "inputs":  {
+                             "samples":  [
+                                             "7",
+                                             0
+                                         ],
+                             "vae":  [
+                                         "1",
+                                         2
+                                     ]
+                         },
+              "_meta":  {
+                            "title":  "VAE_DECODE"
+                        }
+          },
+    "9":  {
+              "class_type":  "VHS_VideoCombine",
+              "inputs":  {
+                             "images":  [
+                                            "8",
+                                            0
+                                        ],
+                             "frame_rate":  24,
+                             "loop_count":  0,
+                             "filename_prefix":  "ltx_video_clip",
+                             "format":  "video/h264-mp4",
+                             "pingpong":  false,
+                             "save_output":  true
+                         },
+              "_meta":  {
+                            "title":  "OUTPUT_VIDEO"
+                        }
+          },
+    "10":  {
+               "class_type":  "LTXVConditioning",
+               "inputs":  {
+                              "positive":  [
+                                               "6",
+                                               0
+                                           ],
+                              "negative":  [
+                                               "6",
+                                               1
+                                           ],
+                              "frame_rate":  24
+                          },
+               "_meta":  {
+                             "title":  "LTXV_CONDITIONING"
+                         }
+           }
+}

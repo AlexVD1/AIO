@@ -1,0 +1,86 @@
+# ============================================================
+# Lista negra de seguridad pedagógica infantil - KidsAnimationStudio
+# Bloquea palabras de miedo, violencia, peligro imitable y marcas con copyright.
+# ============================================================
+
+# Miedo / Terror
+miedo
+terror
+monstruo
+bruja
+fantasma
+susto
+asustar
+pesadilla
+oscuridad
+tenebroso
+espeluznante
+maldicion
+demonio
+diablo
+zombie
+vampiro
+
+# Violencia / Daño / Muerte
+muerte
+morir
+matar
+muerto
+sangre
+arma
+pistola
+cuchillo
+espada
+rifle
+bomba
+golpe
+pelear
+pelea
+herida
+dolor
+veneno
+cadáver
+ataque
+destruir
+peligro
+peligroso
+atrapar
+secuestro
+ahogar
+fuego
+quemar
+
+# Contenido no apto infantil
+odio
+feo
+malo
+castigo
+llorar
+llanto
+grito
+gritar
+desesperacion
+rabia
+
+# Personajes y marcas registradas (infracción de copyright)
+peppa
+bluey
+paw patrol
+patrulla canina
+cocomelon
+mickey
+disney
+marvel
+batman
+spiderman
+pokemon
+pikachu
+mario bros
+sonic
+baby shark
+barbie
+peppa pig
+chase
+skye
+marshall
+bingo

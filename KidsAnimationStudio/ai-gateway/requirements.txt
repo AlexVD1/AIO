@@ -1,0 +1,15 @@
+# Fase 1: solo lo necesario para el servicio y su health.
+# Las dependencias de IA (torch cu128, kokoro, faster-whisper, open_clip) se agregan en las fases 4-6
+# y requieren Python 3.11/3.12 (ver docs/SETUP_GPU_WINDOWS.md).
+fastapi>=0.115
+uvicorn[standard]>=0.30
+httpx>=0.27
+pydantic-settings>=2.4
+pytest>=8.0
+respx>=0.21
+kokoro>=0.9.4
+soundfile>=0.13.0
+faster-whisper>=1.2.0
+av>=11,<14
+truststore>=0.9.0
+Pillow>=10.0.0

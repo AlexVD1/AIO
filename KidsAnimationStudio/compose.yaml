@@ -1,0 +1,25 @@
+name: kids-animation-studio
+
+services:
+  postgres:
+    image: docker.io/postgres:16-alpine
+    container_name: kids-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: kidsdb
+      POSTGRES_USER: ${DATABASE_USERNAME:-kids_user}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-kids_pass}
+    ports:
+      - "5434:5432"
+    volumes:
+      - kids-postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DATABASE_USERNAME:-kids_user} -d kidsdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+
+volumes:
+  kids-postgres-data:
+    driver: local

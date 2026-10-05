@@ -1,0 +1,72 @@
+server:
+  port: ${PORT:8082}
+
+spring:
+  application:
+    name: kids-animation-api
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5434/kidsdb}
+    username: ${DATABASE_USERNAME:kids_user}
+    password: ${DATABASE_PASSWORD:cambiar_por_password_seguro}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    open-in-view: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+kids:
+  services:
+    ai-gateway-url: ${AI_GATEWAY_URL:http://127.0.0.1:8090}
+    comfyui-url: ${COMFYUI_URL:http://127.0.0.1:8188}
+    ollama-url: ${OLLAMA_URL:http://127.0.0.1:11434}
+    probe-timeout-ms: ${PROBE_TIMEOUT_MS:5000}
+  llm:
+    provider: ${LLM_PROVIDER:ollama}
+    ollama:
+      model: ${OLLAMA_MODEL:qwen2.5:7b-instruct}
+      temperature: 0.7
+      timeout-seconds: 120
+    gemini:
+      api-key: ${GEMINI_API_KEY:}
+      model: ${GEMINI_MODEL:gemini-2.5-flash}
+      timeout-seconds: 60
+  safety:
+    blocklist-path: classpath:content-safety-blocklist.txt
+    max-narration-words: 14
+    min-scenes: 4
+    max-scenes: 8
+    min-shots: 12
+    max-shots: 40
+    max-pedagogical-retries: 2
+  pipeline:
+    storage-path: ${STORAGE_PATH:./storage}
+    default-narrator-voice: ${TTS_DEFAULT_VOICE:ef_dora}
+    default-narrator-rate: ${TTS_DEFAULT_RATE:+0%}
+    character-similarity-min: ${CHARACTER_SIMILARITY_MIN:0.80}
+    max-keyframe-retries: ${MAX_KEYFRAME_RETRIES:3}
+  video:
+    ffmpeg-path: ${FFMPEG_PATH:ffmpeg}
+    ffprobe-path: ${FFPROBE_PATH:ffprobe}
+    width: ${VIDEO_WIDTH:1920}
+    height: ${VIDEO_HEIGHT:1080}
+    fps: ${VIDEO_FPS:30}
+    encoder: ${FFMPEG_ENCODER:h264_nvenc}
+    fallback-encoder: ${FFMPEG_FALLBACK_ENCODER:libx264}
+    preset: ${FFMPEG_PRESET:medium}
+    crf: ${FFMPEG_CRF:22}
+    render-timeout-seconds: ${RENDER_TIMEOUT_SECONDS:900}
+    audio-library-path: ${AUDIO_LIBRARY_PATH:./audio}
+    bgm-volume: ${BGM_VOLUME:0.12}
+    export-path: ${EXPORT_PATH:./export_videos}
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+
+logging:
+  level:
+    root: ${LOG_LEVEL:INFO}

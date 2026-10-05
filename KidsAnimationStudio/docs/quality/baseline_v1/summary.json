@@ -1,0 +1,92 @@
+{
+  "episode_id": "3d29bcd5-ee1e-4803-bdbb-bf34244a6669",
+  "title": "Contando con Tito",
+  "baseline_version": "v1",
+  "date_extracted": "2026-10-04",
+  "video_metrics": {
+    "source_resolution": "768x512 (3:2)",
+    "output_resolution": "1920x1080 (16:9 con pillarbox)",
+    "source_fps": 16,
+    "output_fps": 30,
+    "ltx_steps": 20,
+    "ltx_cfg": 3.0,
+    "ltx_scheduler": "normal",
+    "frame_length": 48,
+    "temporal_deformations_observed": [
+      "Deformación severa de manos (múltiples dedos, dedos fusionados)",
+      "Boca distorsionada al hablar",
+      "Extremidades borrosas en movimiento"
+    ]
+  },
+  "audio_metrics": {
+    "tts_engine": "Kokoro-82M",
+    "voice": "ef_dora",
+    "tts_speed": "-12% (0.88)",
+    "synthesis_mode": "Plano por plano (aislado)",
+    "sfx_failures": 4,
+    "lufs_target": -14.0
+  },
+  "golden_phrases": [
+    {
+      "id": "phrase_1",
+      "category": "Saludo",
+      "text": "¡Hola, niños! Soy Tito, el zorrito.",
+      "v1_audio": "shot_1_1.wav",
+      "notes": "Introducción amigable, tono cálido y alegre."
+    },
+    {
+      "id": "phrase_2",
+      "category": "Pregunta pedagógica",
+      "text": "¿Cuántas manzanas ves en el árbol?",
+      "v1_audio": "shot_3_1.wav",
+      "notes": "Entonación de pregunta al niño, pausa implícita de espera."
+    },
+    {
+      "id": "phrase_3",
+      "category": "Conteo rítmico",
+      "text": "¡Una, dos y tres manzanas deliciosas!",
+      "v1_audio": "shot_4_2.wav",
+      "notes": "Métrica rítmica para apoyo visual del conteo 1, 2, 3."
+    },
+    {
+      "id": "phrase_4",
+      "category": "Celebración",
+      "text": "¡Muy bien hecho, lo lograste conmigo!",
+      "v1_audio": "shot_5_1.wav",
+      "notes": "Entonación triunfal y de refuerzo positivo."
+    },
+    {
+      "id": "phrase_5",
+      "category": "Despedida",
+      "text": "¡Nos vemos pronto para otra gran aventura!",
+      "v1_audio": "shot_7_1.wav",
+      "notes": "Cierre cálido del episodio."
+    }
+  ],
+  "golden_shots": [
+    {
+      "id": "shot_1_1",
+      "type": "Primer plano",
+      "clip": "shot_1_1_attempt_1.mp4",
+      "description": "Tito mirando a cámara de frente presentándose."
+    },
+    {
+      "id": "shot_2_1",
+      "type": "Plano medio con acción",
+      "clip": "shot_2_1_attempt_1.mp4",
+      "description": "Tito moviendo las extremidades y el cuerpo."
+    },
+    {
+      "id": "shot_4_1",
+      "type": "Plano con props pedagógicos",
+      "clip": "shot_4_1_attempt_1.mp4",
+      "description": "Tito señalando e interactuando con manzanas."
+    },
+    {
+      "id": "shot_6_1",
+      "type": "Plano de locación / ambiente",
+      "clip": "shot_6_1_attempt_1.mp4",
+      "description": "Escenario del bosque con iluminación y fondo."
+    }
+  ]
+}

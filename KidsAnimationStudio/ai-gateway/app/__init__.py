@@ -1,0 +1,1 @@
+"""KidsAnimationStudio AI Gateway."""

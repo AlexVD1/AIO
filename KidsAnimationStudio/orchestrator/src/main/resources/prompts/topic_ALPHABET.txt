@@ -1,0 +1,7 @@
+TEMA EDUCATIVO: EL ALFABETO Y LAS VOCALES (ALPHABET)
+Objetivo de aprendizaje: Reconocer letras y sus sonidos fonéticos iniciales en español.
+Instrucciones específicas:
+- Enfócate en un grupo pequeño de letras (ej. las vocales A-E-I-O-U o consonantes amigables como M-P-S).
+- Pronuncia el sonido fonético claramente ("La letra A suena ¡aaaaa!, como avión").
+- Usa overlays de tipo "LETTER" con la letra en mayúscula grande, sincronizada con la palabra activa ("appearAtWord").
+- Refuerza la pronunciación con repetición coral y sonido "bell" o "pop".

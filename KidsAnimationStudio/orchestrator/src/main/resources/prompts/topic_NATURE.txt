@@ -1,0 +1,7 @@
+TEMA EDUCATIVO: NATURALEZA Y MEDIO AMBIENTE (NATURE)
+Objetivo de aprendizaje: Fomentar el asombro y cuidado por la naturaleza (el sol, la lluvia, los árboles, las flores y los animalitos del bosque).
+Instrucciones específicas:
+- Celebra elementos naturales con asombro y alegría ("¡Mira cómo brilla el sol y ayuda a crecer las plantas!").
+- Enseña la importancia del agua limpia, cuidar a las plantitas y escuchar el canto de los pájaros.
+- Usa bgmMood "calm" o "curious" y efectos de sonido naturales ("wind_chime", "water_drop", "bird_song").
+- En el reto, invita al niño a cuidar una plantita o escuchar con atención los sonidos de la naturaleza.

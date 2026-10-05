@@ -1,0 +1,1323 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kids Animation Studio — Dashboard</title>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #FF6B6B;
+            --primary-dark: #EE5253;
+            --secondary: #48DBFB;
+            --secondary-dark: #0ABDE3;
+            --accent: #FECA57;
+            --success: #1DD1A1;
+            --danger: #FF6B6B;
+            --warning: #FF9F43;
+            --dark: #222f3e;
+            --light: #f8f9fa;
+            --card-bg: rgba(255, 255, 255, 0.95);
+            --border-radius: 16px;
+            --shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Nunito', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f6f9fc 0%, #eef2f7 100%);
+            color: var(--dark);
+            min-height: 100vh;
+            padding-bottom: 50px;
+        }
+
+        header {
+            background: linear-gradient(135deg, #FF6B6B 0%, #FF9F43 100%);
+            color: white;
+            padding: 24px 32px;
+            border-bottom-left-radius: 28px;
+            border-bottom-right-radius: 28px;
+            box-shadow: 0 10px 25px rgba(255, 107, 107, 0.25);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .header-title h1 {
+            font-family: 'Fredoka', cursive;
+            font-size: 2.2rem;
+            letter-spacing: 0.5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-title p {
+            font-size: 0.95rem;
+            opacity: 0.92;
+            margin-top: 4px;
+        }
+
+        .health-badges {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.25);
+            color: white;
+            backdrop-filter: blur(5px);
+        }
+
+        .badge.online {
+            background: rgba(29, 209, 161, 0.85);
+        }
+
+        .badge.offline {
+            background: rgba(238, 82, 83, 0.85);
+        }
+
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #fff;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 0.7; }
+            50% { transform: scale(1.3); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.7; }
+        }
+
+        nav {
+            display: flex;
+            justify-content: center;
+            margin: 20px auto;
+            max-width: 1200px;
+            gap: 8px;
+            padding: 0 16px;
+            flex-wrap: wrap;
+        }
+
+        .nav-btn {
+            background: white;
+            border: 2px solid transparent;
+            padding: 10px 18px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            color: var(--dark);
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-2px);
+            border-color: var(--accent);
+        }
+
+        .nav-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 6px 16px rgba(255, 107, 107, 0.35);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 16px;
+        }
+
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(6px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--border-radius);
+            padding: 24px;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #f1f2f6;
+            padding-bottom: 12px;
+        }
+
+        .card-header h2 {
+            font-family: 'Fredoka', cursive;
+            font-size: 1.4rem;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .grid-4 {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+        }
+
+        label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: #576574;
+            display: block;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid #e1e4e8;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-family: inherit;
+            margin-bottom: 16px;
+            transition: border-color 0.2s;
+            outline: none;
+        }
+
+        input:focus, select:focus, textarea:focus {
+            border-color: var(--primary);
+        }
+
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+        }
+
+        .btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+        }
+
+        .btn-secondary {
+            background: #576574;
+        }
+
+        .btn-secondary:hover {
+            background: #222f3e;
+        }
+
+        .btn-success {
+            background: var(--success);
+        }
+
+        .btn-success:hover {
+            background: #10ac84;
+        }
+
+        .btn-accent {
+            background: var(--accent);
+            color: #222f3e;
+        }
+
+        .btn-accent:hover {
+            background: #ff9f43;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            border-radius: 6px;
+        }
+
+        /* Pipeline Visualizer */
+        .stage-pipeline {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 24px 0;
+            position: relative;
+            overflow-x: auto;
+            padding: 10px 0;
+        }
+
+        .stage-pipeline::before {
+            content: '';
+            position: absolute;
+            top: 28px;
+            left: 30px;
+            right: 30px;
+            height: 6px;
+            background: #e1e4e8;
+            z-index: 1;
+        }
+
+        .stage-step {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 90px;
+            text-align: center;
+        }
+
+        .stage-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            background: #fff;
+            border: 4px solid #c8d6e5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: #8395a7;
+            transition: all 0.3s;
+        }
+
+        .stage-step.active .stage-icon {
+            border-color: var(--accent);
+            background: var(--accent);
+            color: #222f3e;
+            transform: scale(1.15);
+            box-shadow: 0 0 15px rgba(254, 202, 87, 0.8);
+        }
+
+        .stage-step.completed .stage-icon {
+            border-color: var(--success);
+            background: var(--success);
+            color: white;
+        }
+
+        .stage-step.failed .stage-icon {
+            border-color: var(--danger);
+            background: var(--danger);
+            color: white;
+        }
+
+        .stage-label {
+            margin-top: 8px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #8395a7;
+            text-transform: uppercase;
+        }
+
+        .stage-step.active .stage-label {
+            color: var(--dark);
+            font-weight: 800;
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 20px;
+            background: #e1e4e8;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 16px 0;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #FF6B6B 0%, #FECA57 50%, #1DD1A1 100%);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        /* Shot Cards */
+        .shot-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            border: 2px solid #eef2f7;
+            transition: transform 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .shot-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--secondary);
+        }
+
+        .shot-thumb-container {
+            width: 100%;
+            height: 160px;
+            background: #222f3e;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .shot-thumb-container img, .shot-thumb-container video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .shot-info {
+            padding: 12px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .shot-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .shot-pill {
+            font-size: 0.7rem;
+            padding: 3px 8px;
+            border-radius: 12px;
+            font-weight: 700;
+            background: #dfe6e9;
+        }
+
+        .shot-narration {
+            font-size: 0.85rem;
+            color: #2d3436;
+            margin-bottom: 10px;
+            font-style: italic;
+        }
+
+        .shot-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        /* Character Sheet Selection Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.6);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: var(--border-radius);
+            padding: 28px;
+            max-width: 900px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.25);
+        }
+
+        .candidate-card {
+            border: 3px solid #dfe6e9;
+            border-radius: 12px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .candidate-card:hover {
+            border-color: var(--accent);
+            transform: scale(1.02);
+        }
+
+        .candidate-card.selected {
+            border-color: var(--success);
+            box-shadow: 0 0 15px rgba(29, 209, 161, 0.4);
+        }
+
+        .candidate-card img {
+            width: 100%;
+            height: 220px;
+            object-fit: cover;
+            display: block;
+        }
+
+        .candidate-footer {
+            padding: 8px;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 700;
+            background: #f8f9fa;
+        }
+
+        /* Video Player section */
+        .video-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+            background: #000;
+        }
+
+        .video-container video {
+            width: 100%;
+            display: block;
+        }
+
+        .metadata-box {
+            background: #f1f2f6;
+            border-radius: 12px;
+            padding: 16px;
+            margin-top: 16px;
+            font-family: monospace;
+            font-size: 0.85rem;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-transform: uppercase;
+        }
+        .status-DRAFT { background: #dfe6e9; color: #2d3436; }
+        .status-PLANNING { background: #74b9ff; color: #fff; }
+        .status-SAFETY_REVIEW { background: #a29bfe; color: #fff; }
+        .status-AWAITING_SCRIPT_APPROVAL { background: #ffeaa7; color: #d63031; }
+        .status-NARRATION { background: #55efc4; color: #00b894; }
+        .status-KEYFRAMES { background: #81ecec; color: #00cec9; }
+        .status-ANIMATION { background: #fab1a0; color: #e17055; }
+        .status-RENDERING { background: #fdcb6e; color: #e67e22; }
+        .status-COMPLETED { background: #00b894; color: white; }
+        .status-FAILED { background: #d63031; color: white; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="header-title">
+            <h1><span>🦊</span> Kids Animation Studio</h1>
+            <p>Orquestador Integral de Animación Educativa Infantil (2–6 años)</p>
+        </div>
+        <div class="health-badges" id="healthBadges">
+            <div class="badge" id="badgeOrchestrator"><div class="pulse-dot"></div> Orquestador :8082</div>
+            <div class="badge" id="badgeGateway"><div class="pulse-dot"></div> Gateway :8090</div>
+            <div class="badge" id="badgeComfy"><div class="pulse-dot"></div> ComfyUI :8188</div>
+            <div class="badge" id="badgeOllama"><div class="pulse-dot"></div> Ollama :11434</div>
+            <div class="badge" id="badgeGpu"><div class="pulse-dot"></div> RTX 5070</div>
+        </div>
+    </header>
+
+    <nav>
+        <button class="nav-btn active" onclick="switchTab('seriesTab')">📁 Series & Biblia</button>
+        <button class="nav-btn" onclick="switchTab('charactersTab')">🎨 Personajes & Sheet</button>
+        <button class="nav-btn" onclick="switchTab('episodesTab')">🎬 Nuevo Episodio / Lote</button>
+        <button class="nav-btn" onclick="switchTab('pipelineTab')">⚡ Monitor en Vivo</button>
+        <button class="nav-btn" onclick="switchTab('shotsTab')">🎞️ Planos & QA</button>
+        <button class="nav-btn" onclick="switchTab('playerTab')">📺 Reproductor Final</button>
+    </nav>
+
+    <div class="container">
+
+        <!-- TAB 1: SERIES Y BIBLIA -->
+        <div id="seriesTab" class="tab-content active">
+            <div class="grid-2">
+                <div class="card">
+                    <div class="card-header">
+                        <h2><span>📖</span> Series Disponibles</h2>
+                        <button class="btn btn-sm" onclick="loadSeries()">Actualizar</button>
+                    </div>
+                    <div id="seriesList">Cargando series...</div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h2><span>✨</span> Perfil de Estilo & Locaciones</h2>
+                    </div>
+                    <div id="seriesBibleDetail">Selecciona una serie para ver sus locaciones y estilo.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: PERSONAJES Y HOJA DE REFERENCIA -->
+        <div id="charactersTab" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2><span>🎨</span> Personajes de la Serie</h2>
+                    <button class="btn btn-sm btn-accent" onclick="showNewCharacterForm()">+ Nuevo Personaje</button>
+                </div>
+                <div class="grid-3" id="charactersList">Cargando personajes...</div>
+            </div>
+        </div>
+
+        <!-- TAB 3: NUEVO EPISODIO O LOTE -->
+        <div id="episodesTab" class="tab-content">
+            <div class="grid-2">
+                <!-- Episodio Individual -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2><span>🎬</span> Producir Episodio Individual</h2>
+                    </div>
+                    <form id="singleEpisodeForm" onsubmit="handleCreateEpisode(event)">
+                        <label>Serie</label>
+                        <select id="singleEpSeriesSelect" required></select>
+
+                        <label>Tema Pedagógico</label>
+                        <select id="singleEpTopicType" required>
+                            <option value="COUNTING">Números y Conteo (COUNTING)</option>
+                            <option value="COLORS">Colores y Mezclas (COLORS)</option>
+                            <option value="SHAPES">Formas Geométricas (SHAPES)</option>
+                            <option value="ALPHABET">Letras y Fonemas (ALPHABET)</option>
+                            <option value="ANIMALS_AND_SOUNDS">Animales y Sonidos (ANIMALS)</option>
+                            <option value="EMOTIONS">Emociones Básicas (EMOTIONS)</option>
+                            <option value="DAILY_ROUTINES">Hábitos y Rutinas (DAILY_ROUTINES)</option>
+                            <option value="OPPOSITES">Opuestos (OPPOSITES)</option>
+                            <option value="SIZES">Tamaños y Comparaciones (SIZES)</option>
+                            <option value="NATURE">Naturaleza y Clima (NATURE)</option>
+                        </select>
+
+                        <label>Detalle del Tema</label>
+                        <input type="text" id="singleEpTopicDetail" placeholder="Ej: Contar del 1 al 5 con manzanas" required value="Contar del 1 al 5 con manzanas">
+
+                        <label>Objetivo Pedagógico</label>
+                        <input type="text" id="singleEpLearningObjective" placeholder="Ej: Que el niño asocie el número con su cantidad" required value="Aprender a asociar los números del 1 al 5 con frutas">
+
+                        <label>Duración Estimada (segundos)</label>
+                        <input type="number" id="singleEpDuration" value="60" min="30" max="180">
+
+                        <div style="margin-bottom: 16px;">
+                            <label style="display: inline-flex; align-items: center; gap: 8px; cursor: pointer;">
+                                <input type="checkbox" id="singleEpAutoApprove" checked style="width: auto; margin-bottom: 0;">
+                                Auto-aprobar guion (Pipeline continuo sin pausa)
+                            </label>
+                        </div>
+
+                        <button type="submit" class="btn" style="width: 100%;">🚀 Iniciar Pipeline Completo</button>
+                    </form>
+                </div>
+
+                <!-- Lote de Producción -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2><span>📦</span> Producción en Lote (Batch)</h2>
+                    </div>
+                    <form id="batchForm" onsubmit="handleCreateBatch(event)">
+                        <label>Serie</label>
+                        <select id="batchSeriesSelect" required></select>
+
+                        <label>Nombre del Lote</label>
+                        <input type="text" id="batchName" placeholder="Lote Matemáticas Preescolar" required value="Lote Números Tito 1 al 3">
+
+                        <label>Temas a incluir (1 por línea, formato: TIPO|DETALLE|OBJETIVO)</label>
+                        <textarea id="batchTopicsRaw" rows="5" required>COUNTING|Contar del 1 al 3|Identificar cantidades pequeñas
+COUNTING|Contar del 4 al 6|Aprender a contar hasta 6
+COLORS|Color Rojo y Amarillo|Identificar colores primarios</textarea>
+
+                        <button type="submit" class="btn btn-accent" style="width: 100%;">⚡ Programar y Ejecutar Lote</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: MONITOR DE PIPELINE EN VIVO -->
+        <div id="pipelineTab" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2><span>⚡</span> Monitor de Pipeline en Vivo</h2>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-sm btn-secondary" onclick="pollActivePipeline()">Refrescar</button>
+                        <button class="btn btn-sm btn-accent" id="btnResume" onclick="handleResumeEpisode()">🔄 Reanudar</button>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 16px;">
+                    <label>Seleccionar Episodio Activo</label>
+                    <select id="activeEpisodeSelect" onchange="loadSelectedEpisodeStatus()"></select>
+                </div>
+
+                <!-- Barra de progreso -->
+                <div style="display: flex; justify-content: space-between; font-weight: 700;">
+                    <span id="pipelineStageText">Etapa: Esperando...</span>
+                    <span id="pipelinePercentText">0%</span>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="pipelineProgressFill"></div>
+                </div>
+
+                <!-- Visualizador de etapas -->
+                <div class="stage-pipeline" id="stagePipeline">
+                    <div class="stage-step" data-stage="PLANNING"><div class="stage-icon">📝</div><div class="stage-label">Plan</div></div>
+                    <div class="stage-step" data-stage="SAFETY_REVIEW"><div class="stage-icon">🛡️</div><div class="stage-label">Safety</div></div>
+                    <div class="stage-step" data-stage="NARRATION"><div class="stage-icon">🎙️</div><div class="stage-label">Locución</div></div>
+                    <div class="stage-step" data-stage="KEYFRAMES"><div class="stage-icon">🖼️</div><div class="stage-label">Keyframes</div></div>
+                    <div class="stage-step" data-stage="ANIMATION"><div class="stage-icon">🎞️</div><div class="stage-label">Animación</div></div>
+                    <div class="stage-step" data-stage="SUBTITLES_OVERLAYS"><div class="stage-icon">🔤</div><div class="stage-label">Overlays</div></div>
+                    <div class="stage-step" data-stage="RENDERING"><div class="stage-icon">⚙️</div><div class="stage-label">Render</div></div>
+                    <div class="stage-step" data-stage="VIDEO_QA"><div class="stage-icon">🔍</div><div class="stage-label">QA</div></div>
+                    <div class="stage-step" data-stage="EXPORTING"><div class="stage-icon">📤</div><div class="stage-label">Export</div></div>
+                    <div class="stage-step" data-stage="COMPLETED"><div class="stage-icon">🎉</div><div class="stage-label">Listo</div></div>
+                </div>
+
+                <div id="pipelineStatusMessage" style="font-size: 0.95rem; color: #576574; background: #f8f9fa; padding: 12px; border-radius: 8px;">
+                    Inicia un episodio para ver el estado en tiempo real.
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 5: DESGLOSE DE PLANOS & QA -->
+        <div id="shotsTab" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2><span>🎞️</span> Desglose de Planos & Calidad</h2>
+                    <button class="btn btn-sm" onclick="loadEpisodeShots()">Recargar Planos</button>
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label>Episodio</label>
+                    <select id="shotsEpisodeSelect" onchange="loadEpisodeShots()"></select>
+                </div>
+                <div class="grid-3" id="shotsGrid">Selecciona un episodio para inspeccionar planos.</div>
+            </div>
+        </div>
+
+        <!-- TAB 6: REPRODUCTOR FINAL Y EXPORTACIÓN -->
+        <div id="playerTab" class="tab-content">
+            <div class="card">
+                <div class="card-header">
+                    <h2><span>📺</span> Video Final del Episodio</h2>
+                    <select id="playerEpisodeSelect" onchange="loadVideoPlayer()" style="width: auto; margin-bottom: 0;"></select>
+                </div>
+
+                <div class="video-container">
+                    <video id="finalVideoPlayer" controls preload="metadata">
+                        Tu navegador no soporta reproducción MP4 directa.
+                    </video>
+                </div>
+
+                <div style="margin-top: 20px; display: flex; gap: 12px; flex-wrap: wrap;">
+                    <a id="btnDownloadMp4" class="btn btn-success" href="#" download>⬇️ Descargar MP4 (1080p)</a>
+                    <a id="btnDownloadThumb" class="btn btn-accent" href="#" download>🖼️ Descargar Thumbnail</a>
+                    <button class="btn btn-secondary" onclick="exportCurrentEpisode()">📦 Re-exportar a YouTube Kids</button>
+                </div>
+
+                <h3 style="margin-top: 24px;">Metadatos COPPA & YouTube Kids</h3>
+                <div class="metadata-box" id="metadataJson">Sin metadatos exportados aún.</div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MODAL PARA HOJA DE PERSONAJE (4 CANDIDATAS) -->
+    <div class="modal" id="characterSheetModal">
+        <div class="modal-content">
+            <div class="card-header">
+                <h2><span>🎨</span> Seleccionar Hoja de Referencia Aprobada</h2>
+                <button class="btn btn-sm btn-secondary" onclick="closeSheetModal()">✕ Cerrar</button>
+            </div>
+            <p style="margin-bottom: 16px; color: #576574;">Selecciona la imagen candidata con mayor fidelidad al estilo cartoon deseado y haz clic en <strong>Aprobar Personaje</strong>.</p>
+            
+            <div class="grid-4" id="candidateSheetsGrid"></div>
+
+            <div style="margin-top: 20px; text-align: right;">
+                <button class="btn btn-success" id="btnApproveCandidate" onclick="approveSelectedCandidate()" disabled>✅ Aprobar Candidata Seleccionada</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = '/api/v1';
+        let currentSeriesList = [];
+        let currentEpisodesList = [];
+        let activeTrackingEpisodeId = null;
+        let pollTimer = null;
+        let selectedCandidate = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            checkHealth();
+            loadSeries();
+            setInterval(checkHealth, 10000);
+        });
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            event.currentTarget.classList.add('active');
+
+            if (tabId === 'charactersTab') loadCharacters();
+            if (tabId === 'shotsTab') loadEpisodeShots();
+            if (tabId === 'playerTab') loadVideoPlayer();
+        }
+
+        async function checkHealth() {
+            try {
+                const res = await fetch(`${API_BASE}/health`);
+                const data = await res.json();
+                
+                updateBadge('badgeOrchestrator', true, 'Orquestador :8082');
+                updateBadge('badgeGateway', data.components?.aiGateway?.status === 'UP', 'Gateway :8090');
+                updateBadge('badgeComfy', data.components?.comfyUi?.status === 'UP', 'ComfyUI :8188');
+                updateBadge('badgeOllama', data.components?.ollama?.status === 'UP', 'Ollama :11434');
+                
+                const vram = data.components?.aiGateway?.vramFreeMb || 'OK';
+                updateBadge('badgeGpu', true, `RTX 5070 (${vram} MB libres)`);
+            } catch (err) {
+                updateBadge('badgeOrchestrator', false, 'Orquestador Offline');
+            }
+        }
+
+        function updateBadge(id, isOnline, text) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.className = `badge ${isOnline ? 'online' : 'offline'}`;
+            el.innerHTML = `<div class="pulse-dot"></div> ${text}`;
+        }
+
+        async function loadSeries() {
+            try {
+                const res = await fetch(`${API_BASE}/series`);
+                currentSeriesList = await res.json();
+                
+                const container = document.getElementById('seriesList');
+                const singleSelect = document.getElementById('singleEpSeriesSelect');
+                const batchSelect = document.getElementById('batchSeriesSelect');
+
+                singleSelect.innerHTML = '';
+                batchSelect.innerHTML = '';
+
+                if (currentSeriesList.length === 0) {
+                    container.innerHTML = '<p>No hay series creadas. Revisa Flyway migration.</p>';
+                    return;
+                }
+
+                container.innerHTML = currentSeriesList.map(s => `
+                    <div style="background:#fff; border:2px solid #eef2f7; border-radius:12px; padding:16px; margin-bottom:12px; cursor:pointer;" onclick="selectSeries('${s.id}')">
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <h3 style="font-family:'Fredoka',cursive; color:#FF6B6B;">${s.name}</h3>
+                            <span class="badge" style="background:#48DBFB; color:#222f3e;">${s.language} | ${s.targetAgeMin}-${s.targetAgeMax} años</span>
+                        </div>
+                        <p style="color:#576574; font-size:0.9rem; margin-top:6px;">${s.description || 'Sin descripción'}</p>
+                        <div style="margin-top:10px; font-size:0.8rem; font-weight:700; color:#8395a7;">
+                            Relación de aspecto: ${s.aspectRatio} | BGM Mood: ${s.defaultBgmMood}
+                        </div>
+                    </div>
+                `).join('');
+
+                currentSeriesList.forEach(s => {
+                    const opt1 = new Option(s.name, s.id);
+                    const opt2 = new Option(s.name, s.id);
+                    singleSelect.add(opt1);
+                    batchSelect.add(opt2);
+                });
+
+                selectSeries(currentSeriesList[0].id);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function selectSeries(seriesId) {
+            try {
+                const s = currentSeriesList.find(x => x.id === seriesId);
+                if (!s) return;
+
+                // Cargar locaciones
+                const locRes = await fetch(`${API_BASE}/series/${seriesId}/locations`);
+                const locations = await locRes.json();
+
+                const detail = document.getElementById('seriesBibleDetail');
+                detail.innerHTML = `
+                    <h3 style="font-family:'Fredoka',cursive; color:#222f3e; margin-bottom:12px;">${s.name} — Biblia de la Serie</h3>
+                    <div style="background:#fff; padding:14px; border-radius:10px; margin-bottom:14px; border:1px solid #e1e4e8;">
+                        <h4 style="color:#FF9F43; margin-bottom:6px;">🎨 Perfil de Estilo</h4>
+                        <p style="font-size:0.9rem; color:#576574;"><strong>Estilo:</strong> 3D Cartoon Infantil Pixar/Disney</p>
+                        <p style="font-size:0.85rem; color:#8395a7; margin-top:4px;">Aspect Ratio: ${s.aspectRatio} (1920x1080)</p>
+                    </div>
+                    <div>
+                        <h4 style="color:#48DBFB; margin-bottom:8px;">📍 Locaciones Registradas (${locations.length})</h4>
+                        ${locations.map(l => `
+                            <div style="background:#fff; padding:10px; border-radius:8px; margin-bottom:8px; border:1px solid #eef2f7;">
+                                <strong>${l.name}</strong> (${l.lightingMood})
+                                <p style="font-size:0.85rem; color:#576574; margin-top:2px;">${l.description}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+
+                loadEpisodesForSelects(seriesId);
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function loadEpisodesForSelects(seriesId) {
+            try {
+                const res = await fetch(`${API_BASE}/series/${seriesId}/episodes`);
+                currentEpisodesList = await res.json();
+
+                const activeSel = document.getElementById('activeEpisodeSelect');
+                const shotsSel = document.getElementById('shotsEpisodeSelect');
+                const playerSel = document.getElementById('playerEpisodeSelect');
+
+                [activeSel, shotsSel, playerSel].forEach(sel => {
+                    sel.innerHTML = '';
+                    currentEpisodesList.forEach(ep => {
+                        sel.add(new Option(`${ep.title} (${ep.status})`, ep.id));
+                    });
+                });
+
+                if (currentEpisodesList.length > 0) {
+                    activeTrackingEpisodeId = currentEpisodesList[0].id;
+                    loadSelectedEpisodeStatus();
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        // --- PERSONAJES ---
+        async function loadCharacters() {
+            if (currentSeriesList.length === 0) return;
+            const seriesId = currentSeriesList[0].id;
+            try {
+                const res = await fetch(`${API_BASE}/series/${seriesId}/characters`);
+                const chars = await res.json();
+                const container = document.getElementById('charactersList');
+
+                if (chars.length === 0) {
+                    container.innerHTML = '<p>No hay personajes creados aún.</p>';
+                    return;
+                }
+
+                container.innerHTML = chars.map(c => `
+                    <div class="card" style="margin-bottom:0;">
+                        <div class="shot-thumb-container" style="height:200px; border-radius:10px;">
+                            ${c.referenceImagePath 
+                                ? `<img src="${API_BASE}/assets/view?path=${encodeURIComponent(c.referenceImagePath)}" alt="${c.name}">`
+                                : `<div style="color:#fff; text-align:center; padding:20px;">Sin hoja de referencia aprobada</div>`
+                            }
+                        </div>
+                        <div style="margin-top:12px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <h3 style="font-family:'Fredoka',cursive;">${c.name}</h3>
+                                <span class="badge ${c.status === 'APPROVED' ? 'online' : 'offline'}">${c.status}</span>
+                            </div>
+                            <p style="font-size:0.85rem; color:#576574; margin-top:4px;">${c.personality || ''}</p>
+                            <p style="font-size:0.8rem; color:#8395a7; margin-top:4px;">Voz TTS: ${c.ttsVoice || 'ef_dora'} | Seed: ${c.referenceSeed || 'N/A'}</p>
+                            <div style="margin-top:12px; display:flex; gap:8px;">
+                                <button class="btn btn-sm btn-accent" onclick="generateCharacterSheet('${c.id}')">✨ Generar 4 Candidatas</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function generateCharacterSheet(charId) {
+            try {
+                const btn = event.currentTarget;
+                btn.disabled = true;
+                btn.innerText = 'Generando en ComfyUI...';
+
+                const res = await fetch(`${API_BASE}/characters/${charId}/generate-sheet`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({count: 4})
+                });
+
+                const sheetRes = await res.json();
+                btn.disabled = false;
+                btn.innerText = '✨ Generar 4 Candidatas';
+
+                // Mostrar modal con las 4 candidatas
+                showCandidateModal(charId, sheetRes.candidatePaths);
+            } catch (err) {
+                alert('Error al generar hoja de personaje: ' + err.message);
+            }
+        }
+
+        function showCandidateModal(charId, candidates) {
+            const modal = document.getElementById('characterSheetModal');
+            const grid = document.getElementById('candidateSheetsGrid');
+            selectedCandidate = null;
+            document.getElementById('btnApproveCandidate').disabled = true;
+
+            grid.innerHTML = candidates.map((path, idx) => `
+                <div class="candidate-card" onclick="selectCandidateCard(this, '${charId}', '${path.replace(/\\/g, '\\\\')}', ${idx})">
+                    <img src="${API_BASE}/assets/view?path=${encodeURIComponent(path)}" alt="Candidata ${idx + 1}">
+                    <div class="candidate-footer">Candidata #${idx + 1}</div>
+                </div>
+            `).join('');
+
+            modal.classList.add('active');
+        }
+
+        function selectCandidateCard(cardEl, charId, path, idx) {
+            document.querySelectorAll('.candidate-card').forEach(c => c.classList.remove('selected'));
+            cardEl.classList.add('selected');
+            selectedCandidate = { charId, path, seed: 1000 + idx * 77 };
+            document.getElementById('btnApproveCandidate').disabled = false;
+        }
+
+        async function approveSelectedCandidate() {
+            if (!selectedCandidate) return;
+            try {
+                const btn = document.getElementById('btnApproveCandidate');
+                btn.disabled = true;
+                btn.innerText = 'Aprobando...';
+
+                await fetch(`${API_BASE}/characters/${selectedCandidate.charId}/approve`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        imagePath: selectedCandidate.path,
+                        seed: selectedCandidate.seed
+                    })
+                });
+
+                closeSheetModal();
+                loadCharacters();
+                alert('¡Personaje aprobado con éxito! Su hoja canónica servirá para IP-Adapter en todos los episodios.');
+            } catch (err) {
+                alert('Error al aprobar: ' + err.message);
+            }
+        }
+
+        function closeSheetModal() {
+            document.getElementById('characterSheetModal').classList.remove('active');
+        }
+
+        // --- CREAR EPISODIO / LOTE ---
+        async function handleCreateEpisode(e) {
+            e.preventDefault();
+            const seriesId = document.getElementById('singleEpSeriesSelect').value;
+            const topicType = document.getElementById('singleEpTopicType').value;
+            const topicDetail = document.getElementById('singleEpTopicDetail').value;
+            const learningObjective = document.getElementById('singleEpLearningObjective').value;
+            const targetDurationSec = parseInt(document.getElementById('singleEpDuration').value) || 60;
+            const autoApprove = document.getElementById('singleEpAutoApprove').checked;
+
+            try {
+                const res = await fetch(`${API_BASE}/series/${seriesId}/episodes`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        topicType, topicDetail, learningObjective, targetDurationSec, autoApprove
+                    })
+                });
+
+                const ep = await res.json();
+                activeTrackingEpisodeId = ep.id;
+
+                // Lanzar ejecución asíncrona del pipeline
+                await fetch(`${API_BASE}/episodes/${ep.id}/start-pipeline?autoApprove=${autoApprove}`, {
+                    method: 'POST'
+                });
+
+                switchTab('pipelineTab');
+                loadEpisodesForSelects(seriesId);
+                startPollingPipeline(ep.id);
+            } catch (err) {
+                alert('Error al iniciar episodio: ' + err.message);
+            }
+        }
+
+        async function handleCreateBatch(e) {
+            e.preventDefault();
+            const seriesId = document.getElementById('batchSeriesSelect').value;
+            const name = document.getElementById('batchName').value;
+            const lines = document.getElementById('batchTopicsRaw').value.trim().split('\n');
+
+            const topics = lines.map(line => {
+                const parts = line.split('|');
+                return {
+                    topicType: parts[0]?.trim() || 'COUNTING',
+                    topicDetail: parts[1]?.trim() || 'Conteo básico',
+                    learningObjective: parts[2]?.trim() || 'Aprender jugando',
+                    targetDurationSec: 60
+                };
+            });
+
+            try {
+                const res = await fetch(`${API_BASE}/batches`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({
+                        seriesId, name, topics, autoApprove: true
+                    })
+                });
+
+                const batch = await res.json();
+                alert(`¡Lote '${batch.name}' programado con ${batch.requestedCount} episodios! Se procesarán secuencialmente sin saturar la VRAM.`);
+                switchTab('pipelineTab');
+            } catch (err) {
+                alert('Error al programar lote: ' + err.message);
+            }
+        }
+
+        // --- PIPELINE MONITOR ---
+        function startPollingPipeline(epId) {
+            if (pollTimer) clearInterval(pollTimer);
+            pollActivePipeline(epId);
+            pollTimer = setInterval(() => pollActivePipeline(epId), 2500);
+        }
+
+        async function loadSelectedEpisodeStatus() {
+            const sel = document.getElementById('activeEpisodeSelect');
+            if (sel.value) {
+                startPollingPipeline(sel.value);
+            }
+        }
+
+        async function pollActivePipeline(epId) {
+            const id = epId || document.getElementById('activeEpisodeSelect').value;
+            if (!id) return;
+
+            try {
+                const res = await fetch(`${API_BASE}/episodes/${id}/status`);
+                if (!res.ok) return;
+                const status = await res.json();
+
+                document.getElementById('pipelineStageText').innerText = `Etapa: ${status.stage} (${status.status})`;
+                document.getElementById('pipelinePercentText').innerText = `${status.progressPercent}%`;
+                document.getElementById('pipelineProgressFill').style.width = `${status.progressPercent}%`;
+                document.getElementById('pipelineStatusMessage').innerText = status.message || 'Procesando...';
+
+                // Actualizar pipeline visual de pasos
+                updateStagePipelineVisual(status.stage);
+
+                if (status.status === 'COMPLETED') {
+                    document.getElementById('btnResume').style.display = 'none';
+                    if (pollTimer) clearInterval(pollTimer);
+                } else if (status.status === 'FAILED') {
+                    document.getElementById('btnResume').style.display = 'inline-flex';
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        function updateStagePipelineVisual(currentStage) {
+            const stagesOrder = [
+                'PLANNING', 'SAFETY_REVIEW', 'NARRATION', 'KEYFRAMES', 
+                'ANIMATION', 'SUBTITLES_OVERLAYS', 'RENDERING', 'VIDEO_QA', 'EXPORTING', 'COMPLETED'
+            ];
+            const currentIndex = stagesOrder.indexOf(currentStage);
+
+            document.querySelectorAll('.stage-step').forEach(step => {
+                const s = step.getAttribute('data-stage');
+                const idx = stagesOrder.indexOf(s);
+                step.classList.remove('active', 'completed', 'failed');
+
+                if (idx < currentIndex) {
+                    step.classList.add('completed');
+                } else if (idx === currentIndex) {
+                    step.classList.add('active');
+                }
+            });
+        }
+
+        async function handleResumeEpisode() {
+            const epId = document.getElementById('activeEpisodeSelect').value;
+            if (!epId) return;
+            try {
+                await fetch(`${API_BASE}/episodes/${epId}/resume`, { method: 'POST' });
+                startPollingPipeline(epId);
+            } catch (err) {
+                alert('Error al reanudar: ' + err.message);
+            }
+        }
+
+        // --- PLANOS Y QA ---
+        async function loadEpisodeShots() {
+            const sel = document.getElementById('shotsEpisodeSelect');
+            const epId = sel.value || (currentEpisodesList[0] ? currentEpisodesList[0].id : null);
+            if (!epId) return;
+
+            try {
+                const res = await fetch(`${API_BASE}/episodes/${epId}/shots`);
+                const shots = await res.json();
+                const container = document.getElementById('shotsGrid');
+
+                if (shots.length === 0) {
+                    container.innerHTML = '<p>No hay planos generados para este episodio aún.</p>';
+                    return;
+                }
+
+                container.innerHTML = shots.map(s => `
+                    <div class="shot-card">
+                        <div class="shot-thumb-container" id="thumb-shot-${s.id}">
+                            <div style="color:#8395a7; font-size:0.8rem;">Cargando visual...</div>
+                        </div>
+                        <div class="shot-info">
+                            <div>
+                                <div class="shot-header">
+                                    <strong>Plano #${s.orderIndex + 1}</strong>
+                                    <span class="shot-pill status-${s.status}">${s.status}</span>
+                                </div>
+                                <p class="shot-narration">"${s.narrationText}"</p>
+                                <p style="font-size:0.75rem; color:#8395a7;">Voz: ${s.speaker} | Cámara: ${s.cameraMotion}</p>
+                                ${s.similarityScore ? `<p style="font-size:0.75rem; color:#10ac84; font-weight:700;">Similitud CLIP: ${(s.similarityScore * 100).toFixed(1)}% (Intento ${s.attempts})</p>` : ''}
+                            </div>
+                            <div class="shot-actions" style="margin-top:12px;">
+                                <button class="btn btn-sm" onclick="regenerateShot('${s.id}', 'KEYFRAME')">🔄 Keyframe</button>
+                                <button class="btn btn-sm btn-accent" onclick="regenerateShot('${s.id}', 'ANIMATION')">🔄 Animación</button>
+                                <button class="btn btn-sm btn-secondary" onclick="regenerateShot('${s.id}', 'NARRATION')">🔄 Audio</button>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+                // Cargar preview de cada plano
+                shots.forEach(s => fetchShotMedia(s.id));
+            } catch (err) {
+                console.error(err);
+            }
+        }
+
+        async function fetchShotMedia(shotId) {
+            try {
+                const kfRes = await fetch(`${API_BASE}/shots/${shotId}/keyframe`);
+                if (kfRes.ok) {
+                    const kf = await kfRes.json();
+                    if (kf.imagePath) {
+                        const box = document.getElementById(`thumb-shot-${shotId}`);
+                        if (box) {
+                            box.innerHTML = `<img src="${API_BASE}/assets/view?path=${encodeURIComponent(kf.imagePath)}" alt="Keyframe">`;
+                        }
+                    }
+                }
+            } catch (ignored) {}
+        }
+
+        async function regenerateShot(shotId, stage) {
+            if (!confirm(`¿Regenerar la etapa ${stage} para este plano puntual?`)) return;
+            try {
+                await fetch(`${API_BASE}/shots/${shotId}/regenerate?stage=${stage}`, { method: 'POST' });
+                alert(`Plano enviado a regenerar en etapa ${stage}.`);
+                loadEpisodeShots();
+            } catch (err) {
+                alert('Error al regenerar: ' + err.message);
+            }
+        }
+
+        // --- REPRODUCTOR FINAL ---
+        async function loadVideoPlayer() {
+            const sel = document.getElementById('playerEpisodeSelect');
+            const epId = sel.value || (currentEpisodesList[0] ? currentEpisodesList[0].id : null);
+            if (!epId) return;
+
+            const player = document.getElementById('finalVideoPlayer');
+            player.src = `${API_BASE}/episodes/${epId}/video/stream`;
+
+            const btnMp4 = document.getElementById('btnDownloadMp4');
+            btnMp4.href = `${API_BASE}/episodes/${epId}/video/stream`;
+
+            try {
+                const epRes = await fetch(`${API_BASE}/episodes/${epId}`);
+                const ep = await epRes.json();
+                document.getElementById('metadataJson').innerText = JSON.stringify({
+                    id: ep.id,
+                    title: ep.title,
+                    topic: ep.topicType,
+                    detail: ep.topicDetail,
+                    learningObjective: ep.learningObjective,
+                    finalVideoPath: ep.finalVideoPath,
+                    coppaCompliant: true,
+                    madeForKids: true,
+                    containsSyntheticMedia: true,
+                    targetAge: "2-6",
+                    language: "es-MX"
+                }, null, 2);
+            } catch (ignored) {}
+        }
+
+        async function exportCurrentEpisode() {
+            const epId = document.getElementById('playerEpisodeSelect').value;
+            if (!epId) return;
+            try {
+                const res = await fetch(`${API_BASE}/episodes/${epId}/export`, { method: 'POST' });
+                const data = await res.json();
+                alert(`¡Episodio exportado exitosamente a:\n${data.exportedVideoPath}`);
+                loadVideoPlayer();
+            } catch (err) {
+                alert('Error al exportar: ' + err.message);
+            }
+        }
+    </script>
+</body>
+</html>

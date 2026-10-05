@@ -1,0 +1,7 @@
+TEMA EDUCATIVO: TAMAÑOS Y COMPARACIONES (SIZES)
+Objetivo de aprendizaje: Comparar tamaños relativos (grande, mediano, pequeño) y ordenar objetos.
+Instrucciones específicas:
+- Utiliza 3 elementos de la misma familia colocados juntos para fácil comparación (ej. tres ositos, tres pelotas, tres hojas de árbol).
+- Usa palabras comparativas precisas ("El oso grande, el mediano y el pequeño").
+- Cada elemento se presenta con voz acorde a su tamaño (voz más grave y pausada para lo grande, aguda y suave para lo pequeño).
+- En el reto interactivo, pide señalar cuál es el más pequeño o el más grande con una pausa de 2000 ms.

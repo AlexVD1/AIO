@@ -1,0 +1,7 @@
+TEMA EDUCATIVO: COLORES (COLORS)
+Objetivo de aprendizaje: Reconocer y nombrar colores primarios y secundarios en elementos de la vida cotidiana.
+Instrucciones específicas:
+- Enfoca el episodio en 3 a 4 colores bien contrastados (ej. rojo, azul, amarillo, verde).
+- Asocia cada color a objetos familiares para niños (rojo como la fresa, azul como el cielo, amarillo como el sol).
+- Incluye overlays de tipo "COLOR_SWATCH" con el valor del color y la posición "TOP_RIGHT" o "CENTER".
+- El reto (CHALLENGE) debe pedirle al niño señalar o nombrar qué objeto tiene el color presentado con una pausa de 2000 ms.

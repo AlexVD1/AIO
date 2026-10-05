@@ -1,0 +1,51 @@
+{
+  "character_id": "panda_bao",
+  "name": "Bao el Panda",
+  "default_scale": 1.0,
+  "base_offset": [
+    0,
+    60
+  ],
+  "bones_and_layers": [
+    {
+      "bone_name": "body",
+      "default_file": "body_standing.png",
+      "anchor": [
+        512,
+        512
+      ],
+      "z_index": 10,
+      "procedural_motion": {
+        "breathing_amplitude_y": 6.0,
+        "breathing_freq_hz": 0.5,
+        "blink_interval_s": 3.2
+      }
+    },
+    {
+      "bone_name": "mouth",
+      "anchor": [
+        512,
+        492
+      ],
+      "z_index": 20,
+      "visemes": {
+        "rest": "mouth_rest.png",
+        "a": "mouth_a.png",
+        "o": "mouth_o.png",
+        "e": "mouth_e.png",
+        "smile": "mouth_smile.png"
+      }
+    },
+    {
+      "bone_name": "arm_right",
+      "anchor": [
+        680,
+        640
+      ],
+      "z_index": 25,
+      "poses": {
+        "wave": "hand_wave.png"
+      }
+    }
+  ]
+}

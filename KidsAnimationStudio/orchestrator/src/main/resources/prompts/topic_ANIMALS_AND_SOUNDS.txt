@@ -1,0 +1,7 @@
+TEMA EDUCATIVO: ANIMALES Y SUS SONIDOS (ANIMALS_AND_SOUNDS)
+Objetivo de aprendizaje: Conocer animales amistosos, sus hábitats y sus onomatopeyas.
+Instrucciones específicas:
+- Selecciona animales cercanos y seguros (perrito, gatito, pato, vaca, ranita, pajarito).
+- Integra onomatopeyas lúdicas que los niños puedan imitar con facilidad ("¡Guau guau!", "¡Miau!", "¡Cuac cuac!").
+- En el visualPrompt describe al animal de forma tierna, sonriente y en un entorno natural y acogedor.
+- En el reto, haz sonar o imitar el sonido y pregunta "¿Quién hace este sonido?" con pausa de 2000 ms.

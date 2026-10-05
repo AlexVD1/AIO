@@ -1,0 +1,13 @@
+# Copiar a C:\ComfyUI_NV\ComfyUI_windows_portable\ComfyUI\extra_model_paths.yaml
+# Mantiene los modelos de KidsAnimationStudio fuera de la carpeta de ComfyUI (sobreviven a actualizaciones).
+kids_animation_studio:
+    base_path: C:/ComfyUI_NV/models/
+    checkpoints: checkpoints/
+    diffusion_models: diffusion_models/
+    text_encoders: text_encoders/
+    clip: text_encoders/
+    clip_vision: clip_vision/
+    vae: vae/
+    loras: loras/
+    ipadapter: ipadapter/
+    upscale_models: upscale_models/

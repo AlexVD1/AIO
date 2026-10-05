@@ -1,0 +1,104 @@
+{
+  "character": "tito",
+  "version": "2.0.0",
+  "style": "2d_preschool_flat",
+  "canvas": {
+    "width": 1024,
+    "height": 1024,
+    "base_anchor": [512, 900]
+  },
+  "anatomy": {
+    "hands_style": "mitten_no_fingers",
+    "eyes_style": "expressive_preschool_vector",
+    "outfit": "yellow_scarf_fixed"
+  },
+  "bones_and_layers": [
+    {
+      "name": "tail",
+      "z_index": 10,
+      "pivot": [420, 750],
+      "default_file": "tail_idle.png"
+    },
+    {
+      "name": "body",
+      "z_index": 20,
+      "pivot": [512, 700],
+      "default_file": "body_standing.png"
+    },
+    {
+      "name": "arm_left",
+      "z_index": 25,
+      "pivot": [440, 620],
+      "poses": {
+        "idle": "arm_left_idle.png",
+        "wave": "arm_left_wave.png",
+        "point": "arm_left_point.png",
+        "up": "arm_left_up.png"
+      },
+      "default_pose": "idle"
+    },
+    {
+      "name": "head",
+      "z_index": 30,
+      "pivot": [512, 480],
+      "default_file": "head_base.png"
+    },
+    {
+      "name": "eyes",
+      "parent": "head",
+      "z_index": 35,
+      "pivot": [512, 450],
+      "poses": {
+        "open": "eyes_open.png",
+        "closed": "eyes_closed.png",
+        "happy": "eyes_happy.png",
+        "surprised": "eyes_surprised.png"
+      },
+      "default_pose": "open"
+    },
+    {
+      "name": "mouth",
+      "parent": "head",
+      "z_index": 36,
+      "pivot": [512, 530],
+      "visemes": {
+        "rest": "mouth_rest.png",
+        "a": "mouth_a.png",
+        "e": "mouth_e.png",
+        "o": "mouth_o.png",
+        "u": "mouth_u.png",
+        "smile": "mouth_smile.png"
+      },
+      "default_viseme": "rest"
+    },
+    {
+      "name": "arm_right",
+      "z_index": 40,
+      "pivot": [584, 620],
+      "poses": {
+        "idle": "arm_right_idle.png",
+        "wave": "arm_right_wave.png",
+        "point": "arm_right_point.png",
+        "up": "arm_right_up.png"
+      },
+      "default_pose": "idle"
+    }
+  ],
+  "procedural_dynamics": {
+    "breathing": {
+      "target": "body",
+      "scale_y_delta": 0.03,
+      "period_seconds": 2.8
+    },
+    "blinking": {
+      "target": "eyes",
+      "closed_duration_seconds": 0.15,
+      "interval_range_seconds": [2.5, 5.0]
+    },
+    "idle_sway": {
+      "target": "head",
+      "rotation_degrees_max": 2.5,
+      "period_seconds": 3.6
+    }
+  }
+}

@@ -1,0 +1,30 @@
+# Secrets
+.env
+
+# Runtime data
+storage/
+export_videos/
+temp/
+temp_test/
+*.mp4
+
+# Build outputs
+orchestrator/target/
+
+# Python
+ai-gateway/.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Model weights (never commit)
+*.safetensors
+*.gguf
+*.ckpt
+*.pth
+*.onnx
+
+# IDE
+.idea/
+.vscode/
+*.iml
